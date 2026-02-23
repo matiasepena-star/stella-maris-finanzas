@@ -3,126 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stella Maris Finanzas</title>
+<title>Stella Maris - Sistema Demo</title>
+
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#0f172a;
-  color:white;
-  margin:0;
-  padding:20px;
-}
-h1{
-  text-align:center;
-}
-.card{
-  background:#1e293b;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-input, select, button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:6px;
-  border:none;
-  font-size:16px;
-}
-button{
-  background:#22c55e;
-  color:white;
-  font-weight:bold;
-}
-.resumen{
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-}
-.ingreso{color:#22c55e;}
-.gasto{color:#ef4444;}
-.item{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
-  border-bottom:1px solid #334155;
-}
+body{font-family:Arial;margin:0;background:#f4f6f9}
+header{background:#0d47a1;color:white;padding:15px;font-size:20px}
+nav{display:flex;background:#1565c0}
+nav button{flex:1;padding:12px;border:none;background:#1565c0;color:white;cursor:pointer}
+nav button:hover{background:#0d47a1}
+.section{display:none;padding:20px}
+.active{display:block}
+.card{background:white;padding:15px;margin-bottom:15px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+input,select{padding:8px;margin:5px 0;width:100%}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ddd;padding:8px;text-align:left}
+th{background:#e3f2fd}
+.kpi{display:flex;gap:15px}
+.kpi div{flex:1;background:white;padding:15px;border-radius:6px;text-align:center}
+.green{color:green;font-weight:bold}
+.red{color:red;font-weight:bold}
 </style>
 </head>
+
 <body>
 
-<h1>Stella Maris Finanzas</h1>
+<header>Stella Maris - Sistema Gestión</header>
 
-<div class="card">
-  <label>Descripción</label>
-  <input type="text" id="descripcion">
+<nav>
+<button onclick="show('dashboard')">Dashboard</button>
+<button onclick="show('ventas')">Ventas</button>
+<button onclick="show('gastos')">Gastos</button>
+<button onclick="show('pendientes')">Pendientes</button>
+</nav>
 
-  <label>Monto</label>
-  <input type="number" id="monto">
-
-  <label>Tipo</label>
-  <select id="tipo">
-    <option value="ingreso">Ingreso</option>
-    <option value="gasto">Gasto</option>
-  </select>
-
-  <button onclick="agregar()">Agregar movimiento</button>
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active">
+<div class="kpi">
+<div>Ventas Totales<br><span class="green" id="totalVentas">$0</span></div>
+<div>Gastos Totales<br><span class="red" id="totalGastos">$0</span></div>
+<div>Saldo Disponible<br><span id="saldo">$0</span></div>
+</div>
 </div>
 
+<!-- VENTAS -->
+<div id="ventas" class="section">
 <div class="card">
-  <div class="resumen">
-    <div>Ingresos: <span id="totalIngresos" class="ingreso">$0</span></div>
-    <div>Gastos: <span id="totalGastos" class="gasto">$0</span></div>
-  </div>
-  <h2>Saldo: $<span id="saldo">0</span></h2>
+<h3>Cargar Venta</h3>
+<input type="number" id="ventaMonto" placeholder="Monto">
+<select id="ventaMetodo">
+<option>Efectivo</option>
+<option>Mercado Pago</option>
+<option>Brubank</option>
+<option>Provincia</option>
+<option>Credicoop</option>
+<option>Cheque</option>
+</select>
+<button onclick="agregarVenta()">Guardar Venta</button>
 </div>
 
+<table id="tablaVentas">
+<tr><th>Monto</th><th>Método</th></tr>
+</table>
+</div>
+
+<!-- GASTOS -->
+<div id="gastos" class="section">
 <div class="card">
-  <h3>Movimientos</h3>
-  <div id="lista"></div>
+<h3>Cargar Gasto</h3>
+<input type="text" id="gastoProveedor" placeholder="Proveedor">
+<input type="number" id="gastoMonto" placeholder="Monto">
+<select id="gastoEstado">
+<option>Pendiente</option>
+<option>Pagado</option>
+</select>
+<button onclick="agregarGasto()">Guardar Gasto</button>
+</div>
+
+<table id="tablaGastos">
+<tr><th>Proveedor</th><th>Monto</th><th>Estado</th></tr>
+</table>
+</div>
+
+<!-- PENDIENTES -->
+<div id="pendientes" class="section">
+<h3>Total Pendiente</h3>
+<div id="totalPendiente" class="red">$0</div>
 </div>
 
 <script>
-let movimientos = [];
 
-function agregar(){
-  const descripcion = document.getElementById("descripcion").value;
-  const monto = parseFloat(document.getElementById("monto").value);
-  const tipo = document.getElementById("tipo").value;
+let ventas = [];
+let gastos = [];
 
-  if(!descripcion || !monto) return;
-
-  movimientos.push({descripcion, monto, tipo});
-  actualizar();
-  document.getElementById("descripcion").value="";
-  document.getElementById("monto").value="";
+function show(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
 
-function actualizar(){
-  const lista = document.getElementById("lista");
-  lista.innerHTML="";
-  let totalIngresos=0;
-  let totalGastos=0;
+function agregarVenta(){
+let monto = parseFloat(document.getElementById('ventaMonto').value);
+let metodo = document.getElementById('ventaMetodo').value;
+if(!monto) return;
 
-  movimientos.forEach(m => {
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`
-      <span>${m.descripcion}</span>
-      <span class="${m.tipo}">
-        ${m.tipo==="gasto"?"-":"+"}$${m.monto}
-      </span>
-    `;
-    lista.appendChild(div);
+ventas.push(monto);
 
-    if(m.tipo==="ingreso") totalIngresos+=m.monto;
-    else totalGastos+=m.monto;
-  });
+let tabla = document.getElementById('tablaVentas');
+tabla.innerHTML += `<tr><td>$${monto}</td><td>${metodo}</td></tr>`;
 
-  document.getElementById("totalIngresos").innerText="$"+totalIngresos;
-  document.getElementById("totalGastos").innerText="$"+totalGastos;
-  document.getElementById("saldo").innerText= totalIngresos-totalGastos;
+document.getElementById('ventaMonto').value="";
+actualizarDashboard();
 }
+
+function agregarGasto(){
+let proveedor = document.getElementById('gastoProveedor').value;
+let monto = parseFloat(document.getElementById('gastoMonto').value);
+let estado = document.getElementById('gastoEstado').value;
+
+if(!monto || !proveedor) return;
+
+gastos.push({monto, estado});
+
+let tabla = document.getElementById('tablaGastos');
+tabla.innerHTML += `<tr><td>${proveedor}</td><td>$${monto}</td><td>${estado}</td></tr>`;
+
+document.getElementById('gastoProveedor').value="";
+document.getElementById('gastoMonto').value="";
+actualizarDashboard();
+}
+
+function actualizarDashboard(){
+
+let totalVentas = ventas.reduce((a,b)=>a+b,0);
+
+let totalGastos = gastos
+.filter(g=>g.estado=="Pagado")
+.reduce((a,b)=>a+b.monto,0);
+
+let totalPendiente = gastos
+.filter(g=>g.estado=="Pendiente")
+.reduce((a,b)=>a+b.monto,0);
+
+let saldo = totalVentas - totalGastos;
+
+document.getElementById('totalVentas').innerText="$"+totalVentas;
+document.getElementById('totalGastos').innerText="$"+totalGastos;
+document.getElementById('saldo').innerText="$"+saldo;
+document.getElementById('totalPendiente').innerText="$"+totalPendiente;
+
+}
+
 </script>
 
 </body>
