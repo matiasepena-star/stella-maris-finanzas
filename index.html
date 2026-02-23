@@ -7,435 +7,386 @@
 
 <style>
 :root{
---bg:#f3f4f6;
---panel:#ffffff;
---primary:#1e3a8a;
---primary-dark:#172554;
---border:#e5e7eb;
---text:#111827;
---muted:#6b7280;
---green:#16a34a;
---red:#dc2626;
+--bg:#f3f4f6;--panel:#fff;--primary:#1e3a8a;--primary-dark:#172554;
+--border:#e5e7eb;--text:#111827;--muted:#6b7280;--green:#16a34a;--red:#dc2626;
 }
-
-body{
-margin:0;
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-background:var(--bg);
-height:100vh;
-display:flex;
-flex-direction:column;
-color:var(--text);
-overflow:hidden;
-}
-
-header{
-background:var(--primary);
-color:#fff;
-padding:14px 18px;
-font-weight:600;
-letter-spacing:.5px;
-}
-
-nav{
-display:flex;
-background:var(--primary-dark);
-}
-
-nav button{
-flex:1;
-border:0;
-background:var(--primary-dark);
-color:#fff;
-padding:12px;
-cursor:pointer;
-font-size:13px;
-letter-spacing:.5px;
-}
-
-nav button.active{
-background:#0f172a;
-font-weight:600;
-}
-
-.section{
-display:none;
-flex:1;
-padding:15px;
-overflow:auto;
-}
-
-.section.active{
-display:block;
-}
-
-.panel{
-background:var(--panel);
-border:1px solid var(--border);
-border-radius:10px;
-padding:15px;
-margin-bottom:15px;
-}
-
-.panel h3{
-margin-top:0;
-font-size:14px;
-letter-spacing:.5px;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:12px;
-}
-
-.stat{
-background:#f9fafb;
-padding:10px;
-border-radius:8px;
-border:1px solid var(--border);
-font-size:13px;
-}
-
-.green{color:var(--green);font-weight:600}
-.red{color:var(--red);font-weight:600}
-
-input,select{
-width:100%;
-padding:8px;
-margin:5px 0 10px;
-border-radius:6px;
-border:1px solid var(--border);
-font-size:13px;
-}
-
-button.action{
-background:var(--primary);
-color:white;
-border:0;
-padding:8px 12px;
-border-radius:6px;
-cursor:pointer;
-font-size:13px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-font-size:13px;
-}
-
-th,td{
-padding:8px;
-border-bottom:1px solid var(--border);
-text-align:left;
-}
-
-th{
-background:#f9fafb;
-font-weight:600;
-}
-
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);height:100vh;display:flex;flex-direction:column;color:var(--text);overflow:hidden}
+header{background:var(--primary);color:#fff;padding:14px 18px;font-weight:600;letter-spacing:.5px}
+nav{display:flex;background:var(--primary-dark)}
+nav button{flex:1;border:0;background:var(--primary-dark);color:#fff;padding:12px;cursor:pointer;font-size:13px;letter-spacing:.5px}
+nav button.active{background:#0f172a;font-weight:600}
+.section{display:none;flex:1;padding:15px;overflow:auto}
+.section.active{display:block}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:15px;margin-bottom:15px}
+.panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.stat{background:#f9fafb;padding:10px;border-radius:8px;border:1px solid var(--border);font-size:13px}
+.green{color:var(--green);font-weight:700}
+.red{color:var(--red);font-weight:700}
+.muted{color:var(--muted)}
+input,select{width:100%;padding:8px;margin:5px 0 10px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box}
+button.action{background:var(--primary);color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:#f9fafb;font-weight:700;position:sticky;top:0}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:#fff}
+.badge.debes{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.08);color:var(--red)}
+.badge.afavor{border-color:rgba(22,163,74,.35);background:rgba(22,163,74,.08);color:var(--green)}
+.badge.cero{border-color:rgba(107,114,128,.35);background:rgba(107,114,128,.08);color:var(--muted)}
+.catRow{background:#eef2ff;font-weight:800}
 .small{font-size:12px;color:var(--muted)}
 </style>
 </head>
-<body>
 
-<header>
-Stella Maris · Gestión Profesional
-</header>
+<body>
+<header>Stella Maris · Gestión Profesional</header>
 
 <nav>
-<button class="active" onclick="go('dashboard')">Dashboard</button>
-<button onclick="go('ventas')">Ventas</button>
-<button onclick="go('gastos')">Gastos</button>
-<button onclick="go('estado')">Estado Cuenta</button>
-<button onclick="go('movimientos')">Movimientos</button>
+<button class="active" onclick="go('dashboard', event)">Dashboard</button>
+<button onclick="go('ventas', event)">Ventas</button>
+<button onclick="go('gastos', event)">Gastos</button>
+<button onclick="go('estado', event)">Estado Cuenta</button>
+<button onclick="go('movimientos', event)">Movimientos</button>
 </nav>
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="section active">
-<div class="panel">
-<h3>Resumen del período</h3>
+  <div class="panel">
+    <h3>Resumen del período</h3>
+    <label>Filtrar por mes (afecta ventas/gastos del período)</label>
+    <input type="month" id="filtroMes" onchange="renderAll()">
 
-<label>Filtrar por mes</label>
-<input type="month" id="filtroMes" onchange="renderAll()">
+    <div class="grid">
+      <div class="stat">Ventas<br><span id="dashVentas" class="green">$0</span></div>
+      <div class="stat">Gastos Pagados<br><span id="dashGastos" class="red">$0</span></div>
+      <div class="stat">Resultado<br><span id="dashResultado">$0</span></div>
+      <div class="stat">Pendiente Total (deuda actual)<br><span id="dashPendiente" class="red">$0</span></div>
+      <div class="stat">Disponible Total (hoy)<br><span id="dashDisponible">$0</span></div>
+    </div>
 
-<div class="grid">
-<div class="stat">Ventas<br><span id="dashVentas" class="green">$0</span></div>
-<div class="stat">Gastos Pagados<br><span id="dashGastos" class="red">$0</span></div>
-<div class="stat">Resultado<br><span id="dashResultado">$0</span></div>
-<div class="stat">Pendiente Total<br><span id="dashPendiente" class="red">$0</span></div>
-<div class="stat">Disponible Total<br><span id="dashDisponible">$0</span></div>
-</div>
-</div>
+    <div class="small" style="margin-top:10px">
+      *Pendiente Total es <b>deuda real actual</b>: suma de saldos positivos (lo que debés). Si pagás, baja.<br>
+      *El filtro de mes NO afecta la deuda real (porque tu deuda no “se resetea” por mes).
+    </div>
+  </div>
 
-<div class="panel">
-<h3>Saldos por método</h3>
-<div id="tablaMetodos"></div>
-</div>
+  <div class="panel">
+    <h3>Saldos por método</h3>
+    <div id="tablaMetodos"></div>
+  </div>
 </div>
 
 <!-- VENTAS -->
 <div id="ventas" class="section">
-<div class="panel">
-<h3>Nueva Venta</h3>
-<input type="date" id="ventaFecha">
-<select id="ventaMetodo"></select>
-<input type="number" id="ventaMonto" placeholder="Monto">
-<input type="text" id="ventaNota" placeholder="Nota opcional">
-<button class="action" onclick="guardarVenta()">Guardar Venta</button>
-</div>
+  <div class="panel">
+    <h3>Nueva Venta</h3>
+    <input type="date" id="ventaFecha">
+    <select id="ventaMetodo"></select>
+    <input type="number" id="ventaMonto" placeholder="Monto">
+    <input type="text" id="ventaNota" placeholder="Nota opcional">
+    <button class="action" onclick="guardarVenta()">Guardar Venta</button>
+  </div>
 </div>
 
 <!-- GASTOS -->
 <div id="gastos" class="section">
-<div class="panel">
-<h3>Nuevo Gasto</h3>
-<input type="date" id="gastoFecha">
-<select id="gastoCategoria"></select>
-<select id="gastoSubcategoria"></select>
-<input type="number" id="gastoMonto" placeholder="Monto">
-<select id="gastoEstado">
-<option value="PENDIENTE">Pendiente</option>
-<option value="PAGADO">Pagado</option>
-</select>
-<select id="gastoMetodo"></select>
-<input type="text" id="gastoNota" placeholder="Nota opcional">
-<button class="action" onclick="guardarGasto()">Guardar Gasto</button>
-</div>
+  <div class="panel">
+    <h3>Nuevo Gasto</h3>
+    <input type="date" id="gastoFecha">
+    <select id="gastoCategoria"></select>
+    <select id="gastoSubcategoria"></select>
+    <input type="number" id="gastoMonto" placeholder="Monto">
+
+    <select id="gastoEstado" onchange="toggleMetodoGasto()">
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="PAGADO">Pagado</option>
+    </select>
+
+    <select id="gastoMetodo"></select>
+    <input type="text" id="gastoNota" placeholder="Nota opcional">
+    <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
+
+    <div class="small">
+      Tip: Si cargás “Pendiente” Juan 10.000 y otro día “Pagado” Juan 4.000, en Estado Cuenta Juan te queda <b>Debés 6.000</b>.
+    </div>
+  </div>
 </div>
 
 <!-- ESTADO DE CUENTA -->
 <div id="estado" class="section">
-<div class="panel">
-<h3>Estado de Cuenta (Histórico Total)</h3>
-<div id="tablaEstado"></div>
-</div>
+  <div class="panel">
+    <h3>Estado de Cuenta (Histórico Total)</h3>
+    <div class="small">Muestra solo el <b>saldo final</b> por subcategoría (puede ser Debés / Saldado / A favor).</div>
+    <div id="tablaEstado" style="margin-top:10px"></div>
+  </div>
 </div>
 
 <!-- MOVIMIENTOS -->
 <div id="movimientos" class="section">
-<div class="panel">
-<h3>Movimientos</h3>
-<label>Filtrar por mes</label>
-<input type="month" id="movMes" onchange="renderMovimientos()">
-<div id="tablaMovimientos"></div>
-</div>
+  <div class="panel">
+    <h3>Movimientos</h3>
+    <label>Filtrar por mes</label>
+    <input type="month" id="movMes" onchange="renderMovimientos()">
+    <div id="tablaMovimientos"></div>
+  </div>
 </div>
 
 <script>
 const STORAGE = "SM_GESTION_V4";
+const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
 
 let movimientos = [];
 let metodos = ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Cheque"];
 let categorias = {
-"Proveedores":["Juan","Pedro"],
-"Impuestos":["ARBA","AFIP"],
-"Empleados":["Sueldos"],
-"Otros":["Varios"]
+  "Proveedores":["Juan","Pedro"],
+  "Impuestos":["ARBA","AFIP"],
+  "Empleados":["Sueldos"],
+  "Otros":["Varios"]
 };
 
-function hoy(){
-return new Date().toISOString().split("T")[0];
-}
+function hoy(){ return new Date().toISOString().split("T")[0]; }
 
-function guardar(){
-localStorage.setItem(STORAGE, JSON.stringify(movimientos));
-}
+function guardar(){ localStorage.setItem(STORAGE, JSON.stringify(movimientos)); }
 
 function cargar(){
-let data = localStorage.getItem(STORAGE);
-if(data) movimientos = JSON.parse(data);
+  let data = localStorage.getItem(STORAGE);
+  if(data){
+    try{ movimientos = JSON.parse(data) || []; }
+    catch{ movimientos = []; }
+  }
 }
 
-function go(id){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-event.target.classList.add("active");
+function go(id, ev){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  if(ev?.target) ev.target.classList.add("active");
 }
 
 function iniciar(){
-cargar();
+  cargar();
 
-document.getElementById("ventaFecha").value = hoy();
-document.getElementById("gastoFecha").value = hoy();
+  document.getElementById("ventaFecha").value = hoy();
+  document.getElementById("gastoFecha").value = hoy();
 
-let vm = document.getElementById("ventaMetodo");
-let gm = document.getElementById("gastoMetodo");
-vm.innerHTML="";
-gm.innerHTML="";
-metodos.forEach(m=>{
-vm.innerHTML += `<option>${m}</option>`;
-gm.innerHTML += `<option>${m}</option>`;
-});
+  // selects métodos
+  let vm = document.getElementById("ventaMetodo");
+  let gm = document.getElementById("gastoMetodo");
+  vm.innerHTML = "";
+  gm.innerHTML = "";
+  metodos.forEach(m=>{
+    vm.innerHTML += `<option>${m}</option>`;
+    gm.innerHTML += `<option>${m}</option>`;
+  });
 
-let catSel = document.getElementById("gastoCategoria");
-catSel.innerHTML="";
-Object.keys(categorias).forEach(c=>{
-catSel.innerHTML += `<option>${c}</option>`;
-});
+  // categorías gastos
+  let catSel = document.getElementById("gastoCategoria");
+  catSel.innerHTML = "";
+  Object.keys(categorias).forEach(c=>{ catSel.innerHTML += `<option>${c}</option>`; });
 
-cargarSubcategorias();
-renderAll();
+  // subcategorías inicial
+  cargarSubcategorias();
+
+  // filtros default
+  document.getElementById("filtroMes").value = "";
+  document.getElementById("movMes").value = "";
+
+  toggleMetodoGasto();
+  renderAll();
 }
 
 function cargarSubcategorias(){
-let cat = document.getElementById("gastoCategoria").value;
-let subSel = document.getElementById("gastoSubcategoria");
-subSel.innerHTML="";
-categorias[cat].forEach(s=>{
-subSel.innerHTML += `<option>${s}</option>`;
-});
+  let cat = document.getElementById("gastoCategoria").value;
+  let subSel = document.getElementById("gastoSubcategoria");
+  subSel.innerHTML = "";
+  (categorias[cat]||[]).forEach(s=>{ subSel.innerHTML += `<option>${s}</option>`; });
 }
 
 document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
 
+function toggleMetodoGasto(){
+  const estado = document.getElementById("gastoEstado").value;
+  const selMetodo = document.getElementById("gastoMetodo");
+  selMetodo.disabled = (estado !== "PAGADO");
+  selMetodo.style.opacity = (estado !== "PAGADO") ? "0.5" : "1";
+}
+
 function guardarVenta(){
-let fecha = document.getElementById("ventaFecha").value;
-let metodo = document.getElementById("ventaMetodo").value;
-let monto = parseFloat(document.getElementById("ventaMonto").value);
-let nota = document.getElementById("ventaNota").value;
+  let fecha = document.getElementById("ventaFecha").value || hoy();
+  let metodo = document.getElementById("ventaMetodo").value;
+  let monto = parseFloat(document.getElementById("ventaMonto").value);
+  let nota = (document.getElementById("ventaNota").value||"").trim();
+  if(!monto || monto<=0) return;
 
-if(!monto) return;
-
-movimientos.push({
-tipo:"VENTA",
-fecha,
-metodo,
-monto,
-nota
-});
-
-guardar();
-renderAll();
-document.getElementById("ventaMonto").value="";
+  movimientos.push({tipo:"VENTA",fecha,metodo,monto,nota});
+  guardar();
+  renderAll();
+  document.getElementById("ventaMonto").value = "";
+  document.getElementById("ventaNota").value = "";
 }
 
 function guardarGasto(){
-let fecha = document.getElementById("gastoFecha").value;
-let categoria = document.getElementById("gastoCategoria").value;
-let subcategoria = document.getElementById("gastoSubcategoria").value;
-let monto = parseFloat(document.getElementById("gastoMonto").value);
-let estado = document.getElementById("gastoEstado").value;
-let metodo = document.getElementById("gastoMetodo").value;
-let nota = document.getElementById("gastoNota").value;
+  let fecha = document.getElementById("gastoFecha").value || hoy();
+  let categoria = document.getElementById("gastoCategoria").value;
+  let subcategoria = document.getElementById("gastoSubcategoria").value;
+  let monto = parseFloat(document.getElementById("gastoMonto").value);
+  let estado = document.getElementById("gastoEstado").value;
+  let metodo = document.getElementById("gastoMetodo").value;
+  let nota = (document.getElementById("gastoNota").value||"").trim();
+  if(!monto || monto<=0) return;
 
-if(!monto) return;
+  movimientos.push({tipo:"GASTO",fecha,categoria,subcategoria,monto,estado,metodo,nota});
+  guardar();
+  renderAll();
+  document.getElementById("gastoMonto").value = "";
+  document.getElementById("gastoNota").value = "";
+}
 
-movimientos.push({
-tipo:"GASTO",
-fecha,
-categoria,
-subcategoria,
-monto,
-estado,
-metodo,
-nota
-});
+function computeSaldosPorMetodo(){
+  const saldos = {};
+  metodos.forEach(m=>saldos[m]=0);
 
-guardar();
-renderAll();
-document.getElementById("gastoMonto").value="";
+  movimientos.forEach(m=>{
+    if(m.tipo==="VENTA"){
+      if(saldos[m.metodo]===undefined) saldos[m.metodo]=0;
+      saldos[m.metodo]+=m.monto;
+    }
+    if(m.tipo==="GASTO" && m.estado==="PAGADO"){
+      if(saldos[m.metodo]===undefined) saldos[m.metodo]=0;
+      saldos[m.metodo]-=m.monto;
+    }
+  });
+
+  return saldos;
+}
+
+function computeEstadoCuentaMap(){
+  // Mapa saldo por (categoria|subcategoria): pendiente suma, pagado resta.
+  const map = {};
+  movimientos.forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+    const key = `${m.categoria}|${m.subcategoria}`;
+    if(map[key]===undefined) map[key]=0;
+    if(m.estado==="PENDIENTE") map[key]+=m.monto;
+    if(m.estado==="PAGADO") map[key]-=m.monto;
+  });
+  return map;
 }
 
 function renderAll(){
-renderDashboard();
-renderEstado();
-renderMovimientos();
+  renderDashboard();
+  renderEstado();
+  renderMovimientos();
 }
 
 function renderDashboard(){
-let mes = document.getElementById("filtroMes").value;
+  const mes = document.getElementById("filtroMes").value; // solo afecta ventas/gastos del período
+  let ventasPeriodo=0;
+  let gastosPagadosPeriodo=0;
 
-let ventas = 0;
-let gastosPagados = 0;
-let pendiente = 0;
-let saldosMetodo = {};
+  movimientos.forEach(m=>{
+    const esMes = (!mes || (m.fecha||"").startsWith(mes));
+    if(!esMes) return;
+    if(m.tipo==="VENTA") ventasPeriodo += m.monto;
+    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagadosPeriodo += m.monto;
+  });
 
-metodos.forEach(m=>saldosMetodo[m]=0);
+  // Pendiente real actual (histórico): suma de saldos positivos
+  const estadoMap = computeEstadoCuentaMap();
+  let pendienteReal = 0;
+  Object.values(estadoMap).forEach(v=>{
+    if(v>0) pendienteReal += v;
+  });
 
-movimientos.forEach(m=>{
-let esMes = !mes || m.fecha.startsWith(mes);
+  // Disponible real actual (histórico): saldos por método
+  const saldosMetodo = computeSaldosPorMetodo();
+  const disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
 
-if(m.tipo==="VENTA"){
-saldosMetodo[m.metodo]+=m.monto;
-if(esMes) ventas+=m.monto;
-}
+  document.getElementById("dashVentas").innerText = fmt.format(ventasPeriodo);
+  document.getElementById("dashGastos").innerText = fmt.format(gastosPagadosPeriodo);
+  document.getElementById("dashResultado").innerText = fmt.format(ventasPeriodo - gastosPagadosPeriodo);
+  document.getElementById("dashPendiente").innerText = fmt.format(pendienteReal);
+  document.getElementById("dashDisponible").innerText = fmt.format(disponible);
 
-if(m.tipo==="GASTO"){
-if(m.estado==="PAGADO"){
-saldosMetodo[m.metodo]-=m.monto;
-if(esMes) gastosPagados+=m.monto;
-}else{
-pendiente+=m.monto;
-}
-}
-});
-
-let disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
-
-document.getElementById("dashVentas").innerText="$"+ventas;
-document.getElementById("dashGastos").innerText="$"+gastosPagados;
-document.getElementById("dashResultado").innerText="$"+(ventas-gastosPagados);
-document.getElementById("dashPendiente").innerText="$"+pendiente;
-document.getElementById("dashDisponible").innerText="$"+disponible;
-
-let html="<table><tr><th>Método</th><th>Saldo</th></tr>";
-for(let m in saldosMetodo){
-html+=`<tr><td>${m}</td><td>$${saldosMetodo[m]}</td></tr>`;
-}
-html+="</table>";
-document.getElementById("tablaMetodos").innerHTML=html;
+  let html = "<table><tr><th>Método</th><th>Saldo</th></tr>";
+  metodos.forEach(m=>{
+    const v = Math.round(saldosMetodo[m]||0);
+    const cls = v>=0 ? "green" : "red";
+    html += `<tr><td>${m}</td><td class="${cls}">${fmt.format(v)}</td></tr>`;
+  });
+  html += "</table>";
+  document.getElementById("tablaMetodos").innerHTML = html;
 }
 
 function renderEstado(){
-let estado = {};
+  const estadoMap = computeEstadoCuentaMap();
 
-movimientos.forEach(m=>{
-if(m.tipo==="GASTO"){
-let key = m.categoria+"|"+m.subcategoria;
-if(!estado[key]) estado[key]=0;
-if(m.estado==="PENDIENTE") estado[key]+=m.monto;
-if(m.estado==="PAGADO") estado[key]-=m.monto;
-}
-});
+  // Querés que NO desaparezca: mostramos TODOS los del maestro aunque estén en 0
+  let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Saldo</th></tr>";
 
-let html="<table><tr><th>Categoría</th><th>Subcategoría</th><th>Saldo</th></tr>";
-for(let k in estado){
-let parts=k.split("|");
-html+=`<tr><td>${parts[0]}</td><td>${parts[1]}</td><td>$${estado[k]}</td></tr>`;
-}
-html+="</table>";
+  Object.keys(categorias).forEach(cat=>{
+    html += `<tr class="catRow"><td colspan="3">${cat}</td></tr>`;
 
-document.getElementById("tablaEstado").innerHTML=html;
+    (categorias[cat]||[]).forEach(sub=>{
+      const key = `${cat}|${sub}`;
+      const saldo = Math.round(estadoMap[key] ?? 0);
+
+      let badge = "";
+      let label = "";
+      if(saldo>0){ badge = "debes"; label = `Debés ${fmt.format(saldo)}`; }
+      else if(saldo<0){ badge = "afavor"; label = `A favor ${fmt.format(Math.abs(saldo))}`; }
+      else { badge="cero"; label = "Saldado"; }
+
+      html += `<tr>
+        <td class="muted">${cat}</td>
+        <td><b>${sub}</b></td>
+        <td><span class="badge ${badge}">${label}</span></td>
+      </tr>`;
+    });
+  });
+
+  html += "</table>";
+  document.getElementById("tablaEstado").innerHTML = html;
 }
 
 function renderMovimientos(){
-let mes = document.getElementById("movMes").value;
-let html="<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>";
+  const mes = document.getElementById("movMes").value;
+  let rows = [];
 
-movimientos.forEach(m=>{
-if(!mes || m.fecha.startsWith(mes)){
-let detalle="";
-if(m.tipo==="VENTA") detalle=m.metodo;
-if(m.tipo==="GASTO") detalle=m.categoria+" - "+m.subcategoria+" ("+m.estado+")";
-html+=`<tr>
-<td>${m.fecha}</td>
-<td>${m.tipo}</td>
-<td>${detalle}</td>
-<td>$${m.monto}</td>
-</tr>`;
-}
-});
+  movimientos.forEach(m=>{
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
 
-html+="</table>";
-document.getElementById("tablaMovimientos").innerHTML=html;
+    if(m.tipo==="VENTA"){
+      rows.push({
+        fecha:m.fecha, tipo:"VENTA",
+        detalle:`${m.metodo}${m.nota?(" · "+m.nota):""}`,
+        monto:m.monto
+      });
+    }else if(m.tipo==="GASTO"){
+      const det = `${m.categoria} · ${m.subcategoria} · ${m.estado}${(m.estado==="PAGADO" && m.metodo)?(" · "+m.metodo):""}${m.nota?(" · "+m.nota):""}`;
+      rows.push({fecha:m.fecha,tipo:"GASTO",detalle:det,monto:m.monto});
+    }
+  });
+
+  // orden por fecha (y orden de carga dentro del día)
+  rows.sort((a,b)=> (a.fecha>b.fecha?1:(a.fecha<b.fecha?-1:0)));
+
+  let html = "<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>";
+  rows.forEach(r=>{
+    const cls = (r.tipo==="VENTA") ? "green" : "red";
+    html += `<tr>
+      <td>${r.fecha}</td>
+      <td>${r.tipo}</td>
+      <td>${r.detalle}</td>
+      <td class="${cls}">${fmt.format(r.monto)}</td>
+    </tr>`;
+  });
+  html += "</table>";
+
+  document.getElementById("tablaMovimientos").innerHTML = html;
 }
 
 iniciar();
 </script>
-
 </body>
 </html>
