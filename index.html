@@ -1,44 +1,180 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Stella Maris · Gestión</title>
 
 <style>
 :root{
---bg:#f3f4f6;--panel:#fff;--primary:#1e3a8a;--primary-dark:#172554;
---border:#e5e7eb;--text:#111827;--muted:#6b7280;--green:#16a34a;--red:#dc2626;
+  --bg:#f3f4f6;
+  --panel:#ffffff;
+  --primary:#1e3a8a;
+  --primary-dark:#172554;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --green:#16a34a;
+  --red:#dc2626;
 }
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);height:100vh;display:flex;flex-direction:column;color:var(--text);overflow:hidden}
-header{background:var(--primary);color:#fff;padding:14px 18px;font-weight:600;letter-spacing:.5px}
-nav{display:flex;background:var(--primary-dark);flex-wrap:wrap}
-nav button{flex:1;min-width:120px;border:0;background:var(--primary-dark);color:#fff;padding:12px;cursor:pointer;font-size:13px;letter-spacing:.5px}
-nav button.active{background:#0f172a;font-weight:600}
-.section{display:none;flex:1;padding:15px;overflow:auto}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:var(--bg);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  color:var(--text);
+  overflow:hidden;
+}
+header{
+  background:var(--primary);
+  color:#fff;
+  padding:14px 18px;
+  font-weight:650;
+  letter-spacing:.4px;
+}
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  background:var(--primary-dark);
+}
+nav button{
+  flex:1;
+  min-width:140px;
+  border:0;
+  background:var(--primary-dark);
+  color:#fff;
+  padding:12px;
+  cursor:pointer;
+  font-size:13px;
+  letter-spacing:.3px;
+}
+nav button.active{
+  background:#0f172a;
+  font-weight:650;
+}
+.section{
+  display:none;
+  flex:1;
+  padding:15px;
+  overflow:auto;
+}
 .section.active{display:block}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:15px;margin-bottom:15px}
-.panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.5px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.stat{background:#f9fafb;padding:10px;border-radius:8px;border:1px solid var(--border);font-size:13px}
-.green{color:var(--green);font-weight:700}
-.red{color:var(--red);font-weight:700}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:14px;
+}
+.panel h3{
+  margin:0 0 10px;
+  font-size:14px;
+  letter-spacing:.4px;
+}
+.small{font-size:12px;color:var(--muted)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:10px;
+}
+.stat{
+  background:#f9fafb;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  font-size:13px;
+}
+.green{color:var(--green);font-weight:800}
+.red{color:var(--red);font-weight:800}
 .muted{color:var(--muted)}
-input,select{width:100%;padding:8px;margin:5px 0 10px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box}
-button.action{background:var(--primary);color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
-th{background:#f9fafb;font-weight:700;position:sticky;top:0}
-.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:#fff}
+input,select{
+  width:100%;
+  padding:9px;
+  margin:5px 0 10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  font-size:13px;
+  background:#fff;
+}
+button.action{
+  background:var(--primary);
+  color:#fff;
+  border:0;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:650;
+}
+button.action:active{transform:translateY(1px)}
+.filters{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin:8px 0 6px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td{
+  padding:9px 8px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  vertical-align:top;
+}
+th{
+  background:#f9fafb;
+  font-weight:800;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+.catRow{background:#eef2ff;font-weight:900}
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  border:1px solid var(--border);
+  background:#fff;
+  font-weight:800;
+}
 .badge.debes{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.08);color:var(--red)}
 .badge.afavor{border-color:rgba(22,163,74,.35);background:rgba(22,163,74,.08);color:var(--green)}
 .badge.cero{border-color:rgba(107,114,128,.35);background:rgba(107,114,128,.08);color:var(--muted)}
-.catRow{background:#eef2ff;font-weight:800}
-.small{font-size:12px;color:var(--muted)}
-.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0}
-.btnMini{border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+
+.btnMini{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  font-size:12px;
+  cursor:pointer;
+  font-weight:700;
+}
 .btnMini:hover{background:#f9fafb}
-.anuladoTxt{color:var(--muted);font-size:12px;font-weight:700}
+.rowAnulada{opacity:.55}
+.toast{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:18px;
+  background:#111827;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:13px;
+  display:none;
+  z-index:50;
+  max-width:92vw;
+}
 </style>
 </head>
 
@@ -46,141 +182,217 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
 <header>Stella Maris · Gestión Profesional</header>
 
 <nav>
-<button class="active" onclick="go('dashboard', event)">Dashboard</button>
-<button onclick="go('ventas', event)">Ventas</button>
-<button onclick="go('gastos', event)">Gastos</button>
-<button onclick="go('estado', event)">Estado Cuenta</button>
-<button onclick="go('pagos', event)">Pagos</button>
-<button onclick="go('movimientos', event)">Movimientos</button>
+  <button class="active" onclick="go('dashboard', event)">Dashboard</button>
+  <button onclick="go('ventasCarga', event)">Cargar Ventas</button>
+  <button onclick="go('ventasHist', event)">Ventas</button>
+  <button onclick="go('gastosCarga', event)">Cargar Gastos</button>
+  <button onclick="go('estado', event)">Estado Proveedores</button>
+  <button onclick="go('pagos', event)">Pagos</button>
+  <button onclick="go('movGastos', event)">Movimientos (Gastos)</button>
 </nav>
 
+<!-- DASHBOARD -->
 <div id="dashboard" class="section active">
   <div class="panel">
     <h3>Resumen del período</h3>
-    <label>Filtrar por mes (afecta ventas/gastos del período)</label>
-    <input type="month" id="filtroMes" onchange="renderAll()">
+    <label class="small">Filtrar por mes (solo para ventas y gastos pagados del período)</label>
+    <input type="month" id="dashMes" onchange="renderAll()">
 
     <div class="grid">
-      <div class="stat">Ventas<br><span id="dashVentas" class="green">$0</span></div>
-      <div class="stat">Gastos Pagados<br><span id="dashGastos" class="red">$0</span></div>
-      <div class="stat">Resultado<br><span id="dashResultado">$0</span></div>
-      <div class="stat">Pendiente Total (deuda actual proveedores)<br><span id="dashPendiente" class="red">$0</span></div>
-      <div class="stat">Disponible Total (hoy)<br><span id="dashDisponible">$0</span></div>
+      <div class="stat">Ventas período<br><span id="dashVentas" class="green">$0</span></div>
+      <div class="stat">Gastos pagados período<br><span id="dashGastosPag" class="red">$0</span></div>
+      <div class="stat">Resultado período<br><span id="dashResultado">$0</span></div>
+      <div class="stat">Deuda Proveedores (hoy)<br><span id="dashDeudaProv" class="red">$0</span></div>
+      <div class="stat">Disponible total (hoy)<br><span id="dashDisponible">$0</span></div>
     </div>
+
     <div class="small" style="margin-top:10px">
-      *Pendiente Total = deuda real de Proveedores (saldos positivos).<br>
-      *Movimientos anulados NO cuentan para nada.
+      * Deuda Proveedores es histórico total (no cambia con el mes).
+      Movimientos anulados no cuentan.
     </div>
   </div>
 
   <div class="panel">
-    <h3>Saldos por método</h3>
+    <h3>Saldos por método (hoy)</h3>
     <div id="tablaMetodos"></div>
   </div>
 </div>
 
-<div id="ventas" class="section">
+<!-- CARGAR VENTAS -->
+<div id="ventasCarga" class="section">
   <div class="panel">
     <h3>Nueva Venta</h3>
-    <input type="date" id="ventaFecha">
-    <select id="ventaMetodo"></select>
-    <input type="number" id="ventaMonto" placeholder="Monto">
-    <input type="text" id="ventaNota" placeholder="Nota opcional">
+    <input type="date" id="vFecha">
+    <label class="small">Categoría (método)</label>
+    <select id="vMetodo"></select>
+    <input type="number" id="vMonto" placeholder="Monto">
+    <input type="text" id="vNota" placeholder="Nota (opcional)">
     <button class="action" onclick="guardarVenta()">Guardar Venta</button>
+    <div class="small">Tip: si te equivocás, andá a la hoja <b>Ventas</b> y usá Anular/Desanular.</div>
   </div>
 </div>
 
-<div id="gastos" class="section">
+<!-- HISTORIAL VENTAS -->
+<div id="ventasHist" class="section">
   <div class="panel">
-    <h3>Nuevo Gasto</h3>
-    <input type="date" id="gastoFecha">
-    <select id="gastoCategoria"></select>
-    <select id="gastoSubcategoria"></select>
-    <input type="number" id="gastoMonto" placeholder="Monto">
-
-    <select id="gastoEstado" onchange="toggleMetodoGasto()">
-      <option value="PENDIENTE">Pendiente</option>
-      <option value="PAGADO">Pagado</option>
-    </select>
-
-    <select id="gastoMetodo"></select>
-    <input type="text" id="gastoNota" placeholder="Nota opcional">
-    <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
-
-    <div class="small">
-      Corregir = vas a Movimientos y tocás “Anular” en la línea equivocada.
-    </div>
-  </div>
-</div>
-
-<div id="estado" class="section">
-  <div class="panel">
-    <h3>Estado de Cuenta · Proveedores (Histórico Total)</h3>
-    <div class="small">Saldo final por proveedor: Debés / Saldado / A favor.</div>
-    <div class="filters">
-      <div>
-        <label class="small">Categoría</label>
-        <select id="estadoCat" onchange="renderEstado()"></select>
-      </div>
-    </div>
-    <div id="tablaEstado"></div>
-  </div>
-</div>
-
-<div id="pagos" class="section">
-  <div class="panel">
-    <h3>Pagos (Histórico Total)</h3>
-    <div class="small">Solo lo pagado, agrupado por categoría y subcategoría. Con filtros.</div>
+    <h3>Ventas (Historial)</h3>
 
     <div class="filters">
       <div>
         <label class="small">Mes</label>
-        <input type="month" id="pagMes" onchange="renderPagos()">
+        <input type="month" id="vhMes" onchange="renderVentasHist()">
+      </div>
+      <div>
+        <label class="small">Categoría (método)</label>
+        <select id="vhMetodo" onchange="renderVentasHist()"></select>
+      </div>
+      <div>
+        <label class="small">Buscar (nota)</label>
+        <input type="text" id="vhBuscar" placeholder="Ej: mostrador, cierre..." oninput="renderVentasHist()">
+      </div>
+    </div>
+
+    <div class="grid" style="margin:6px 0 10px">
+      <div class="stat">Total ventas filtradas<br><span id="vhTotal" class="green">$0</span></div>
+      <div class="stat">Cantidad<br><span id="vhCant">$0</span></div>
+    </div>
+
+    <div id="tablaVentasHist"></div>
+  </div>
+</div>
+
+<!-- CARGAR GASTOS -->
+<div id="gastosCarga" class="section">
+  <div class="panel">
+    <h3>Nuevo Gasto</h3>
+    <input type="date" id="gFecha">
+
+    <label class="small">Categoría</label>
+    <select id="gCat"></select>
+
+    <label class="small">Subcategoría</label>
+    <select id="gSub"></select>
+
+    <input type="number" id="gMonto" placeholder="Monto">
+
+    <label class="small">Estado</label>
+    <select id="gEstado" onchange="toggleMetodoGasto()">
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="PAGADO">Pagado</option>
+    </select>
+
+    <label class="small">Método (solo si es pagado)</label>
+    <select id="gMetodo"></select>
+
+    <input type="text" id="gNota" placeholder="Nota (opcional)">
+    <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
+
+    <div class="small">
+      Proveedores: Pendiente suma deuda, Pagado descuenta (puede quedar a favor).
+      Impuestos miralos en “Pagos”.
+      Correcciones: en “Movimientos (Gastos)” → Anular/Desanular.
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO PROVEEDORES -->
+<div id="estado" class="section">
+  <div class="panel">
+    <h3>Estado de Proveedores (Histórico total)</h3>
+    <div class="small">Solo proveedores: Debés / Saldado / A favor. No tiene filtro por mes.</div>
+    <div id="tablaEstado"></div>
+  </div>
+</div>
+
+<!-- PAGOS (SOLO PAGADOS) -->
+<div id="pagos" class="section">
+  <div class="panel">
+    <h3>Pagos (solo Pagado)</h3>
+    <div class="small">Agrupado por categoría y subcategoría. Con filtros.</div>
+
+    <div class="filters">
+      <div>
+        <label class="small">Mes</label>
+        <input type="month" id="pMes" onchange="renderPagos()">
       </div>
       <div>
         <label class="small">Categoría</label>
-        <select id="pagCat" onchange="renderPagos()"></select>
+        <select id="pCat" onchange="renderPagos()"></select>
       </div>
+    </div>
+
+    <div class="grid" style="margin:6px 0 10px">
+      <div class="stat">Total pagado filtrado<br><span id="pTotal" class="red">$0</span></div>
+      <div class="stat">Cantidad<br><span id="pCant">$0</span></div>
     </div>
 
     <div id="tablaPagos"></div>
   </div>
 </div>
 
-<div id="movimientos" class="section">
+<!-- MOVIMIENTOS SOLO GASTOS -->
+<div id="movGastos" class="section">
   <div class="panel">
-    <h3>Movimientos</h3>
+    <h3>Movimientos (solo Gastos)</h3>
+    <div class="small">Acá se corrige: Anular/Desanular. Ventas NO aparecen acá.</div>
+
     <div class="filters">
       <div>
         <label class="small">Mes</label>
-        <input type="month" id="movMes" onchange="renderMovimientos()">
+        <input type="month" id="mgMes" onchange="renderMovGastos()">
       </div>
       <div>
-        <label class="small">Tipo</label>
-        <select id="movTipo" onchange="renderMovimientos()">
+        <label class="small">Categoría</label>
+        <select id="mgCat" onchange="onMgCatChange()"></select>
+      </div>
+      <div>
+        <label class="small">Subcategoría</label>
+        <select id="mgSub" onchange="renderMovGastos()"></select>
+      </div>
+      <div>
+        <label class="small">Estado</label>
+        <select id="mgEstado" onchange="renderMovGastos()">
           <option value="ALL">Todos</option>
-          <option value="VENTA">Ventas</option>
-          <option value="GASTO">Gastos</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="PAGADO">Pagado</option>
         </select>
       </div>
       <div>
-        <label class="small">Categoría (solo gastos)</label>
-        <select id="movCat" onchange="renderMovimientos()"></select>
+        <label class="small">Método (pagados)</label>
+        <select id="mgMetodo" onchange="renderMovGastos()"></select>
+      </div>
+      <div>
+        <label class="small">Buscar</label>
+        <input type="text" id="mgBuscar" placeholder="nota / proveedor / impuesto..." oninput="renderMovGastos()">
       </div>
     </div>
 
-    <div class="small">Tip: Para corregir un dato mal anotado, tocá <b>Anular</b> en la línea.</div>
-    <div id="tablaMovimientos" style="margin-top:10px"></div>
+    <div class="grid" style="margin:6px 0 10px">
+      <div class="stat">Pagado filtrado<br><span id="mgTotPag" class="red">$0</span></div>
+      <div class="stat">Pendiente filtrado<br><span id="mgTotPen" class="red">$0</span></div>
+      <div class="stat">Cantidad<br><span id="mgCant">$0</span></div>
+    </div>
+
+    <div id="tablaMovGastos"></div>
   </div>
 </div>
 
-<script>
-const STORAGE = "SM_GESTION_V7";
-const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
-const ACCOUNT_CATS = ["Proveedores"];
+<div id="toast" class="toast">Guardado ✅</div>
 
-let movimientos = [];
+<script>
+/** =========================
+ *  CONFIG / DATA
+ * ========================= */
+const STORAGE = "SM_GESTION_V7"; // mantenemos la key para no perder datos anteriores
+const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
+
+const ACCOUNT_CATS = ["Proveedores"]; // Estado de cuenta SOLO proveedores
+
+let movimientos = []; // motor único
+
 let metodos = ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Cheque"];
+
+// Hoja maestra (fase 1 fija; fase 2: editable)
 let categorias = {
   "Proveedores":["Juan","Pedro"],
   "Impuestos":["ARBA","AFIP"],
@@ -191,22 +403,38 @@ let categorias = {
 function hoy(){ return new Date().toISOString().split("T")[0]; }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
 
-function guardar(){ localStorage.setItem(STORAGE, JSON.stringify(movimientos)); }
+function toast(msg="Guardado ✅"){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{ t.style.display="none"; }, 1100);
+}
+
+function guardar(){
+  localStorage.setItem(STORAGE, JSON.stringify(movimientos));
+}
+
 function cargar(){
-  let data = localStorage.getItem(STORAGE);
-  if(data){
-    try{
-      movimientos = JSON.parse(data) || [];
-      // compat: si vinieron sin id/anulado
-      movimientos = movimientos.map(m=>({
-        id: m.id || uid(),
-        anulado: !!m.anulado,
-        ...m
-      }));
-    }catch{ movimientos = []; }
+  const data = localStorage.getItem(STORAGE);
+  if(!data) return;
+  try{
+    const arr = JSON.parse(data) || [];
+    movimientos = arr.map(m => ({
+      id: m.id || uid(),
+      anulado: !!m.anulado,
+      ...m
+    }));
+  }catch{
+    movimientos = [];
   }
 }
 
+function activos(){ return movimientos.filter(m=>!m.anulado); }
+
+/** =========================
+ *  NAV
+ * ========================= */
 function go(id, ev){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -214,151 +442,163 @@ function go(id, ev){
   if(ev?.target) ev.target.classList.add("active");
 }
 
-function fillCatSelect(id, includeAll){
-  const sel = document.getElementById(id);
+/** =========================
+ *  INIT
+ * ========================= */
+function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
   sel.innerHTML = "";
-  if(includeAll) sel.innerHTML += `<option value="ALL">Todas</option>`;
-  Object.keys(categorias).forEach(c=> sel.innerHTML += `<option value="${c}">${c}</option>`);
-}
-
-function fillAccountSelect(){
-  const sel = document.getElementById("estadoCat");
-  sel.innerHTML = "";
-  ACCOUNT_CATS.forEach(c=> sel.innerHTML += `<option value="${c}">${c}</option>`);
+  if(includeAll) sel.innerHTML += `<option value="ALL">${allLabel}</option>`;
+  items.forEach(x => sel.innerHTML += `<option value="${x}">${x}</option>`);
 }
 
 function iniciar(){
   cargar();
 
-  document.getElementById("ventaFecha").value = hoy();
-  document.getElementById("gastoFecha").value = hoy();
+  // fechas por defecto hoy
+  document.getElementById("vFecha").value = hoy();
+  document.getElementById("gFecha").value = hoy();
 
-  let vm = document.getElementById("ventaMetodo");
-  let gm = document.getElementById("gastoMetodo");
-  vm.innerHTML = ""; gm.innerHTML = "";
-  metodos.forEach(m=>{
-    vm.innerHTML += `<option>${m}</option>`;
-    gm.innerHTML += `<option>${m}</option>`;
-  });
+  // ventas método
+  fillSelectOptions(document.getElementById("vMetodo"), metodos, false);
+  // gastos método
+  fillSelectOptions(document.getElementById("gMetodo"), metodos, false);
 
-  let catSel = document.getElementById("gastoCategoria");
-  catSel.innerHTML = "";
-  Object.keys(categorias).forEach(c=>{ catSel.innerHTML += `<option>${c}</option>`; });
-  cargarSubcategorias();
-  document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
+  // gastos categorías
+  const gCat = document.getElementById("gCat");
+  fillSelectOptions(gCat, Object.keys(categorias), false);
+  cargarSubDeGasto();
 
-  fillCatSelect("pagCat", true);
-  fillCatSelect("movCat", true);
-  fillAccountSelect();
-  document.getElementById("estadoCat").value = "Proveedores";
+  // filtros Ventas Hist
+  fillSelectOptions(document.getElementById("vhMetodo"), metodos, true, "Todos");
 
-  document.getElementById("filtroMes").value = "";
-  document.getElementById("movMes").value = "";
-  document.getElementById("pagMes").value = "";
+  // filtros Pagos
+  fillSelectOptions(document.getElementById("pCat"), Object.keys(categorias), true, "Todas");
 
+  // filtros Mov GASTOS
+  fillSelectOptions(document.getElementById("mgCat"), Object.keys(categorias), true, "Todas");
+  fillSelectOptions(document.getElementById("mgMetodo"), metodos, true, "Todos");
+  onMgCatChange(true);
+
+  // toggle método gastos por estado
   toggleMetodoGasto();
+
+  // defaults filtros
+  document.getElementById("dashMes").value = "";
+  document.getElementById("vhMes").value = "";
+  document.getElementById("pMes").value = "";
+  document.getElementById("mgMes").value = "";
+
   renderAll();
 }
 
-function cargarSubcategorias(){
-  let cat = document.getElementById("gastoCategoria").value;
-  let subSel = document.getElementById("gastoSubcategoria");
-  subSel.innerHTML = "";
-  (categorias[cat]||[]).forEach(s=>{ subSel.innerHTML += `<option>${s}</option>`; });
+function cargarSubDeGasto(){
+  const cat = document.getElementById("gCat").value;
+  const subs = categorias[cat] || [];
+  fillSelectOptions(document.getElementById("gSub"), subs, false);
 }
+document.getElementById("gCat").addEventListener("change", cargarSubDeGasto);
 
 function toggleMetodoGasto(){
-  const estado = document.getElementById("gastoEstado").value;
-  const selMetodo = document.getElementById("gastoMetodo");
-  selMetodo.disabled = (estado !== "PAGADO");
-  selMetodo.style.opacity = (estado !== "PAGADO") ? "0.5" : "1";
+  const estado = document.getElementById("gEstado").value;
+  const selMetodo = document.getElementById("gMetodo");
+  const disabled = (estado !== "PAGADO");
+  selMetodo.disabled = disabled;
+  selMetodo.style.opacity = disabled ? "0.55" : "1";
 }
 
+/** =========================
+ *  SAVE: VENTAS / GASTOS
+ * ========================= */
 function guardarVenta(){
-  let fecha = document.getElementById("ventaFecha").value || hoy();
-  let metodo = document.getElementById("ventaMetodo").value;
-  let monto = parseFloat(document.getElementById("ventaMonto").value);
-  let nota = (document.getElementById("ventaNota").value||"").trim();
-  if(!monto || monto<=0) return;
+  const fecha = (document.getElementById("vFecha").value || hoy());
+  const metodo = document.getElementById("vMetodo").value;
+  const monto = parseFloat(document.getElementById("vMonto").value);
+  const nota = (document.getElementById("vNota").value || "").trim();
 
-  movimientos.push({id:uid(),anulado:false,tipo:"VENTA",fecha,metodo,monto,nota});
+  if(!monto || monto <= 0) return toast("Monto inválido");
+  if(!metodo) return toast("Falta método");
+
+  movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
   guardar();
+  document.getElementById("vMonto").value = "";
+  document.getElementById("vNota").value = "";
+  toast();
   renderAll();
-  document.getElementById("ventaMonto").value = "";
-  document.getElementById("ventaNota").value = "";
 }
 
 function guardarGasto(){
-  let fecha = document.getElementById("gastoFecha").value || hoy();
-  let categoria = document.getElementById("gastoCategoria").value;
-  let subcategoria = document.getElementById("gastoSubcategoria").value;
-  let monto = parseFloat(document.getElementById("gastoMonto").value);
-  let estado = document.getElementById("gastoEstado").value;
-  let metodo = document.getElementById("gastoMetodo").value;
-  let nota = (document.getElementById("gastoNota").value||"").trim();
-  if(!monto || monto<=0) return;
+  const fecha = (document.getElementById("gFecha").value || hoy());
+  const categoria = document.getElementById("gCat").value;
+  const subcategoria = document.getElementById("gSub").value;
+  const monto = parseFloat(document.getElementById("gMonto").value);
+  const estado = document.getElementById("gEstado").value;
+  const metodo = document.getElementById("gMetodo").value;
+  const nota = (document.getElementById("gNota").value || "").trim();
 
-  movimientos.push({id:uid(),anulado:false,tipo:"GASTO",fecha,categoria,subcategoria,monto,estado,metodo,nota});
+  if(!monto || monto <= 0) return toast("Monto inválido");
+  if(!categoria || !subcategoria) return toast("Falta categoría/subcategoría");
+  if(estado === "PAGADO" && !metodo) return toast("Pagado sin método no");
+
+  movimientos.push({ id:uid(), anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo, nota });
   guardar();
+  document.getElementById("gMonto").value = "";
+  document.getElementById("gNota").value = "";
+  toast();
   renderAll();
-  document.getElementById("gastoMonto").value = "";
-  document.getElementById("gastoNota").value = "";
 }
 
+/** =========================
+ *  ANULAR / DESANULAR
+ * ========================= */
 function anularMovimiento(id){
   const mv = movimientos.find(x=>x.id===id);
-  if(!mv) return;
-  if(mv.anulado) return;
+  if(!mv || mv.anulado) return;
   if(!confirm("¿Anular este movimiento? No se borra, solo deja de contar.")) return;
   mv.anulado = true;
   guardar();
+  toast("Anulado ✅");
   renderAll();
 }
 
-function activos(){
-  return movimientos.filter(m=>!m.anulado);
+function desanularMovimiento(id){
+  const mv = movimientos.find(x=>x.id===id);
+  if(!mv || !mv.anulado) return;
+  if(!confirm("¿Desanular (reactivar) este movimiento?")) return;
+  mv.anulado = false;
+  guardar();
+  toast("Reactivado ✅");
+  renderAll();
 }
 
+/** =========================
+ *  CALCULOS BASE
+ * ========================= */
 function computeSaldosPorMetodo(){
   const saldos = {};
-  metodos.forEach(m=>saldos[m]=0);
+  metodos.forEach(m => saldos[m]=0);
 
   activos().forEach(m=>{
     if(m.tipo==="VENTA"){
-      if(saldos[m.metodo]===undefined) saldos[m.metodo]=0;
-      saldos[m.metodo]+=m.monto;
+      saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
     }
     if(m.tipo==="GASTO" && m.estado==="PAGADO"){
-      if(saldos[m.metodo]===undefined) saldos[m.metodo]=0;
-      saldos[m.metodo]-=m.monto;
+      saldos[m.metodo] = (saldos[m.metodo]||0) - m.monto;
     }
   });
+
   return saldos;
 }
 
-function computeAccountMap(cat){
-  const map = {};
+// estado proveedores (pendiente suma, pagado resta) SOLO proveedores
+function computeProveedorMap(){
+  const map = {}; // sub -> saldo
   activos().forEach(m=>{
     if(m.tipo!=="GASTO") return;
-    if(m.categoria!==cat) return;
-    const key = `${m.categoria}|${m.subcategoria}`;
+    if(m.categoria!=="Proveedores") return;
+    const key = m.subcategoria;
     if(map[key]===undefined) map[key]=0;
     if(m.estado==="PENDIENTE") map[key]+=m.monto;
     if(m.estado==="PAGADO") map[key]-=m.monto;
-  });
-  return map;
-}
-
-function computePaidTotals(filterMes, filterCat){
-  const map = {};
-  activos().forEach(m=>{
-    if(m.tipo!=="GASTO") return;
-    if(m.estado!=="PAGADO") return;
-    if(filterMes && !(m.fecha||"").startsWith(filterMes)) return;
-    if(filterCat && filterCat!=="ALL" && m.categoria!==filterCat) return;
-    const key = `${m.categoria}|${m.subcategoria}`;
-    if(map[key]===undefined) map[key]=0;
-    map[key]+=m.monto;
   });
   return map;
 }
@@ -370,15 +610,22 @@ function labelSaldo(saldo){
   return `<span class="badge cero">Saldado</span>`;
 }
 
+/** =========================
+ *  RENDER ALL
+ * ========================= */
 function renderAll(){
   renderDashboard();
-  renderEstado();
+  renderEstadoProveedores();
   renderPagos();
-  renderMovimientos();
+  renderMovGastos();
+  renderVentasHist();
 }
 
+/** =========================
+ *  DASHBOARD
+ * ========================= */
 function renderDashboard(){
-  const mes = document.getElementById("filtroMes").value;
+  const mes = document.getElementById("dashMes").value;
 
   let ventasPeriodo=0;
   let gastosPagadosPeriodo=0;
@@ -390,125 +637,238 @@ function renderDashboard(){
     if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagadosPeriodo += m.monto;
   });
 
-  const accMap = computeAccountMap("Proveedores");
-  let deuda = 0;
-  Object.values(accMap).forEach(v=>{ if(v>0) deuda += v; });
+  const provMap = computeProveedorMap();
+  let deudaProv = 0;
+  Object.values(provMap).forEach(v=>{ if(v>0) deudaProv += v; });
 
   const saldosMetodo = computeSaldosPorMetodo();
   const disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
 
   document.getElementById("dashVentas").innerText = fmt.format(ventasPeriodo);
-  document.getElementById("dashGastos").innerText = fmt.format(gastosPagadosPeriodo);
+  document.getElementById("dashGastosPag").innerText = fmt.format(gastosPagadosPeriodo);
   document.getElementById("dashResultado").innerText = fmt.format(ventasPeriodo - gastosPagadosPeriodo);
-  document.getElementById("dashPendiente").innerText = fmt.format(deuda);
+  document.getElementById("dashDeudaProv").innerText = fmt.format(deudaProv);
   document.getElementById("dashDisponible").innerText = fmt.format(disponible);
 
   let html = "<table><tr><th>Método</th><th>Saldo</th></tr>";
   metodos.forEach(m=>{
     const v = Math.round(saldosMetodo[m]||0);
-    const cls = v>=0 ? "green" : "red";
-    html += `<tr><td>${m}</td><td class="${cls}">${fmt.format(v)}</td></tr>`;
+    html += `<tr><td>${m}</td><td class="${v>=0?'green':'red'}">${fmt.format(v)}</td></tr>`;
   });
   html += "</table>";
   document.getElementById("tablaMetodos").innerHTML = html;
 }
 
-function renderEstado(){
-  const cat = document.getElementById("estadoCat").value || "Proveedores";
-  const accMap = computeAccountMap(cat);
+/** =========================
+ *  ESTADO PROVEEDORES
+ * ========================= */
+function renderEstadoProveedores(){
+  const map = computeProveedorMap();
+  const lista = categorias["Proveedores"] || [];
 
-  let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Saldo</th></tr>";
-  html += `<tr class="catRow"><td colspan="3">${cat}</td></tr>`;
-
-  (categorias[cat]||[]).forEach(sub=>{
-    const key = `${cat}|${sub}`;
-    const saldo = (accMap[key] ?? 0);
-    html += `<tr>
-      <td class="muted">${cat}</td>
-      <td><b>${sub}</b></td>
-      <td>${labelSaldo(saldo)}</td>
-    </tr>`;
+  let html = "<table><tr><th>Proveedor</th><th>Saldo</th></tr>";
+  lista.forEach(p=>{
+    const saldo = map[p] ?? 0;
+    html += `<tr><td><b>${p}</b></td><td>${labelSaldo(saldo)}</td></tr>`;
   });
-
   html += "</table>";
   document.getElementById("tablaEstado").innerHTML = html;
 }
 
-function renderPagos(){
-  const mes = document.getElementById("pagMes").value;
-  const cat = document.getElementById("pagCat").value || "ALL";
-  const paidMap = computePaidTotals(mes, cat);
+/** =========================
+ *  PAGOS (solo pagados)
+ * ========================= */
+function computePaidTotals(filterMes, filterCat){
+  const map = {}; // cat|sub -> total
+  let cant = 0;
+  let total = 0;
 
-  let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Total pagado</th></tr>";
+  activos().forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+    if(m.estado!=="PAGADO") return;
+    if(filterMes && !(m.fecha||"").startsWith(filterMes)) return;
+    if(filterCat && filterCat!=="ALL" && m.categoria!==filterCat) return;
+
+    const key = `${m.categoria}|${m.subcategoria}`;
+    map[key] = (map[key]||0) + m.monto;
+    cant++;
+    total += m.monto;
+  });
+
+  return {map, cant, total};
+}
+
+function renderPagos(){
+  const mes = document.getElementById("pMes").value;
+  const cat = document.getElementById("pCat").value || "ALL";
+
+  const {map, cant, total} = computePaidTotals(mes, cat);
+
+  document.getElementById("pTotal").innerText = fmt.format(total);
+  document.getElementById("pCant").innerText = String(cant);
+
   const catsToShow = (cat && cat!=="ALL") ? [cat] : Object.keys(categorias);
 
+  let html = "<table><tr><th>Categoría</th><th>Subcategoría</th><th>Total pagado</th></tr>";
   catsToShow.forEach(c=>{
     html += `<tr class="catRow"><td colspan="3">${c}</td></tr>`;
     (categorias[c]||[]).forEach(sub=>{
       const key = `${c}|${sub}`;
-      const total = Math.round(paidMap[key] ?? 0);
-      html += `<tr>
-        <td class="muted">${c}</td>
-        <td><b>${sub}</b></td>
-        <td>${fmt.format(total)}</td>
-      </tr>`;
+      const t = Math.round(map[key]||0);
+      html += `<tr><td class="muted">${c}</td><td><b>${sub}</b></td><td>${fmt.format(t)}</td></tr>`;
     });
   });
-
   html += "</table>";
   document.getElementById("tablaPagos").innerHTML = html;
 }
 
-function renderMovimientos(){
-  const mes = document.getElementById("movMes").value;
-  const tipo = document.getElementById("movTipo").value || "ALL";
-  const cat = document.getElementById("movCat").value || "ALL";
+/** =========================
+ *  MOVIMIENTOS (SOLO GASTOS)
+ * ========================= */
+function onMgCatChange(isInit=false){
+  const cat = document.getElementById("mgCat").value || "ALL";
+  const subSel = document.getElementById("mgSub");
+
+  if(cat==="ALL"){
+    subSel.innerHTML = `<option value="ALL">Todas</option>`;
+  }else{
+    const subs = categorias[cat] || [];
+    subSel.innerHTML = `<option value="ALL">Todas</option>` + subs.map(s=>`<option value="${s}">${s}</option>`).join("");
+  }
+
+  if(!isInit) renderMovGastos();
+}
+
+function renderMovGastos(){
+  const mes = document.getElementById("mgMes").value;
+  const cat = document.getElementById("mgCat").value || "ALL";
+  const sub = document.getElementById("mgSub").value || "ALL";
+  const estado = document.getElementById("mgEstado").value || "ALL";
+  const metodo = document.getElementById("mgMetodo").value || "ALL";
+  const buscar = (document.getElementById("mgBuscar").value || "").trim().toLowerCase();
 
   let rows = [];
-  movimientos.forEach(m=>{
-    if(mes && !(m.fecha||"").startsWith(mes)) return;
-    if(tipo!=="ALL" && m.tipo!==tipo) return;
+  let totPag = 0;
+  let totPen = 0;
+  let cant = 0;
 
-    if(m.tipo==="VENTA"){
-      if(cat!=="ALL") return; // el filtro de categoría aplica a gastos
-      rows.push({
-        id:m.id,
-        anulado:!!m.anulado,
-        fecha:m.fecha, tipo:"VENTA",
-        detalle:`${m.metodo}${m.nota?(" · "+m.nota):""}`,
-        monto:m.monto
-      });
-    }else if(m.tipo==="GASTO"){
-      if(cat!=="ALL" && m.categoria!==cat) return;
-      const det = `${m.categoria} · ${m.subcategoria} · ${m.estado}${(m.estado==="PAGADO" && m.metodo)?(" · "+m.metodo):""}${m.nota?(" · "+m.nota):""}`;
-      rows.push({id:m.id,anulado:!!m.anulado,fecha:m.fecha,tipo:"GASTO",detalle:det,monto:m.monto});
+  movimientos.forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
+    if(cat!=="ALL" && m.categoria!==cat) return;
+    if(sub!=="ALL" && m.subcategoria!==sub) return;
+    if(estado!=="ALL" && m.estado!==estado) return;
+
+    // método: solo aplica si es PAGADO (y si filtro != ALL)
+    if(metodo!=="ALL"){
+      if(m.estado!=="PAGADO") return;
+      if(m.metodo!==metodo) return;
     }
+
+    // buscar en categoría/sub/notas
+    const hay = (m.categoria||"") + " " + (m.subcategoria||"") + " " + (m.nota||"");
+    if(buscar && !hay.toLowerCase().includes(buscar)) return;
+
+    // totales solo si NO está anulado
+    if(!m.anulado){
+      if(m.estado==="PAGADO") totPag += m.monto;
+      if(m.estado==="PENDIENTE") totPen += m.monto;
+    }
+
+    cant++;
+    rows.push(m);
   });
 
-  rows.sort((a,b)=> (a.fecha>b.fecha?1:(a.fecha<b.fecha?-1:0)));
+  // orden: más nuevo arriba, y si empatan, por orden de carga (id tiene timestamp)
+  rows.sort((a,b)=>{
+    if(a.fecha>b.fecha) return -1;
+    if(a.fecha<b.fecha) return 1;
+    return (a.id>b.id) ? -1 : 1;
+  });
 
-  let html = "<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th><th>Acción</th></tr>";
-  rows.forEach(r=>{
-    const cls = (r.tipo==="VENTA") ? "green" : "red";
-    const montoTxt = fmt.format(r.monto);
-    let accion = "";
-    if(r.anulado){
-      accion = `<span class="anuladoTxt">ANULADO</span>`;
-    }else{
-      accion = `<button class="btnMini" onclick="anularMovimiento('${r.id}')">Anular</button>`;
-    }
+  document.getElementById("mgTotPag").innerText = fmt.format(totPag);
+  document.getElementById("mgTotPen").innerText = fmt.format(totPen);
+  document.getElementById("mgCant").innerText = String(cant);
 
-    html += `<tr style="${r.anulado?'opacity:.55':''}">
-      <td>${r.fecha}</td>
-      <td>${r.tipo}</td>
-      <td>${r.detalle}</td>
-      <td class="${cls}">${montoTxt}</td>
+  let html = "<table><tr><th>Fecha</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th><th>Acción</th></tr>";
+  rows.forEach(m=>{
+    const det = `<b>${m.categoria}</b> · ${m.subcategoria}${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
+    const met = (m.estado==="PAGADO") ? (m.metodo||"-") : "-";
+    const clsMonto = (m.estado==="PAGADO") ? "red" : "muted";
+    const accion = m.anulado
+      ? `<button class="btnMini" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
+      : `<button class="btnMini" onclick="anularMovimiento('${m.id}')">Anular</button>`;
+
+    html += `<tr class="${m.anulado?'rowAnulada':''}">
+      <td>${m.fecha}</td>
+      <td>${det}</td>
+      <td>${m.anulado?'<span class="badge cero">ANULADO</span>':(m.estado==="PAGADO"?'<span class="badge debes">PAGADO</span>':'<span class="badge cاذero">PENDIENTE</span>')}</td>
+      <td>${met}</td>
+      <td class="${clsMonto}">${fmt.format(m.monto)}</td>
       <td>${accion}</td>
     </tr>`;
   });
   html += "</table>";
 
-  document.getElementById("tablaMovimientos").innerHTML = html;
+  // fix pequeño: badge "cero" para Pendiente (sin inventar color nuevo)
+  html = html.replaceAll('badge cاذero','badge cero');
+
+  document.getElementById("tablaMovGastos").innerHTML = html;
+}
+
+/** =========================
+ *  VENTAS HISTORIAL
+ * ========================= */
+function renderVentasHist(){
+  const mes = document.getElementById("vhMes").value;
+  const metodo = document.getElementById("vhMetodo").value || "ALL";
+  const buscar = (document.getElementById("vhBuscar").value || "").trim().toLowerCase();
+
+  let rows = [];
+  let total = 0;
+  let cant = 0;
+
+  movimientos.forEach(m=>{
+    if(m.tipo!=="VENTA") return;
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
+    if(metodo!=="ALL" && m.metodo!==metodo) return;
+
+    const hay = (m.metodo||"") + " " + (m.nota||"");
+    if(buscar && !hay.toLowerCase().includes(buscar)) return;
+
+    if(!m.anulado){
+      total += m.monto;
+    }
+    cant++;
+    rows.push(m);
+  });
+
+  rows.sort((a,b)=>{
+    if(a.fecha>b.fecha) return -1;
+    if(a.fecha<b.fecha) return 1;
+    return (a.id>b.id) ? -1 : 1;
+  });
+
+  document.getElementById("vhTotal").innerText = fmt.format(total);
+  document.getElementById("vhCant").innerText = String(cant);
+
+  let html = "<table><tr><th>Fecha</th><th>Categoría (método)</th><th>Nota</th><th>Monto</th><th>Acción</th></tr>";
+  rows.forEach(m=>{
+    const accion = m.anulado
+      ? `<button class="btnMini" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
+      : `<button class="btnMini" onclick="anularMovimiento('${m.id}')">Anular</button>`;
+    html += `<tr class="${m.anulado?'rowAnulada':''}">
+      <td>${m.fecha}</td>
+      <td><b>${m.metodo}</b></td>
+      <td class="muted">${m.nota||""}</td>
+      <td class="green">${fmt.format(m.monto)}</td>
+      <td>${accion}</td>
+    </tr>`;
+  });
+  html += "</table>";
+
+  document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
 iniciar();
