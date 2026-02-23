@@ -36,6 +36,9 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
 .catRow{background:#eef2ff;font-weight:800}
 .small{font-size:12px;color:var(--muted)}
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0}
+.btnMini{border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+.btnMini:hover{background:#f9fafb}
+.anuladoTxt{color:var(--muted);font-size:12px;font-weight:700}
 </style>
 </head>
 
@@ -51,7 +54,6 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
 <button onclick="go('movimientos', event)">Movimientos</button>
 </nav>
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="section active">
   <div class="panel">
     <h3>Resumen del período</h3>
@@ -65,10 +67,9 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
       <div class="stat">Pendiente Total (deuda actual proveedores)<br><span id="dashPendiente" class="red">$0</span></div>
       <div class="stat">Disponible Total (hoy)<br><span id="dashDisponible">$0</span></div>
     </div>
-
     <div class="small" style="margin-top:10px">
-      *“Pendiente Total” muestra <b>deuda real de Proveedores</b> (saldos positivos).<br>
-      *El filtro de mes NO afecta la deuda real.
+      *Pendiente Total = deuda real de Proveedores (saldos positivos).<br>
+      *Movimientos anulados NO cuentan para nada.
     </div>
   </div>
 
@@ -78,7 +79,6 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
   </div>
 </div>
 
-<!-- VENTAS -->
 <div id="ventas" class="section">
   <div class="panel">
     <h3>Nueva Venta</h3>
@@ -90,7 +90,6 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
   </div>
 </div>
 
-<!-- GASTOS -->
 <div id="gastos" class="section">
   <div class="panel">
     <h3>Nuevo Gasto</h3>
@@ -109,30 +108,25 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
     <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
 
     <div class="small">
-      Proveedores: Pendiente suma deuda. Pagado descuenta deuda (puede quedar en 0 o a favor).<br>
-      Impuestos: miralos en la hoja <b>Pagos</b>.
+      Corregir = vas a Movimientos y tocás “Anular” en la línea equivocada.
     </div>
   </div>
 </div>
 
-<!-- ESTADO DE CUENTA (solo proveedores) -->
 <div id="estado" class="section">
   <div class="panel">
     <h3>Estado de Cuenta · Proveedores (Histórico Total)</h3>
     <div class="small">Saldo final por proveedor: Debés / Saldado / A favor.</div>
-
     <div class="filters">
       <div>
-        <label class="small">Categoría (por si mañana sumamos más)</label>
+        <label class="small">Categoría</label>
         <select id="estadoCat" onchange="renderEstado()"></select>
       </div>
     </div>
-
     <div id="tablaEstado"></div>
   </div>
 </div>
 
-<!-- PAGOS -->
 <div id="pagos" class="section">
   <div class="panel">
     <h3>Pagos (Histórico Total)</h3>
@@ -153,7 +147,6 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
   </div>
 </div>
 
-<!-- MOVIMIENTOS -->
 <div id="movimientos" class="section">
   <div class="panel">
     <h3>Movimientos</h3>
@@ -176,15 +169,14 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
       </div>
     </div>
 
-    <div id="tablaMovimientos"></div>
+    <div class="small">Tip: Para corregir un dato mal anotado, tocá <b>Anular</b> en la línea.</div>
+    <div id="tablaMovimientos" style="margin-top:10px"></div>
   </div>
 </div>
 
 <script>
-const STORAGE = "SM_GESTION_V6";
+const STORAGE = "SM_GESTION_V7";
 const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
-
-// Estado de Cuenta solo para estas categorías
 const ACCOUNT_CATS = ["Proveedores"];
 
 let movimientos = [];
@@ -197,12 +189,21 @@ let categorias = {
 };
 
 function hoy(){ return new Date().toISOString().split("T")[0]; }
+function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
+
 function guardar(){ localStorage.setItem(STORAGE, JSON.stringify(movimientos)); }
 function cargar(){
   let data = localStorage.getItem(STORAGE);
   if(data){
-    try{ movimientos = JSON.parse(data) || []; }
-    catch{ movimientos = []; }
+    try{
+      movimientos = JSON.parse(data) || [];
+      // compat: si vinieron sin id/anulado
+      movimientos = movimientos.map(m=>({
+        id: m.id || uid(),
+        anulado: !!m.anulado,
+        ...m
+      }));
+    }catch{ movimientos = []; }
   }
 }
 
@@ -211,42 +212,6 @@ function go(id, ev){
   document.getElementById(id).classList.add("active");
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
   if(ev?.target) ev.target.classList.add("active");
-}
-
-function iniciar(){
-  cargar();
-
-  document.getElementById("ventaFecha").value = hoy();
-  document.getElementById("gastoFecha").value = hoy();
-
-  // métodos
-  let vm = document.getElementById("ventaMetodo");
-  let gm = document.getElementById("gastoMetodo");
-  vm.innerHTML = ""; gm.innerHTML = "";
-  metodos.forEach(m=>{
-    vm.innerHTML += `<option>${m}</option>`;
-    gm.innerHTML += `<option>${m}</option>`;
-  });
-
-  // categorías gastos
-  let catSel = document.getElementById("gastoCategoria");
-  catSel.innerHTML = "";
-  Object.keys(categorias).forEach(c=>{ catSel.innerHTML += `<option>${c}</option>`; });
-  cargarSubcategorias();
-
-  // filtros selects
-  fillCatSelect("pagCat", true);   // incluye "Todas"
-  fillCatSelect("movCat", true);
-  fillAccountSelect();
-  document.getElementById("estadoCat").value = "Proveedores";
-
-  // defaults
-  document.getElementById("filtroMes").value = "";
-  document.getElementById("movMes").value = "";
-  document.getElementById("pagMes").value = "";
-
-  toggleMetodoGasto();
-  renderAll();
 }
 
 function fillCatSelect(id, includeAll){
@@ -262,13 +227,45 @@ function fillAccountSelect(){
   ACCOUNT_CATS.forEach(c=> sel.innerHTML += `<option value="${c}">${c}</option>`);
 }
 
+function iniciar(){
+  cargar();
+
+  document.getElementById("ventaFecha").value = hoy();
+  document.getElementById("gastoFecha").value = hoy();
+
+  let vm = document.getElementById("ventaMetodo");
+  let gm = document.getElementById("gastoMetodo");
+  vm.innerHTML = ""; gm.innerHTML = "";
+  metodos.forEach(m=>{
+    vm.innerHTML += `<option>${m}</option>`;
+    gm.innerHTML += `<option>${m}</option>`;
+  });
+
+  let catSel = document.getElementById("gastoCategoria");
+  catSel.innerHTML = "";
+  Object.keys(categorias).forEach(c=>{ catSel.innerHTML += `<option>${c}</option>`; });
+  cargarSubcategorias();
+  document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
+
+  fillCatSelect("pagCat", true);
+  fillCatSelect("movCat", true);
+  fillAccountSelect();
+  document.getElementById("estadoCat").value = "Proveedores";
+
+  document.getElementById("filtroMes").value = "";
+  document.getElementById("movMes").value = "";
+  document.getElementById("pagMes").value = "";
+
+  toggleMetodoGasto();
+  renderAll();
+}
+
 function cargarSubcategorias(){
   let cat = document.getElementById("gastoCategoria").value;
   let subSel = document.getElementById("gastoSubcategoria");
   subSel.innerHTML = "";
   (categorias[cat]||[]).forEach(s=>{ subSel.innerHTML += `<option>${s}</option>`; });
 }
-document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
 
 function toggleMetodoGasto(){
   const estado = document.getElementById("gastoEstado").value;
@@ -284,7 +281,7 @@ function guardarVenta(){
   let nota = (document.getElementById("ventaNota").value||"").trim();
   if(!monto || monto<=0) return;
 
-  movimientos.push({tipo:"VENTA",fecha,metodo,monto,nota});
+  movimientos.push({id:uid(),anulado:false,tipo:"VENTA",fecha,metodo,monto,nota});
   guardar();
   renderAll();
   document.getElementById("ventaMonto").value = "";
@@ -301,18 +298,32 @@ function guardarGasto(){
   let nota = (document.getElementById("gastoNota").value||"").trim();
   if(!monto || monto<=0) return;
 
-  movimientos.push({tipo:"GASTO",fecha,categoria,subcategoria,monto,estado,metodo,nota});
+  movimientos.push({id:uid(),anulado:false,tipo:"GASTO",fecha,categoria,subcategoria,monto,estado,metodo,nota});
   guardar();
   renderAll();
   document.getElementById("gastoMonto").value = "";
   document.getElementById("gastoNota").value = "";
 }
 
+function anularMovimiento(id){
+  const mv = movimientos.find(x=>x.id===id);
+  if(!mv) return;
+  if(mv.anulado) return;
+  if(!confirm("¿Anular este movimiento? No se borra, solo deja de contar.")) return;
+  mv.anulado = true;
+  guardar();
+  renderAll();
+}
+
+function activos(){
+  return movimientos.filter(m=>!m.anulado);
+}
+
 function computeSaldosPorMetodo(){
   const saldos = {};
   metodos.forEach(m=>saldos[m]=0);
 
-  movimientos.forEach(m=>{
+  activos().forEach(m=>{
     if(m.tipo==="VENTA"){
       if(saldos[m.metodo]===undefined) saldos[m.metodo]=0;
       saldos[m.metodo]+=m.monto;
@@ -327,7 +338,7 @@ function computeSaldosPorMetodo(){
 
 function computeAccountMap(cat){
   const map = {};
-  movimientos.forEach(m=>{
+  activos().forEach(m=>{
     if(m.tipo!=="GASTO") return;
     if(m.categoria!==cat) return;
     const key = `${m.categoria}|${m.subcategoria}`;
@@ -339,8 +350,8 @@ function computeAccountMap(cat){
 }
 
 function computePaidTotals(filterMes, filterCat){
-  const map = {}; // key cat|sub -> total pagado
-  movimientos.forEach(m=>{
+  const map = {};
+  activos().forEach(m=>{
     if(m.tipo!=="GASTO") return;
     if(m.estado!=="PAGADO") return;
     if(filterMes && !(m.fecha||"").startsWith(filterMes)) return;
@@ -350,6 +361,13 @@ function computePaidTotals(filterMes, filterCat){
     map[key]+=m.monto;
   });
   return map;
+}
+
+function labelSaldo(saldo){
+  saldo = Math.round(saldo);
+  if(saldo>0) return `<span class="badge debes">Debés ${fmt.format(saldo)}</span>`;
+  if(saldo<0) return `<span class="badge afavor">A favor ${fmt.format(Math.abs(saldo))}</span>`;
+  return `<span class="badge cero">Saldado</span>`;
 }
 
 function renderAll(){
@@ -365,14 +383,13 @@ function renderDashboard(){
   let ventasPeriodo=0;
   let gastosPagadosPeriodo=0;
 
-  movimientos.forEach(m=>{
+  activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
     if(!esMes) return;
     if(m.tipo==="VENTA") ventasPeriodo += m.monto;
     if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagadosPeriodo += m.monto;
   });
 
-  // deuda proveedores histórica
   const accMap = computeAccountMap("Proveedores");
   let deuda = 0;
   Object.values(accMap).forEach(v=>{ if(v>0) deuda += v; });
@@ -394,13 +411,6 @@ function renderDashboard(){
   });
   html += "</table>";
   document.getElementById("tablaMetodos").innerHTML = html;
-}
-
-function labelSaldo(saldo){
-  saldo = Math.round(saldo);
-  if(saldo>0) return `<span class="badge debes">Debés ${fmt.format(saldo)}</span>`;
-  if(saldo<0) return `<span class="badge afavor">A favor ${fmt.format(Math.abs(saldo))}</span>`;
-  return `<span class="badge cero">Saldado</span>`;
 }
 
 function renderEstado(){
@@ -430,7 +440,6 @@ function renderPagos(){
   const paidMap = computePaidTotals(mes, cat);
 
   let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Total pagado</th></tr>";
-
   const catsToShow = (cat && cat!=="ALL") ? [cat] : Object.keys(categorias);
 
   catsToShow.forEach(c=>{
@@ -461,32 +470,40 @@ function renderMovimientos(){
     if(tipo!=="ALL" && m.tipo!==tipo) return;
 
     if(m.tipo==="VENTA"){
-      // si filtra por categoría (solo gastos), y eligió una categoría específica, no mostrar ventas
-      if(cat!=="ALL") return;
-
+      if(cat!=="ALL") return; // el filtro de categoría aplica a gastos
       rows.push({
+        id:m.id,
+        anulado:!!m.anulado,
         fecha:m.fecha, tipo:"VENTA",
         detalle:`${m.metodo}${m.nota?(" · "+m.nota):""}`,
         monto:m.monto
       });
     }else if(m.tipo==="GASTO"){
       if(cat!=="ALL" && m.categoria!==cat) return;
-
       const det = `${m.categoria} · ${m.subcategoria} · ${m.estado}${(m.estado==="PAGADO" && m.metodo)?(" · "+m.metodo):""}${m.nota?(" · "+m.nota):""}`;
-      rows.push({fecha:m.fecha,tipo:"GASTO",detalle:det,monto:m.monto});
+      rows.push({id:m.id,anulado:!!m.anulado,fecha:m.fecha,tipo:"GASTO",detalle:det,monto:m.monto});
     }
   });
 
   rows.sort((a,b)=> (a.fecha>b.fecha?1:(a.fecha<b.fecha?-1:0)));
 
-  let html = "<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>";
+  let html = "<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th><th>Acción</th></tr>";
   rows.forEach(r=>{
     const cls = (r.tipo==="VENTA") ? "green" : "red";
-    html += `<tr>
+    const montoTxt = fmt.format(r.monto);
+    let accion = "";
+    if(r.anulado){
+      accion = `<span class="anuladoTxt">ANULADO</span>`;
+    }else{
+      accion = `<button class="btnMini" onclick="anularMovimiento('${r.id}')">Anular</button>`;
+    }
+
+    html += `<tr style="${r.anulado?'opacity:.55':''}">
       <td>${r.fecha}</td>
       <td>${r.tipo}</td>
       <td>${r.detalle}</td>
-      <td class="${cls}">${fmt.format(r.monto)}</td>
+      <td class="${cls}">${montoTxt}</td>
+      <td>${accion}</td>
     </tr>`;
   });
   html += "</table>";
