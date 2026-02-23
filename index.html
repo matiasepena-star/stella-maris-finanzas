@@ -1,1460 +1,345 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Stella Maris · Gestión (Demo Empresarial)</title>
-  <style>
-    :root{
-      --bg:#f4f6f9;
-      --header:#0d47a1;
-      --nav:#1565c0;
-      --navHover:#0d47a1;
-      --card:#ffffff;
-      --line:#e0e0e0;
-      --text:#111827;
-      --muted:#6b7280;
-      --ok:#16a34a;
-      --bad:#dc2626;
-      --chip:#eef2ff;
-      --shadow: 0 2px 10px rgba(0,0,0,.08);
-      --radius:10px;
-      --pad:14px;
-      font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stella Maris · Gestión Empresarial</title>
 
-    /* Layout fijo: NO crece la pantalla */
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      height:100vh;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
-    header{
-      background:var(--header);
-      color:#fff;
-      padding:14px 16px;
-      font-size:18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    header small{font-size:12px; opacity:.9}
-    nav{
-      display:flex;
-      background:var(--nav);
-      flex-wrap:wrap;
-    }
-    nav button{
-      flex:1;
-      min-width:120px;
-      padding:12px 10px;
-      border:none;
-      background:var(--nav);
-      color:#fff;
-      cursor:pointer;
-      font-size:14px;
-    }
-    nav button:hover{ background:var(--navHover); }
-    nav button.active{ background:#0b3c8a; font-weight:700; }
+<style>
+:root{
+--bg:#f4f6f9;
+--header:#0d47a1;
+--nav:#1565c0;
+--navHover:#0b3c8a;
+--card:#ffffff;
+--line:#e5e7eb;
+--text:#111827;
+--muted:#6b7280;
+--ok:#16a34a;
+--bad:#dc2626;
+}
 
-    main{
-      flex:1;
-      display:flex;
-      min-height:0;
-    }
-    .section{
-      display:none;
-      flex:1;
-      padding:16px;
-      overflow:hidden; /* fija altura; scroll va adentro */
-    }
-    .section.active{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      min-height:0;
-    }
+body{
+margin:0;
+font-family:Arial;
+background:var(--bg);
+height:100vh;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+color:var(--text);
+}
 
-    .row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:var(--pad);
-    }
-    .grow{ flex:1; min-width:280px; }
-    .half{ flex:1; min-width:260px; }
-    .title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .title h2{
-      margin:0;
-      font-size:15px;
-    }
-    .title .muted{font-size:12px}
+header{
+background:var(--header);
+color:white;
+padding:15px;
+font-weight:bold;
+}
 
-    .muted{color:var(--muted)}
-    .kpiWrap{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .kpi{
-      flex:1;
-      min-width:180px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:12px;
-      background:#fff;
-    }
-    .kpi small{display:block;color:var(--muted);margin-bottom:6px}
-    .kpi b{font-size:18px}
-    .pos{color:var(--ok)}
-    .neg{color:var(--bad)}
+nav{
+display:flex;
+flex-wrap:wrap;
+background:var(--nav);
+}
 
-    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
-    input,select,textarea{
-      width:100%;
-      box-sizing:border-box;
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:10px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
-    }
-    textarea{min-height:42px; resize:vertical;}
+nav button{
+flex:1;
+min-width:120px;
+border:0;
+background:var(--nav);
+color:white;
+padding:12px;
+cursor:pointer;
+font-size:14px;
+}
 
-    .btnRow{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .btn{
-      border:none;
-      border-radius:10px;
-      padding:10px 12px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:13px;
-    }
-    .btn.primary{background:var(--nav); color:#fff;}
-    .btn.primary:hover{background:var(--navHover);}
-    .btn.gray{background:#f3f4f6;}
-    .btn.gray:hover{background:#e5e7eb;}
-    .btn.danger{background:var(--bad); color:#fff;}
-    .btn.danger:hover{filter:brightness(.95);}
+nav button:hover{
+background:var(--navHover);
+}
 
-    .split{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      min-height:0;
-      flex:1;
-    }
-    .tableBox{
-      flex:1;
-      min-width:320px;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
+nav button.active{
+background:#08307a;
+font-weight:bold;
+}
 
-    /* Scroll interno en listas/tablas */
-    .scroll{
-      border:1px solid var(--line);
-      border-radius:12px;
-      overflow:auto;
-      min-height:0;
-      background:#fff;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
-    th,td{
-      border-bottom:1px solid #eef2f7;
-      padding:10px;
-      text-align:left;
-      vertical-align:top;
-    }
-    th{
-      position:sticky;
-      top:0;
-      background:#f8fafc;
-      z-index:2;
-      font-size:12px;
-      color:#374151;
-    }
+.section{
+display:none;
+flex:1;
+padding:15px;
+overflow:auto;
+}
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:5px 10px;
-      border-radius:999px;
-      font-size:12px;
-      border:1px solid var(--line);
-      background:#fff;
-      white-space:nowrap;
-    }
-    .pill.ok{border-color:rgba(22,163,74,.35); background:rgba(22,163,74,.08); color:var(--ok)}
-    .pill.bad{border-color:rgba(220,38,38,.35); background:rgba(220,38,38,.08); color:var(--bad)}
+.section.active{
+display:block;
+}
 
-    .chipRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .chip{
-      background:var(--chip);
-      border:1px solid #dbeafe;
-      color:#1e3a8a;
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:12px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .chip:active{transform:translateY(1px);}
+.card{
+background:var(--card);
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+border:1px solid var(--line);
+}
 
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:14px;
-      transform:translateX(-50%);
-      background:#111827;
-      color:#fff;
-      padding:10px 12px;
-      border-radius:999px;
-      font-size:13px;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease;
-      z-index:999;
-    }
-    .toast.show{opacity:1}
+input,select{
+width:100%;
+padding:8px;
+margin:6px 0;
+border:1px solid var(--line);
+border-radius:6px;
+}
 
-    .mini{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:6px;
-      line-height:1.35;
-    }
+button.action{
+background:var(--nav);
+color:white;
+border:0;
+padding:10px;
+border-radius:6px;
+cursor:pointer;
+}
 
-    .warn{
-      border:1px solid rgba(220,38,38,.25);
-      background:rgba(220,38,38,.06);
-      padding:10px 12px;
-      border-radius:12px;
-      font-size:12px;
-      color:#7f1d1d;
-    }
-  </style>
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border-bottom:1px solid var(--line);
+padding:8px;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+.green{color:var(--ok);font-weight:bold}
+.red{color:var(--bad);font-weight:bold}
+</style>
 </head>
-
 <body>
+
 <header>
-  <div>
-    <div style="font-weight:800;">Stella Maris · Gestión</div>
-    <small class="muted">Demo empresarial · Base maestra · Pendientes con pagos parciales · Guarda local</small>
-  </div>
-  <div class="pill" id="savePill">💾 Guardado</div>
+Stella Maris · Gestión Empresarial
 </header>
 
-<nav id="nav">
-  <button data-tab="dash" class="active" onclick="go('dash')">Dashboard</button>
-  <button data-tab="ventas" onclick="go('ventas')">Ventas</button>
-  <button data-tab="gastos" onclick="go('gastos')">Gastos</button>
-  <button data-tab="libro" onclick="go('libro')">Movimientos</button>
-  <button data-tab="pend" onclick="go('pend')">Pendientes</button>
-  <button data-tab="maestra" onclick="go('maestra')">Base Maestra</button>
+<nav>
+<button class="active" onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('ventas')">Ventas</button>
+<button onclick="mostrar('gastos')">Gastos</button>
+<button onclick="mostrar('transferencias')">Transferencias</button>
+<button onclick="mostrar('pendientes')">Pendientes</button>
 </nav>
 
-<main>
-  <!-- DASHBOARD -->
-  <section id="dash" class="section active">
-    <div class="row">
-      <div class="card grow">
-        <div class="title">
-          <h2>📊 Dashboard</h2>
-          <div class="muted">Mes:
-            <input id="dashMes" type="month" style="display:inline-block;width:170px; margin-left:8px; padding:8px 10px;">
-          </div>
-        </div>
+<div id="dashboard" class="section active">
+<div class="card">
+<h3>Resumen General</h3>
+<div>Ventas: <span id="totalVentas" class="green">$0</span></div>
+<div>Egresos pagados: <span id="totalGastos" class="red">$0</span></div>
+<div>Pendiente total: <span id="totalPendiente" class="red">$0</span></div>
+<div>Disponible total: <span id="saldoTotal">$0</span></div>
+</div>
 
-        <div class="kpiWrap">
-          <div class="kpi">
-            <small>Ventas (mes)</small>
-            <b id="kVentas" class="pos">$0</b>
-          </div>
-          <div class="kpi">
-            <small>Gastos pagados (mes)</small>
-            <b id="kGastos" class="neg">$0</b>
-          </div>
-          <div class="kpi">
-            <small>Resultado (mes)</small>
-            <b id="kRes">$0</b>
-          </div>
-          <div class="kpi">
-            <small>Pendiente total</small>
-            <b id="kPend" class="neg">$0</b>
-          </div>
-        </div>
+<div class="card">
+<h3>Saldos por método</h3>
+<div id="saldosMetodos"></div>
+</div>
+</div>
 
-        <div class="mini">
-          *Ventas suman. Gastos pagados restan. Pendientes se ven aparte.<br>
-          Si querés “saldo por medio real con transferencias internas”, se agrega después.
-        </div>
-      </div>
+<div id="ventas" class="section">
+<div class="card">
+<h3>Nueva Venta</h3>
+<input type="number" id="ventaMonto" placeholder="Monto">
+<select id="ventaMetodo"></select>
+<button class="action" onclick="guardarVenta()">Guardar Venta</button>
+</div>
 
-      <div class="card half">
-        <div class="title">
-          <h2>⚡ Acciones</h2>
-          <span class="muted">Backup y control</span>
-        </div>
-        <div class="btnRow">
-          <button class="btn gray" onclick="seedDemo()">Cargar demo</button>
-          <button class="btn gray" onclick="exportBackup()">Exportar backup</button>
-          <label class="btn gray" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
-            Importar backup
-            <input type="file" id="importFile" accept="application/json" style="display:none">
-          </label>
-          <button class="btn danger" onclick="wipeAll()">Borrar TODO</button>
-        </div>
-        <div class="warn" style="margin-top:12px;">
-          Esto guarda local en ESTE dispositivo. Para llevarlo a otra compu/celu: Exportar → Importar.
-        </div>
-      </div>
-    </div>
+<div class="card">
+<h3>Listado de Ventas</h3>
+<div id="listaVentas"></div>
+</div>
+</div>
 
-    <div class="split">
-      <div class="card tableBox">
-        <div class="title">
-          <h2>🧾 Últimos movimientos</h2>
-          <span class="muted">Últimos 12</span>
-        </div>
-        <div class="scroll" id="dashLast" style="flex:1;"></div>
-      </div>
+<div id="gastos" class="section">
+<div class="card">
+<h3>Nuevo Gasto</h3>
+<input type="text" id="gastoProveedor" placeholder="Proveedor">
+<input type="number" id="gastoMonto" placeholder="Monto">
+<select id="gastoMetodo"></select>
+<select id="gastoEstado">
+<option value="PENDIENTE">Pendiente</option>
+<option value="PAGADO">Pagado</option>
+</select>
+<button class="action" onclick="guardarGasto()">Guardar Gasto</button>
+</div>
 
-      <div class="card tableBox">
-        <div class="title">
-          <h2>⏳ Pendientes por entidad</h2>
-          <span class="muted">Top 12</span>
-        </div>
-        <div class="scroll" id="dashPend" style="flex:1;"></div>
-      </div>
-    </div>
-  </section>
+<div class="card">
+<h3>Listado de Gastos</h3>
+<div id="listaGastos"></div>
+</div>
+</div>
 
-  <!-- VENTAS -->
-  <section id="ventas" class="section">
-    <div class="row">
-      <div class="card grow">
-        <div class="title">
-          <h2>💰 Cargar venta</h2>
-          <span class="muted">Se guarda automático</span>
-        </div>
+<div id="transferencias" class="section">
+<div class="card">
+<h3>Nueva Transferencia</h3>
+<select id="desdeMetodo"></select>
+<select id="haciaMetodo"></select>
+<input type="number" id="transferMonto" placeholder="Monto">
+<button class="action" onclick="guardarTransferencia()">Guardar Transferencia</button>
+</div>
+</div>
 
-        <div class="row">
-          <div class="half">
-            <label>Fecha</label>
-            <input type="date" id="vFecha">
-          </div>
-          <div class="half">
-            <label>Método</label>
-            <select id="vMedio"></select>
-          </div>
-          <div class="half">
-            <label>Monto</label>
-            <input type="number" id="vMonto" inputmode="decimal" placeholder="Ej: 100000">
-            <div class="chipRow" id="vChips"></div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="grow">
-            <label>Nota (opcional)</label>
-            <input type="text" id="vNota" placeholder="Mostrador / sushi / etc.">
-          </div>
-        </div>
-
-        <div class="btnRow">
-          <button class="btn gray" onclick="quickSale()">Venta ejemplo</button>
-          <button class="btn primary" onclick="saveSale()">Guardar venta</button>
-        </div>
-      </div>
-
-      <div class="card half">
-        <div class="title">
-          <h2>📌 Vista rápida</h2>
-          <span class="muted">Hoy</span>
-        </div>
-        <div id="ventasHoy" class="scroll" style="height:260px;"></div>
-        <div class="mini">Tip: para ver TODO, usá “Movimientos”.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- GASTOS -->
-  <section id="gastos" class="section">
-    <div class="row">
-      <div class="card grow">
-        <div class="title">
-          <h2>🧾 Cargar gasto</h2>
-          <span class="muted">Categoría → subcategoría</span>
-        </div>
-
-        <div class="row">
-          <div class="half">
-            <label>Fecha</label>
-            <input type="date" id="gFecha">
-          </div>
-          <div class="half">
-            <label>Método</label>
-            <select id="gMedio"></select>
-          </div>
-          <div class="half">
-            <label>Monto</label>
-            <input type="number" id="gMonto" inputmode="decimal" placeholder="Ej: 100000">
-            <div class="chipRow" id="gChips"></div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="half">
-            <label>Categoría</label>
-            <select id="gCat" onchange="refreshSubcats()"></select>
-          </div>
-          <div class="half">
-            <label>Subcategoría</label>
-            <select id="gSub"></select>
-          </div>
-          <div class="half">
-            <label>Estado</label>
-            <select id="gEstado" onchange="toggleVenc()">
-              <option value="PENDIENTE">Pendiente</option>
-              <option value="PAGADO">Pagado</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row" id="vencRow" style="display:none;">
-          <div class="half">
-            <label>Vencimiento (opcional)</label>
-            <input type="date" id="gVenc">
-          </div>
-          <div class="half">
-            <label>Referencia (opcional)</label>
-            <input type="text" id="gRef" placeholder="Factura / Remito / etc.">
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="grow">
-            <label>Nota (opcional)</label>
-            <input type="text" id="gNota" placeholder="Detalle breve">
-          </div>
-        </div>
-
-        <div class="btnRow">
-          <button class="btn gray" onclick="quickExpense()">Gasto ejemplo</button>
-          <button class="btn primary" onclick="saveExpense()">Guardar gasto</button>
-        </div>
-      </div>
-
-      <div class="card half">
-        <div class="title">
-          <h2>⏳ Pendientes (vista rápida)</h2>
-          <span class="muted">Top 15</span>
-        </div>
-        <div id="pendQuick" class="scroll" style="height:360px;"></div>
-        <div class="mini">Acá ves el total por proveedor/impuesto. Para pagar parcial, usá “Pendientes”.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- LIBRO -->
-  <section id="libro" class="section">
-    <div class="card">
-      <div class="title">
-        <h2>📚 Movimientos (del día 1 al día 1000)</h2>
-        <span class="muted">Todo en una sola lista</span>
-      </div>
-
-      <div class="row">
-        <div class="half">
-          <label>Mes</label>
-          <input type="month" id="lMes" onchange="renderLibro()">
-        </div>
-        <div class="half">
-          <label>Buscar</label>
-          <input type="text" id="lQ" placeholder="proveedor, impuesto, nota..." oninput="debouncedRenderLibro()">
-        </div>
-        <div class="half">
-          <label>Tipo</label>
-          <select id="lTipo" onchange="renderLibro()">
-            <option value="ALL">Todos</option>
-            <option value="VENTA">Ventas</option>
-            <option value="GASTO">Gastos</option>
-            <option value="PAGO">Pagos</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="scroll" id="libroList" style="height: calc(100vh - 260px);"></div>
-      <div class="mini">Tip: una venta/gasto/pago = un movimiento. Todo queda registrado.</div>
-    </div>
-  </section>
-
-  <!-- PENDIENTES -->
-  <section id="pend" class="section">
-    <div class="split">
-      <div class="card tableBox">
-        <div class="title">
-          <h2>⏳ Pendientes (totales)</h2>
-          <span class="muted">por proveedor / impuesto</span>
-        </div>
-
-        <div class="row">
-          <div class="half">
-            <label>Filtrar categoría</label>
-            <select id="pCat" onchange="renderPend()"></select>
-          </div>
-          <div class="half">
-            <label>Buscar entidad</label>
-            <input type="text" id="pQ" placeholder="Leandro, ARBA..." oninput="debouncedRenderPend()">
-          </div>
-        </div>
-
-        <div class="scroll" id="pendList" style="flex:1;"></div>
-        <div class="mini">Acá ves el saldo pendiente. Entrás a una entidad y registrás pagos parciales.</div>
-      </div>
-
-      <div class="card tableBox">
-        <div class="title">
-          <h2>💳 Pagar / Historial</h2>
-          <span class="muted" id="pSel">Elegí una entidad</span>
-        </div>
-
-        <div id="payBox" style="display:none;">
-          <div class="row">
-            <div class="half">
-              <label>Fecha</label>
-              <input type="date" id="payFecha">
-            </div>
-            <div class="half">
-              <label>Método</label>
-              <select id="payMedio"></select>
-            </div>
-            <div class="half">
-              <label>Monto a pagar</label>
-              <input type="number" id="payMonto" inputmode="decimal" placeholder="Ej: 300000">
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="grow">
-              <label>Nota (opcional)</label>
-              <input type="text" id="payNota" placeholder="Pago parcial / transferencia / etc.">
-            </div>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn gray" onclick="fillPayMax()">Pagar todo</button>
-            <button class="btn primary" onclick="savePayment()">Guardar pago</button>
-          </div>
-
-          <div class="mini" id="pSaldoLine"></div>
-          <div class="scroll" id="pHist" style="height: calc(100vh - 390px); margin-top:10px;"></div>
-        </div>
-
-        <div id="payEmpty" class="warn">
-          Elegí una entidad del panel de la izquierda para ver el detalle y registrar pagos (parciales o totales).
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- BASE MAESTRA -->
-  <section id="maestra" class="section">
-    <div class="split">
-      <div class="card tableBox">
-        <div class="title">
-          <h2>🗂️ Base Maestra</h2>
-          <span class="muted">Categorías + Subcategorías</span>
-        </div>
-
-        <div class="row">
-          <div class="half">
-            <label>Categoría</label>
-            <select id="mCatSel" onchange="renderSubList()"></select>
-          </div>
-          <div class="half">
-            <label>Nueva subcategoría</label>
-            <input type="text" id="mSubNew" placeholder="Ej: ARBA / Leandro / etc.">
-          </div>
-        </div>
-
-        <div class="btnRow">
-          <button class="btn primary" onclick="addSub()">Agregar subcategoría</button>
-          <button class="btn gray" onclick="resetMastersDefault()">Restaurar maestros base</button>
-        </div>
-
-        <div class="scroll" id="subList" style="flex:1;"></div>
-        <div class="mini">
-          Regla: Si elegís categoría <b>Impuestos</b>, las subcategorías son tus impuestos.<br>
-          Si elegís <b>Proveedores</b>, las subcategorías son tus proveedores (Leandro, etc.).
-        </div>
-      </div>
-
-      <div class="card tableBox">
-        <div class="title">
-          <h2>⚙️ Config</h2>
-          <span class="muted">Medios + Montos rápidos</span>
-        </div>
-
-        <div class="row">
-          <div class="half">
-            <label>Medios de pago (uno por línea)</label>
-            <textarea id="cfgMedios" class="mono" style="height:140px;"></textarea>
-          </div>
-          <div class="half">
-            <label>Montos rápidos (uno por línea)</label>
-            <textarea id="cfgChips" class="mono" style="height:140px;"></textarea>
-          </div>
-        </div>
-
-        <div class="btnRow">
-          <button class="btn primary" onclick="saveConfig()">Guardar config</button>
-        </div>
-
-        <div class="scroll" id="cfgPreview" style="flex:1;"></div>
-        <div class="mini">Todo queda guardado. Si exportás backup, también viaja la base maestra.</div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div class="toast" id="toast"></div>
+<div id="pendientes" class="section">
+<div class="card">
+<h3>Pendientes por Proveedor</h3>
+<div id="listaPendientes"></div>
+</div>
+</div>
 
 <script>
-/* =========================
-   Utils
-========================= */
-const STORAGE_KEY = "sm_gestion_empresarial_v1";
-const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
-const $ = (id)=>document.getElementById(id);
+const STORAGE_KEY = "stella_maris_sistema_v3";
 
-function toast(msg){
-  const t = $("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 1400);
-}
-function nowISO(){ return new Date().toISOString(); }
-function todayISO(){
-  const d = new Date();
-  const off = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - off*60000);
-  return local.toISOString().slice(0,10);
-}
-function curMonth(){
-  const d = new Date();
-  const off = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - off*60000);
-  return local.toISOString().slice(0,7);
-}
-function mKey(dateISO){ return (dateISO||"").slice(0,7); }
-function esc(s){
-  return String(s??"")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function uid(){
-  if(crypto?.randomUUID) return crypto.randomUUID();
-  return "id_"+Math.random().toString(16).slice(2)+"_"+Date.now();
-}
-function nMoney(x){
-  const n = Number(x);
-  return Number.isFinite(n) ? Math.round(n) : 0;
-}
-function setSavedPill(){
-  const p = $("savePill");
-  p.textContent = "💾 Guardado";
-}
-function setSavingPill(){
-  const p = $("savePill");
-  p.textContent = "💾 Guardando…";
+let medios = ["Efectivo","Mercado Pago","Brubank","Provincia","Credicoop","Cheque"];
+let ventas = [];
+let gastos = [];
+let transferencias = [];
+
+function guardarLocal(){
+localStorage.setItem(STORAGE_KEY, JSON.stringify({ventas,gastos,transferencias}));
 }
 
-/* =========================
-   State
-========================= */
-function defaultState(){
-  return {
-    version: 1,
-    masters: {
-      categories: ["Ventas","Proveedores","Impuestos","Empleados","Préstamos","Personal","Otros"],
-      subcats: {
-        "Ventas": ["Mostrador","Sushi","Paella","Online"],
-        "Proveedores": ["Leandro","Mayorista Mariscos","Pescado Fresco SA"],
-        "Impuestos": ["ARBA","AFIP","Monotributo","Alquiler"],
-        "Empleados": ["Sueldos","Extras"],
-        "Préstamos": ["Banco A","Banco B"],
-        "Personal": ["Sueldo Matías","Gasto personal"],
-        "Otros": ["Varios"]
-      }
-    },
-    config: {
-      medios: ["Efectivo","Mercado Pago","Brubank","Provincia","Credicoop","Cheque"],
-      chips: [9900,15900,19900,35900,100000,200000]
-    },
-    movements: []
-  };
+function cargarLocal(){
+let data = localStorage.getItem(STORAGE_KEY);
+if(data){
+let obj = JSON.parse(data);
+ventas = obj.ventas || [];
+gastos = obj.gastos || [];
+transferencias = obj.transferencias || [];
 }
-let STATE = defaultState();
-
-/* =========================
-   Persistence
-========================= */
-function saveState(){
-  setSavingPill();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
-  setTimeout(setSavedPill, 150);
-}
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const parsed = JSON.parse(raw);
-    if(parsed && parsed.masters && parsed.config && Array.isArray(parsed.movements)){
-      STATE = parsed;
-    }
-  }catch{}
 }
 
-/* =========================
-   Navigation
-========================= */
-function go(tabId){
-  document.querySelectorAll("nav button").forEach(b=>{
-    b.classList.toggle("active", b.dataset.tab===tabId);
-  });
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  $(tabId).classList.add("active");
-
-  if(tabId==="dash") renderDash();
-  if(tabId==="ventas") renderVentasMini();
-  if(tabId==="gastos") renderPendQuick();
-  if(tabId==="libro") renderLibro();
-  if(tabId==="pend") renderPend();
-  if(tabId==="maestra") { renderMaestra(); renderCfgPreview(); }
+function mostrar(id){
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+event.target.classList.add("active");
 }
 
-/* =========================
-   Form helpers
-========================= */
-function fillSelect(sel, arr){
-  sel.innerHTML = "";
-  (arr||[]).forEach(v=>{
-    const o = document.createElement("option");
-    o.value = v;
-    o.textContent = v;
-    sel.appendChild(o);
-  });
-}
-function renderChips(targetId, values, onPick){
-  const wrap = $(targetId);
-  wrap.innerHTML = "";
-  (values||[]).slice(0,10).forEach(v=>{
-    const c = document.createElement("div");
-    c.className = "chip";
-    c.textContent = fmt.format(v);
-    c.onclick = ()=>onPick(v);
-    wrap.appendChild(c);
-  });
-}
-
-/* =========================
-   Sales
-========================= */
-function quickSale(){
-  $("vMonto").value = "100000";
-  $("vNota").value = "Mostrador";
-  toast("Ejemplo listo");
-}
-function saveSale(){
-  const date = $("vFecha").value || todayISO();
-  const medio = $("vMedio").value;
-  const amount = nMoney($("vMonto").value);
-  const note = ($("vNota").value||"").trim();
-  if(!amount || amount<=0){ toast("Monto inválido"); return; }
-
-  const cat = "Ventas";
-  const sub = note || "Mostrador";
-
-  STATE.movements.push({
-    id: uid(),
-    type: "VENTA",
-    date,
-    amount,
-    medio,
-    cat,
-    sub,
-    status: "PAGADO",
-    due: "",
-    ref: "",
-    note,
-    entityKey: ""
-  });
-  saveState();
-  $("vMonto").value = "";
-  $("vNota").value = "";
-  renderVentasMini();
-  renderDash();
-  toast("Venta guardada");
-}
-function renderVentasMini(){
-  const today = todayISO();
-  const list = STATE.movements
-    .filter(m=>m.type==="VENTA" && m.date===today)
-    .slice()
-    .sort((a,b)=> (b.id||"").localeCompare(a.id||""))
-    .slice(0,25);
-
-  let html = "<table><thead><tr><th>ID</th><th>Detalle</th><th>Método</th><th>Monto</th></tr></thead><tbody>";
-  if(!list.length){
-    html += `<tr><td colspan="4" class="muted">Hoy no hay ventas cargadas.</td></tr>`;
-  }else{
-    for(const m of list){
-      html += `<tr>
-        <td class="muted">${esc((m.id||"").slice(-4))}</td>
-        <td>${esc(m.sub||"Venta")}</td>
-        <td class="muted">${esc(m.medio||"")}</td>
-        <td class="pos"><b>${fmt.format(m.amount||0)}</b></td>
-      </tr>`;
-    }
-  }
-  html += "</tbody></table>";
-  $("ventasHoy").innerHTML = html;
-}
-
-/* =========================
-   Expenses
-========================= */
-function toggleVenc(){
-  const show = $("gEstado").value === "PENDIENTE";
-  $("vencRow").style.display = show ? "flex" : "none";
-}
-function refreshSubcats(){
-  const cat = $("gCat").value;
-  const subs = STATE.masters.subcats[cat] || ["Varios"];
-  fillSelect($("gSub"), subs);
-}
-function quickExpense(){
-  $("gMonto").value = "100000";
-  $("gCat").value = "Proveedores";
-  refreshSubcats();
-  $("gSub").value = (STATE.masters.subcats["Proveedores"]||[])[0] || "Leandro";
-  $("gEstado").value = "PENDIENTE";
-  toggleVenc();
-  $("gNota").value = "Mercadería";
-  toast("Ejemplo listo");
-}
-function saveExpense(){
-  const date = $("gFecha").value || todayISO();
-  const medio = $("gMedio").value;
-  const amount = nMoney($("gMonto").value);
-  const cat = $("gCat").value;
-  const sub = $("gSub").value;
-  const status = $("gEstado").value;
-  const due = status==="PENDIENTE" ? ($("gVenc").value||"") : "";
-  const ref = status==="PENDIENTE" ? ($("gRef").value||"") : "";
-  const note = ($("gNota").value||"").trim();
-
-  if(!amount || amount<=0){ toast("Monto inválido"); return; }
-  if(!cat){ toast("Elegí categoría"); return; }
-  if(!sub){ toast("Elegí subcategoría"); return; }
-
-  const entityKey = (cat==="Proveedores" || cat==="Impuestos") ? `${cat}::${sub}` : "";
-
-  STATE.movements.push({
-    id: uid(),
-    type: "GASTO",
-    date,
-    amount,
-    medio,
-    cat,
-    sub,
-    status,
-    due,
-    ref,
-    note,
-    entityKey
-  });
-
-  saveState();
-  $("gMonto").value = "";
-  $("gNota").value = "";
-  $("gRef").value = "";
-  renderPendQuick();
-  renderDash();
-  toast("Gasto guardado");
-}
-
-/* =========================
-   Pendings balances
-========================= */
-function computeEntityBalances(){
-  const map = new Map(); // key -> {cat, sub, balance}
-  for(const m of STATE.movements){
-    if(m.type==="GASTO" && m.status==="PENDIENTE" && m.entityKey){
-      const k = m.entityKey;
-      if(!map.has(k)) map.set(k,{cat:m.cat, sub:m.sub, balance:0});
-      map.get(k).balance += (m.amount||0);
-    }
-    if(m.type==="PAGO" && m.entityKey){
-      const k = m.entityKey;
-      if(!map.has(k)) map.set(k,{cat:m.cat, sub:m.sub, balance:0});
-      map.get(k).balance -= (m.amount||0);
-    }
-  }
-  for(const v of map.values()){
-    v.balance = Math.max(0, Math.round(v.balance));
-  }
-  return map;
-}
-let P_SELECTED = null;
-
-function renderPendQuick(){
-  const map = computeEntityBalances();
-  const list = [...map.entries()]
-    .map(([k,v])=>({key:k,...v}))
-    .filter(x=>x.balance>0)
-    .sort((a,b)=>b.balance-a.balance)
-    .slice(0,15);
-
-  let html = "<table><thead><tr><th>Entidad</th><th>Categoría</th><th>Pendiente</th></tr></thead><tbody>";
-  if(!list.length){
-    html += `<tr><td colspan="3" class="muted">No hay pendientes.</td></tr>`;
-  }else{
-    for(const x of list){
-      html += `<tr>
-        <td><b>${esc(x.sub)}</b></td>
-        <td class="muted">${esc(x.cat)}</td>
-        <td class="neg"><b>${fmt.format(x.balance)}</b></td>
-      </tr>`;
-    }
-  }
-  html += "</tbody></table>";
-  $("pendQuick").innerHTML = html;
-}
-
-/* =========================
-   Payments
-========================= */
-function fillPayMax(){
-  if(!P_SELECTED) return;
-  const map = computeEntityBalances();
-  const it = map.get(P_SELECTED);
-  if(!it) return;
-  $("payMonto").value = String(it.balance||0);
-}
-function savePayment(){
-  if(!P_SELECTED){ toast("Elegí una entidad"); return; }
-  const map = computeEntityBalances();
-  const cur = map.get(P_SELECTED);
-  if(!cur){ toast("Entidad inválida"); return; }
-
-  const date = $("payFecha").value || todayISO();
-  const medio = $("payMedio").value;
-  const amount = nMoney($("payMonto").value);
-  const note = ($("payNota").value||"").trim();
-
-  if(!amount || amount<=0){ toast("Monto inválido"); return; }
-  if(amount > cur.balance){ toast("No podés pagar más que el pendiente"); return; }
-
-  STATE.movements.push({
-    id: uid(),
-    type: "PAGO",
-    date,
-    amount,
-    medio,
-    cat: cur.cat,
-    sub: cur.sub,
-    status: "PAGADO",
-    due: "",
-    ref: "",
-    note,
-    entityKey: P_SELECTED
-  });
-
-  saveState();
-  $("payMonto").value = "";
-  $("payNota").value = "";
-  renderPend();
-  renderDash();
-  toast("Pago guardado");
-}
-
-/* =========================
-   Dashboard
-========================= */
-function renderDash(){
-  const month = $("dashMes").value || curMonth();
-  $("dashMes").value = month;
-
-  let ventas = 0, gastosPag = 0;
-  for(const m of STATE.movements){
-    if(mKey(m.date)!==month) continue;
-    if(m.type==="VENTA") ventas += (m.amount||0);
-    if(m.type==="GASTO" && m.status==="PAGADO") gastosPag += (m.amount||0);
-    if(m.type==="PAGO") gastosPag += (m.amount||0);
-  }
-  const res = ventas - gastosPag;
-
-  const map = computeEntityBalances();
-  let pendTot = 0;
-  for(const v of map.values()) pendTot += (v.balance||0);
-
-  $("kVentas").textContent = fmt.format(ventas);
-  $("kGastos").textContent = fmt.format(gastosPag);
-  $("kRes").textContent = fmt.format(res);
-  $("kRes").className = res>=0 ? "pos" : "neg";
-  $("kPend").textContent = fmt.format(pendTot);
-
-  const last = STATE.movements.slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"")).slice(0,12);
-  let html = "<table><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Método</th><th>Monto</th></tr></thead><tbody>";
-  if(!last.length){
-    html += `<tr><td colspan="5" class="muted">Todavía no hay movimientos.</td></tr>`;
-  }else{
-    for(const m of last){
-      const tipo = m.type;
-      const det = (m.type==="VENTA") ? (m.sub||"Venta") : `${m.cat||""} · ${m.sub||""}`;
-      const cls = (m.type==="VENTA") ? "pos" : "neg";
-      const sign = (m.type==="VENTA") ? "+" : "–";
-      html += `<tr>
-        <td class="muted">${esc(m.date||"")}</td>
-        <td><span class="pill">${esc(tipo)}</span></td>
-        <td>${esc(det)}</td>
-        <td class="muted">${esc(m.medio||"")}</td>
-        <td class="${cls}"><b>${sign} ${fmt.format(Math.abs(m.amount||0))}</b></td>
-      </tr>`;
-    }
-  }
-  html += "</tbody></table>";
-  $("dashLast").innerHTML = html;
-
-  const pend = [...map.entries()]
-    .map(([k,v])=>({key:k,...v}))
-    .filter(x=>x.balance>0)
-    .sort((a,b)=>b.balance-a.balance)
-    .slice(0,12);
-
-  let html2 = "<table><thead><tr><th>Entidad</th><th>Categoría</th><th>Pendiente</th></tr></thead><tbody>";
-  if(!pend.length){
-    html2 += `<tr><td colspan="3" class="muted">No hay pendientes.</td></tr>`;
-  }else{
-    for(const x of pend){
-      html2 += `<tr>
-        <td><b>${esc(x.sub)}</b></td>
-        <td class="muted">${esc(x.cat)}</td>
-        <td class="neg"><b>${fmt.format(x.balance)}</b></td>
-      </tr>`;
-    }
-  }
-  html2 += "</tbody></table>";
-  $("dashPend").innerHTML = html2;
-}
-
-/* =========================
-   Libro
-========================= */
-let __tLibro = null;
-function debouncedRenderLibro(){
-  clearTimeout(__tLibro);
-  __tLibro = setTimeout(renderLibro, 140);
-}
-function renderLibro(){
-  const month = $("lMes").value || curMonth();
-  $("lMes").value = month;
-  const q = ($("lQ").value||"").toLowerCase().trim();
-  const tipo = $("lTipo").value || "ALL";
-
-  const filtered = STATE.movements
-    .filter(m => mKey(m.date)===month)
-    .filter(m => tipo==="ALL" ? true : m.type===tipo)
-    .filter(m => {
-      if(!q) return true;
-      const hay = `${m.type} ${m.cat||""} ${m.sub||""} ${m.note||""} ${m.ref||""} ${m.medio||""}`.toLowerCase();
-      return hay.includes(q);
-    })
-    .slice()
-    .sort((a,b)=>{
-      if((a.date||"")!== (b.date||"")) return (b.date||"").localeCompare(a.date||"");
-      return (b.id||"").localeCompare(a.id||"");
-    });
-
-  let html = `<table>
-    <thead>
-      <tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th></tr>
-    </thead><tbody>`;
-
-  if(!filtered.length){
-    html += `<tr><td colspan="6" class="muted">No hay movimientos con ese filtro.</td></tr>`;
-  }else{
-    for(const m of filtered){
-      const det = m.type==="VENTA"
-        ? (m.sub||"Venta")
-        : `${m.cat||""} · ${m.sub||""}${m.ref?(" · "+esc(m.ref)):""}`;
-
-      let estado = "";
-      if(m.type==="GASTO"){
-        estado = m.status==="PAGADO"
-          ? `<span class="pill ok">✅ Pagado</span>`
-          : `<span class="pill bad">⏳ Pendiente${m.due?(" · Vence "+esc(m.due)):""}</span>`;
-      } else {
-        estado = `<span class="pill ok">✅ Registrado</span>`;
-      }
-
-      const cls = m.type==="VENTA" ? "pos" : "neg";
-      const sign = m.type==="VENTA" ? "+" : "–";
-
-      html += `<tr>
-        <td class="muted">${esc(m.date||"")}</td>
-        <td><span class="pill">${esc(m.type)}</span></td>
-        <td>${esc(det)}${m.note?(`<div class="muted" style="margin-top:4px;font-size:12px;">${esc(m.note)}</div>`):""}</td>
-        <td>${estado}</td>
-        <td class="muted">${esc(m.medio||"")}</td>
-        <td class="${cls}"><b>${sign} ${fmt.format(Math.abs(m.amount||0))}</b></td>
-      </tr>`;
-    }
-  }
-  html += "</tbody></table>";
-  $("libroList").innerHTML = html;
-}
-
-/* =========================
-   Pendientes (pantalla)
-========================= */
-let __tPend = null;
-function debouncedRenderPend(){
-  clearTimeout(__tPend);
-  __tPend = setTimeout(renderPend, 140);
-}
-function renderPend(){
-  const cats = ["ALL", ...STATE.masters.categories.filter(c=>c==="Proveedores" || c==="Impuestos")];
-  fillSelect($("pCat"), cats);
-  if(!$("pCat").dataset.set){
-    $("pCat").value = "ALL";
-    $("pCat").dataset.set = "1";
-  }
-
-  const catFilter = $("pCat").value || "ALL";
-  const q = ($("pQ").value||"").toLowerCase().trim();
-
-  const map = computeEntityBalances();
-  let list = [...map.entries()]
-    .map(([k,v])=>({key:k,...v}))
-    .filter(x=>x.balance>0);
-
-  if(catFilter!=="ALL") list = list.filter(x=>x.cat===catFilter);
-  if(q) list = list.filter(x => (x.sub||"").toLowerCase().includes(q));
-  list.sort((a,b)=>b.balance-a.balance);
-
-  let html = `<table><thead><tr><th>Entidad</th><th>Categoría</th><th>Pendiente</th></tr></thead><tbody>`;
-  if(!list.length){
-    html += `<tr><td colspan="3" class="muted">No hay pendientes con ese filtro.</td></tr>`;
-  } else {
-    for(const x of list){
-      const isSel = (x.key===P_SELECTED);
-      html += `<tr style="cursor:pointer; ${isSel?'background:#f8fafc;':''}" onclick="selectEntity('${esc(x.key)}')">
-        <td><b>${esc(x.sub)}</b></td>
-        <td class="muted">${esc(x.cat)}</td>
-        <td class="neg"><b>${fmt.format(x.balance)}</b></td>
-      </tr>`;
-    }
-  }
-  html += "</tbody></table>";
-  $("pendList").innerHTML = html;
-
-  if(P_SELECTED){
-    const cur = map.get(P_SELECTED);
-    if(!cur || cur.balance<=0){
-      P_SELECTED = null;
-      $("pSel").textContent = "Elegí una entidad";
-      $("payBox").style.display="none";
-      $("payEmpty").style.display="block";
-    }
-  }
-  if(P_SELECTED) renderEntityDetail(P_SELECTED);
-}
-
-function selectEntity(key){
-  P_SELECTED = key.replaceAll("&amp;","&").replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&quot;",'"').replaceAll("&#039;","'");
-  renderEntityDetail(P_SELECTED);
-}
-
-function renderEntityDetail(key){
-  const map = computeEntityBalances();
-  const cur = map.get(key);
-  if(!cur){
-    $("pSel").textContent = "Elegí una entidad";
-    $("payBox").style.display="none";
-    $("payEmpty").style.display="block";
-    return;
-  }
-
-  $("pSel").textContent = `${cur.cat} · ${cur.sub}`;
-  $("payBox").style.display="block";
-  $("payEmpty").style.display="none";
-
-  $("payFecha").value = todayISO();
-  $("payMonto").value = "";
-  $("pSaldoLine").innerHTML = `<b>Saldo pendiente:</b> <span class="neg">${fmt.format(cur.balance)}</span>`;
-
-  const hist = STATE.movements
-    .filter(m=>m.entityKey===key && (m.type==="GASTO" || m.type==="PAGO"))
-    .slice()
-    .sort((a,b)=>{
-      if((a.date||"")!== (b.date||"")) return (b.date||"").localeCompare(a.date||"");
-      return (b.id||"").localeCompare(a.id||"");
-    });
-
-  let html = `<table>
-    <thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Método</th><th>Monto</th></tr></thead><tbody>`;
-
-  if(!hist.length){
-    html += `<tr><td colspan="5" class="muted">Sin historial.</td></tr>`;
-  }else{
-    for(const m of hist){
-      const isPay = m.type==="PAGO";
-      const tipo = isPay ? `<span class="pill ok">PAGO</span>` : `<span class="pill bad">PENDIENTE</span>`;
-      const cls = isPay ? "pos" : "neg";
-      const sign = isPay ? "–" : "+";
-      const det = isPay
-        ? (m.note || "Pago registrado")
-        : `Gasto pendiente${m.ref?(" · "+esc(m.ref)):""}${m.due?(" · Vence "+esc(m.due)):""}`;
-
-      html += `<tr>
-        <td class="muted">${esc(m.date||"")}</td>
-        <td>${tipo}</td>
-        <td>${esc(det)}</td>
-        <td class="muted">${esc(m.medio||"")}</td>
-        <td class="${cls}"><b>${sign} ${fmt.format(Math.abs(m.amount||0))}</b></td>
-      </tr>`;
-    }
-  }
-  html += `</tbody></table>`;
-  $("pHist").innerHTML = html;
-}
-
-/* =========================
-   Base Maestra + Config
-========================= */
-function renderMaestra(){
-  fillSelect($("mCatSel"), STATE.masters.categories);
-  if(!$("mCatSel").dataset.set){
-    $("mCatSel").value = "Proveedores";
-    $("mCatSel").dataset.set = "1";
-  }
-  renderSubList();
-  $("cfgMedios").value = (STATE.config.medios||[]).join("\n");
-  $("cfgChips").value = (STATE.config.chips||[]).join("\n");
-}
-function renderSubList(){
-  const cat = $("mCatSel").value;
-  const subs = STATE.masters.subcats[cat] || [];
-  let html = `<table><thead><tr><th>Subcategoría</th><th>Acción</th></tr></thead><tbody>`;
-  if(!subs.length){
-    html += `<tr><td colspan="2" class="muted">Sin subcategorías.</td></tr>`;
-  }else{
-    subs.forEach((s, idx)=>{
-      html += `<tr>
-        <td><b>${esc(s)}</b></td>
-        <td><button class="btn danger" style="padding:8px 10px;" onclick="delSub('${esc(cat)}', ${idx})">Borrar</button></td>
-      </tr>`;
-    });
-  }
-  html += "</tbody></table>";
-  $("subList").innerHTML = html;
-}
-function addSub(){
-  const cat = $("mCatSel").value;
-  const name = ($("mSubNew").value||"").trim();
-  if(!name){ toast("Escribí una subcategoría"); return; }
-  STATE.masters.subcats[cat] = STATE.masters.subcats[cat] || [];
-  if(STATE.masters.subcats[cat].some(x=>x.toLowerCase()===name.toLowerCase())){
-    toast("Ya existe");
-    return;
-  }
-  STATE.masters.subcats[cat].push(name);
-  saveState();
-  $("mSubNew").value = "";
-  renderSubList();
-  hydrateForms();
-  toast("Agregado");
-}
-function delSub(catEsc, idx){
-  const cat = catEsc.replaceAll("&amp;","&").replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&quot;",'"').replaceAll("&#039;","'");
-  if(!confirm("¿Borrar subcategoría?")) return;
-  const subs = STATE.masters.subcats[cat] || [];
-  subs.splice(idx,1);
-  STATE.masters.subcats[cat] = subs;
-  saveState();
-  renderSubList();
-  hydrateForms();
-  toast("Borrado");
-}
-function resetMastersDefault(){
-  if(!confirm("¿Restaurar base maestra a valores base?")) return;
-  const fresh = defaultState();
-  STATE.masters = fresh.masters;
-  saveState();
-  hydrateForms();
-  renderMaestra();
-  toast("Restaurado");
-}
-function saveConfig(){
-  const medios = ($("cfgMedios").value||"")
-    .split("\n").map(s=>s.trim()).filter(Boolean);
-
-  const chips = ($("cfgChips").value||"")
-    .split("\n").map(s=>Number(s.trim()))
-    .filter(n=>Number.isFinite(n) && n>0)
-    .slice(0,12)
-    .map(n=>Math.round(n));
-
-  if(!medios.length){ toast("Medios vacíos"); return; }
-  STATE.config.medios = medios;
-  STATE.config.chips = chips;
-  saveState();
-  hydrateForms();
-  renderCfgPreview();
-  toast("Config guardada");
-}
-function renderCfgPreview(){
-  const medios = STATE.config.medios||[];
-  const chips = STATE.config.chips||[];
-  let html = `<div class="mini"><b>Medios:</b> ${esc(medios.join(" · "))}</div>`;
-  html += `<div class="mini" style="margin-top:8px;"><b>Montos rápidos:</b> ${esc(chips.map(x=>fmt.format(x)).join(" · "))}</div>`;
-  $("cfgPreview").innerHTML = `<div style="padding:12px;">${html}</div>`;
-}
-
-/* =========================
-   Backup / Import / Wipe / Demo
-========================= */
-function exportBackup(){
-  const payload = { exported_at: nowISO(), state: STATE };
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `stella_maris_backup_${curMonth()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  toast("Backup exportado");
-}
-$("importFile").addEventListener("change", async (e)=>{
-  const file = e.target.files?.[0];
-  if(!file) return;
-  try{
-    const txt = await file.text();
-    const payload = JSON.parse(txt);
-    const st = payload?.state;
-    if(!st?.masters || !st?.config || !Array.isArray(st.movements)) throw new Error("Formato inválido");
-    STATE = st;
-    saveState();
-    hydrateForms();
-    renderDash();
-    toast("Backup importado");
-  }catch(err){
-    console.error(err);
-    toast("No pude importar");
-  }finally{
-    e.target.value = "";
-  }
+function iniciar(){
+cargarLocal();
+let selects = ["ventaMetodo","gastoMetodo","desdeMetodo","haciaMetodo"];
+selects.forEach(id=>{
+let sel = document.getElementById(id);
+sel.innerHTML="";
+medios.forEach(m=>{
+let op=document.createElement("option");
+op.value=m;
+op.textContent=m;
+sel.appendChild(op);
 });
-function wipeAll(){
-  if(!confirm("Esto borra TODO. ¿Seguro?")) return;
-  localStorage.removeItem(STORAGE_KEY);
-  STATE = defaultState();
-  hydrateForms();
-  renderDash();
-  toast("Borrado");
-}
-function seedDemo(){
-  if(STATE.movements.length && !confirm("Ya hay datos. ¿Agregar demo igual?")) return;
-
-  const d0 = todayISO();
-  const d1 = new Date(); d1.setDate(d1.getDate()-1);
-  const d2 = new Date(); d2.setDate(d2.getDate()-2);
-  const toISO = (d)=>{
-    const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off*60000);
-    return local.toISOString().slice(0,10);
-  };
-
-  const leandroKey = "Proveedores::Leandro";
-  const arbaKey = "Impuestos::ARBA";
-
-  STATE.movements.push(
-    {id:uid(), type:"VENTA", date:toISO(d2), amount:35900, medio:"Mercado Pago", cat:"Ventas", sub:"Sushi", status:"PAGADO", due:"", ref:"", note:"Combo 50", entityKey:""},
-    {id:uid(), type:"GASTO", date:toISO(d2), amount:128000, medio:"Efectivo", cat:"Proveedores", sub:"Leandro", status:"PENDIENTE", due:toISO(new Date()), ref:"Remito 123", note:"Mercadería", entityKey:leandroKey},
-    {id:uid(), type:"GASTO", date:toISO(d1), amount:52000, medio:"Provincia", cat:"Impuestos", sub:"ARBA", status:"PENDIENTE", due:toISO(new Date()), ref:"", note:"Vence esta semana", entityKey:arbaKey},
-    {id:uid(), type:"VENTA", date:d0, amount:100000, medio:"Efectivo", cat:"Ventas", sub:"Mostrador", status:"PAGADO", due:"", ref:"", note:"Día fuerte", entityKey:""},
-    {id:uid(), type:"PAGO", date:d0, amount:30000, medio:"Efectivo", cat:"Proveedores", sub:"Leandro", status:"PAGADO", due:"", ref:"", note:"Pago parcial", entityKey:leandroKey}
-  );
-
-  saveState();
-  hydrateForms();
-  renderDash();
-  toast("Demo cargada");
+});
+renderTodo();
 }
 
-/* =========================
-   Hydrate forms + Boot
-========================= */
-function hydrateForms(){
-  $("vFecha").value = todayISO();
-  $("gFecha").value = todayISO();
-  $("gVenc").value = todayISO();
-  $("dashMes").value = curMonth();
-  $("lMes").value = curMonth();
-
-  fillSelect($("vMedio"), STATE.config.medios);
-  fillSelect($("gMedio"), STATE.config.medios);
-  fillSelect($("payMedio"), STATE.config.medios);
-
-  renderChips("vChips", STATE.config.chips, (v)=>{ $("vMonto").value = String(v); $("vMonto").focus(); });
-  renderChips("gChips", STATE.config.chips, (v)=>{ $("gMonto").value = String(v); $("gMonto").focus(); });
-
-  const expCats = STATE.masters.categories.filter(c=>c!=="Ventas");
-  fillSelect($("gCat"), expCats);
-  if(!expCats.includes($("gCat").value)) $("gCat").value = "Proveedores";
-  refreshSubcats();
-
-  toggleVenc();
+function guardarVenta(){
+let monto = parseFloat(document.getElementById("ventaMonto").value);
+let metodo = document.getElementById("ventaMetodo").value;
+if(!monto) return;
+ventas.push({monto,metodo});
+document.getElementById("ventaMonto").value="";
+guardarLocal();
+renderTodo();
 }
 
-loadState();
-hydrateForms();
-renderDash();
-renderVentasMini();
-renderPendQuick();
-renderLibro();
-renderCfgPreview();
+function guardarGasto(){
+let proveedor = document.getElementById("gastoProveedor").value;
+let monto = parseFloat(document.getElementById("gastoMonto").value);
+let metodo = document.getElementById("gastoMetodo").value;
+let estado = document.getElementById("gastoEstado").value;
+if(!monto || !proveedor) return;
+gastos.push({proveedor,monto,metodo,estado});
+document.getElementById("gastoProveedor").value="";
+document.getElementById("gastoMonto").value="";
+guardarLocal();
+renderTodo();
+}
+
+function guardarTransferencia(){
+let desde = document.getElementById("desdeMetodo").value;
+let hacia = document.getElementById("haciaMetodo").value;
+let monto = parseFloat(document.getElementById("transferMonto").value);
+if(!monto || desde===hacia) return;
+transferencias.push({desde,hacia,monto});
+document.getElementById("transferMonto").value="";
+guardarLocal();
+renderTodo();
+}
+
+function calcularSaldos(){
+let saldos={};
+medios.forEach(m=>saldos[m]=0);
+
+ventas.forEach(v=>{
+saldos[v.metodo]+=v.monto;
+});
+
+gastos.forEach(g=>{
+if(g.estado==="PAGADO"){
+saldos[g.metodo]-=g.monto;
+}
+});
+
+transferencias.forEach(t=>{
+saldos[t.desde]-=t.monto;
+saldos[t.hacia]+=t.monto;
+});
+
+return saldos;
+}
+
+function renderTodo(){
+
+let totalVentas = ventas.reduce((a,b)=>a+b.monto,0);
+let totalGastos = gastos.filter(g=>g.estado==="PAGADO").reduce((a,b)=>a+b.monto,0);
+let totalPendiente = gastos.filter(g=>g.estado==="PENDIENTE").reduce((a,b)=>a+b.monto,0);
+
+let saldos = calcularSaldos();
+let saldoTotal = Object.values(saldos).reduce((a,b)=>a+b,0);
+
+document.getElementById("totalVentas").innerText="$"+totalVentas;
+document.getElementById("totalGastos").innerText="$"+totalGastos;
+document.getElementById("totalPendiente").innerText="$"+totalPendiente;
+document.getElementById("saldoTotal").innerText="$"+saldoTotal;
+
+let html="";
+for(let m in saldos){
+html+=m+": $"+saldos[m]+"<br>";
+}
+document.getElementById("saldosMetodos").innerHTML=html;
+
+document.getElementById("listaVentas").innerHTML=
+ventas.map(v=>"$"+v.monto+" - "+v.metodo).join("<br>");
+
+document.getElementById("listaGastos").innerHTML=
+gastos.map(g=>g.proveedor+" - $"+g.monto+" - "+g.estado).join("<br>");
+
+let pendientesAgrupados={};
+gastos.filter(g=>g.estado==="PENDIENTE").forEach(g=>{
+if(!pendientesAgrupados[g.proveedor]) pendientesAgrupados[g.proveedor]=0;
+pendientesAgrupados[g.proveedor]+=g.monto;
+});
+
+let htmlPend="";
+for(let p in pendientesAgrupados){
+htmlPend+=p+" - $"+pendientesAgrupados[p]+"<br>";
+}
+document.getElementById("listaPendientes").innerHTML=htmlPend;
+
+}
+
+iniciar();
 </script>
+
 </body>
 </html>
