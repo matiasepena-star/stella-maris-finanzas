@@ -18,10 +18,15 @@ input,select{padding:8px;margin:5px 0;width:100%}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ddd;padding:8px;text-align:left}
 th{background:#e3f2fd}
-.kpi{display:flex;gap:15px}
-.kpi div{flex:1;background:white;padding:15px;border-radius:6px;text-align:center}
+.kpi{display:flex;gap:15px;flex-wrap:wrap}
+.kpi div{flex:1;min-width:200px;background:white;padding:15px;border-radius:6px;text-align:center}
 .green{color:green;font-weight:bold}
 .red{color:red;font-weight:bold}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.actions button{padding:10px 12px;border:none;border-radius:6px;cursor:pointer}
+.btnPrimary{background:#1565c0;color:white}
+.btnDanger{background:#c62828;color:white}
+.smallNote{font-size:12px;color:#666;margin-top:8px}
 </style>
 </head>
 
@@ -38,119 +43,216 @@ th{background:#e3f2fd}
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="section active">
-<div class="kpi">
-<div>Ventas Totales<br><span class="green" id="totalVentas">$0</span></div>
-<div>Gastos Totales<br><span class="red" id="totalGastos">$0</span></div>
-<div>Saldo Disponible<br><span id="saldo">$0</span></div>
-</div>
+  <div class="kpi">
+    <div>Ventas Totales<br><span class="green" id="totalVentas">$0</span></div>
+    <div>Gastos Totales<br><span class="red" id="totalGastos">$0</span></div>
+    <div>Saldo Disponible<br><span id="saldo">$0</span></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h3>Control</h3>
+    <div class="actions">
+      <button class="btnPrimary" onclick="exportarBackup()">Exportar backup</button>
+      <button class="btnDanger" onclick="borrarTodo()">Borrar TODO</button>
+    </div>
+    <div class="smallNote">
+      ✅ Ahora queda guardado aunque actualices la página. <br>
+      (Se guarda en este dispositivo. En otro dispositivo empieza vacío.)
+    </div>
+  </div>
 </div>
 
 <!-- VENTAS -->
 <div id="ventas" class="section">
-<div class="card">
-<h3>Cargar Venta</h3>
-<input type="number" id="ventaMonto" placeholder="Monto">
-<select id="ventaMetodo">
-<option>Efectivo</option>
-<option>Mercado Pago</option>
-<option>Brubank</option>
-<option>Provincia</option>
-<option>Credicoop</option>
-<option>Cheque</option>
-</select>
-<button onclick="agregarVenta()">Guardar Venta</button>
-</div>
+  <div class="card">
+    <h3>Cargar Venta</h3>
+    <input type="number" id="ventaMonto" placeholder="Monto">
+    <select id="ventaMetodo">
+      <option>Efectivo</option>
+      <option>Mercado Pago</option>
+      <option>Brubank</option>
+      <option>Provincia</option>
+      <option>Credicoop</option>
+      <option>Cheque</option>
+    </select>
+    <button class="btnPrimary" onclick="agregarVenta()">Guardar Venta</button>
+  </div>
 
-<table id="tablaVentas">
-<tr><th>Monto</th><th>Método</th></tr>
-</table>
+  <table id="tablaVentas">
+    <tr><th>Monto</th><th>Método</th></tr>
+  </table>
 </div>
 
 <!-- GASTOS -->
 <div id="gastos" class="section">
-<div class="card">
-<h3>Cargar Gasto</h3>
-<input type="text" id="gastoProveedor" placeholder="Proveedor">
-<input type="number" id="gastoMonto" placeholder="Monto">
-<select id="gastoEstado">
-<option>Pendiente</option>
-<option>Pagado</option>
-</select>
-<button onclick="agregarGasto()">Guardar Gasto</button>
-</div>
+  <div class="card">
+    <h3>Cargar Gasto</h3>
+    <input type="text" id="gastoProveedor" placeholder="Proveedor">
+    <input type="number" id="gastoMonto" placeholder="Monto">
+    <select id="gastoEstado">
+      <option>Pendiente</option>
+      <option>Pagado</option>
+    </select>
+    <button class="btnPrimary" onclick="agregarGasto()">Guardar Gasto</button>
+  </div>
 
-<table id="tablaGastos">
-<tr><th>Proveedor</th><th>Monto</th><th>Estado</th></tr>
-</table>
+  <table id="tablaGastos">
+    <tr><th>Proveedor</th><th>Monto</th><th>Estado</th></tr>
+  </table>
 </div>
 
 <!-- PENDIENTES -->
 <div id="pendientes" class="section">
-<h3>Total Pendiente</h3>
-<div id="totalPendiente" class="red">$0</div>
+  <h3>Total Pendiente</h3>
+  <div id="totalPendiente" class="red" style="font-size:22px;font-weight:bold">$0</div>
 </div>
 
 <script>
+// =====================
+// Persistencia (LOCAL)
+// =====================
+const STORAGE_KEY = "stella_maris_sistema_v1";
 
-let ventas = [];
-let gastos = [];
+// Estado en memoria (se carga del storage al iniciar)
+let ventas = []; // [{monto, metodo, ts}]
+let gastos = []; // [{proveedor, monto, estado, ts}]
 
+function guardarLocal(){
+  const payload = { ventas, gastos };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+function cargarLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const payload = JSON.parse(raw);
+    ventas = Array.isArray(payload.ventas) ? payload.ventas : [];
+    gastos = Array.isArray(payload.gastos) ? payload.gastos : [];
+  }catch(e){
+    // si hay error, no rompemos la app
+    ventas = [];
+    gastos = [];
+  }
+}
+
+// =====================
+// Navegación
+// =====================
 function show(id){
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
+// =====================
+// Ventas
+// =====================
 function agregarVenta(){
-let monto = parseFloat(document.getElementById('ventaMonto').value);
-let metodo = document.getElementById('ventaMetodo').value;
-if(!monto) return;
+  let monto = parseFloat(document.getElementById('ventaMonto').value);
+  let metodo = document.getElementById('ventaMetodo').value;
+  if(!monto) return;
 
-ventas.push(monto);
+  ventas.push({monto, metodo, ts: new Date().toISOString()});
+  document.getElementById('ventaMonto').value="";
 
-let tabla = document.getElementById('tablaVentas');
-tabla.innerHTML += `<tr><td>$${monto}</td><td>${metodo}</td></tr>`;
-
-document.getElementById('ventaMonto').value="";
-actualizarDashboard();
+  guardarLocal();
+  renderAll();
 }
 
+// =====================
+// Gastos
+// =====================
 function agregarGasto(){
-let proveedor = document.getElementById('gastoProveedor').value;
-let monto = parseFloat(document.getElementById('gastoMonto').value);
-let estado = document.getElementById('gastoEstado').value;
+  let proveedor = document.getElementById('gastoProveedor').value.trim();
+  let monto = parseFloat(document.getElementById('gastoMonto').value);
+  let estado = document.getElementById('gastoEstado').value;
 
-if(!monto || !proveedor) return;
+  if(!monto || !proveedor) return;
 
-gastos.push({monto, estado});
+  gastos.push({proveedor, monto, estado, ts: new Date().toISOString()});
+  document.getElementById('gastoProveedor').value="";
+  document.getElementById('gastoMonto').value="";
 
-let tabla = document.getElementById('tablaGastos');
-tabla.innerHTML += `<tr><td>${proveedor}</td><td>$${monto}</td><td>${estado}</td></tr>`;
+  guardarLocal();
+  renderAll();
+}
 
-document.getElementById('gastoProveedor').value="";
-document.getElementById('gastoMonto').value="";
-actualizarDashboard();
+// =====================
+// Render de tablas + dashboard
+// =====================
+function renderVentas(){
+  const tabla = document.getElementById('tablaVentas');
+  tabla.innerHTML = `<tr><th>Monto</th><th>Método</th></tr>`;
+  ventas.forEach(v=>{
+    tabla.innerHTML += `<tr><td>$${v.monto}</td><td>${v.metodo}</td></tr>`;
+  });
+}
+
+function renderGastos(){
+  const tabla = document.getElementById('tablaGastos');
+  tabla.innerHTML = `<tr><th>Proveedor</th><th>Monto</th><th>Estado</th></tr>`;
+  gastos.forEach(g=>{
+    tabla.innerHTML += `<tr><td>${g.proveedor}</td><td>$${g.monto}</td><td>${g.estado}</td></tr>`;
+  });
 }
 
 function actualizarDashboard(){
+  let totalVentas = ventas.reduce((a,v)=>a+Number(v.monto||0),0);
 
-let totalVentas = ventas.reduce((a,b)=>a+b,0);
+  let totalGastos = gastos
+    .filter(g=>g.estado==="Pagado")
+    .reduce((a,g)=>a+Number(g.monto||0),0);
 
-let totalGastos = gastos
-.filter(g=>g.estado=="Pagado")
-.reduce((a,b)=>a+b.monto,0);
+  let totalPendiente = gastos
+    .filter(g=>g.estado==="Pendiente")
+    .reduce((a,g)=>a+Number(g.monto||0),0);
 
-let totalPendiente = gastos
-.filter(g=>g.estado=="Pendiente")
-.reduce((a,b)=>a+b.monto,0);
+  let saldo = totalVentas - totalGastos;
 
-let saldo = totalVentas - totalGastos;
-
-document.getElementById('totalVentas').innerText="$"+totalVentas;
-document.getElementById('totalGastos').innerText="$"+totalGastos;
-document.getElementById('saldo').innerText="$"+saldo;
-document.getElementById('totalPendiente').innerText="$"+totalPendiente;
-
+  document.getElementById('totalVentas').innerText="$"+totalVentas;
+  document.getElementById('totalGastos').innerText="$"+totalGastos;
+  document.getElementById('saldo').innerText="$"+saldo;
+  document.getElementById('totalPendiente').innerText="$"+totalPendiente;
 }
+
+function renderAll(){
+  renderVentas();
+  renderGastos();
+  actualizarDashboard();
+}
+
+// =====================
+// Backup / Reset
+// =====================
+function exportarBackup(){
+  const payload = {
+    version: 1,
+    exported_at: new Date().toISOString(),
+    ventas,
+    gastos
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "stella_maris_backup.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function borrarTodo(){
+  if(!confirm("Esto borra TODO (ventas y gastos). ¿Seguro?")) return;
+  ventas = [];
+  gastos = [];
+  localStorage.removeItem(STORAGE_KEY);
+  renderAll();
+}
+
+// =====================
+// Inicio
+// =====================
+cargarLocal();
+renderAll();
 
 </script>
 
