@@ -16,6 +16,7 @@
   --muted:#6b7280;
   --green:#16a34a;
   --red:#dc2626;
+  --warn:#b45309;
 }
 *{box-sizing:border-box}
 body{
@@ -89,6 +90,7 @@ nav button.active{
 }
 .green{color:var(--green);font-weight:800}
 .red{color:var(--red);font-weight:800}
+.warn{color:var(--warn);font-weight:800}
 .muted{color:var(--muted)}
 input,select,textarea{
   width:100%;
@@ -167,6 +169,7 @@ th{
   cursor:pointer;
   font-weight:700;
   margin-right:6px;
+  white-space:nowrap;
 }
 .btnMini:hover{background:#f9fafb}
 .rowAnulada{opacity:.55}
@@ -185,6 +188,42 @@ th{
   max-width:92vw;
 }
 .hr{height:1px;background:var(--border);margin:10px 0}
+
+/* MODAL */
+.modalBack{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  z-index:60;
+  padding:18px;
+}
+.modal{
+  background:#fff;
+  max-width:820px;
+  margin:0 auto;
+  border-radius:14px;
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+.modalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 14px;
+  background:#f9fafb;
+  border-bottom:1px solid var(--border);
+}
+.modalHead b{font-size:14px}
+.modalBody{padding:14px}
+.modalFoot{
+  padding:12px 14px;
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  border-top:1px solid var(--border);
+  background:#fff;
+}
 </style>
 </head>
 
@@ -199,6 +238,7 @@ th{
   <button onclick="go('estado', event)">Estado Proveedores</button>
   <button onclick="go('pagos', event)">Pagos</button>
   <button onclick="go('movGastos', event)">Movimientos (Gastos)</button>
+  <button onclick="go('caja', event)">Caja Real</button>
   <button onclick="go('maestro', event)">Maestro</button>
   <button onclick="go('backup', event)">Backup</button>
 </nav>
@@ -215,16 +255,19 @@ th{
       <div class="stat">Gastos pagados período<br><span id="dashGastosPag" class="red">$0</span></div>
       <div class="stat">Resultado período<br><span id="dashResultado">$0</span></div>
       <div class="stat">Deuda Proveedores (hoy)<br><span id="dashDeudaProv" class="red">$0</span></div>
-      <div class="stat">Disponible total (hoy)<br><span id="dashDisponible">$0</span></div>
+      <div class="stat">Disponible calculado (hoy)<br><span id="dashDisponible">$0</span></div>
+      <div class="stat">Caja real (hoy)<br><span id="dashCajaReal">$0</span></div>
+      <div class="stat">Diferencia (Real - Calculado)<br><span id="dashDif">$0</span></div>
     </div>
 
     <div class="small" style="margin-top:10px">
       * Deuda Proveedores es histórico total (no cambia con el mes). Movimientos anulados no cuentan.
+      Caja Real la cargás en la solapa <b>Caja Real</b>.
     </div>
   </div>
 
   <div class="panel">
-    <h3>Saldos por método (hoy)</h3>
+    <h3>Saldos por método (Calculado vs Real)</h3>
     <div id="tablaMetodos"></div>
   </div>
 </div>
@@ -239,7 +282,7 @@ th{
     <input type="number" id="vMonto" placeholder="Monto">
     <input type="text" id="vNota" placeholder="Nota (opcional)">
     <button class="action" onclick="guardarVenta()">Guardar Venta</button>
-    <div class="small">Si te equivocás: hoja <b>Ventas</b> → Anular/Desanular.</div>
+    <div class="small">Si te equivocás: hoja <b>Ventas</b> → Editar / Anular / Duplicar.</div>
   </div>
 </div>
 
@@ -301,7 +344,7 @@ th{
     <div class="small">
       Proveedores: Pendiente suma deuda, Pagado descuenta (puede quedar a favor).
       Impuestos miralos en “Pagos”.
-      Correcciones: “Movimientos (Gastos)” → Anular/Desanular.
+      Correcciones: “Movimientos (Gastos)” → Editar / Anular / Duplicar.
     </div>
   </div>
 </div>
@@ -345,7 +388,7 @@ th{
 <div id="movGastos" class="section">
   <div class="panel">
     <h3>Movimientos (solo Gastos)</h3>
-    <div class="small">Acá se corrige: Anular/Desanular. Ventas NO aparecen acá.</div>
+    <div class="small">Acá se corrige: Editar / Anular / Desanular / Duplicar. Ventas NO aparecen acá.</div>
 
     <div class="filters">
       <div>
@@ -388,13 +431,45 @@ th{
   </div>
 </div>
 
+<!-- CAJA REAL -->
+<div id="caja" class="section">
+  <div class="panel">
+    <h3>Caja Real</h3>
+    <div class="small">
+      Acá cargás lo que tenés <b>de verdad</b> por método.  
+      Dashboard te muestra la diferencia contra lo calculado (ventas - gastos pagados).
+    </div>
+
+    <div class="filters">
+      <div>
+        <label class="small">Cargar rápido: poner mismo valor en todos</label>
+        <input type="number" id="cajaAll" placeholder="Ej: 0 o 100000">
+      </div>
+      <div style="align-self:end">
+        <button class="action" onclick="cajaAplicarATodos()">Aplicar</button>
+      </div>
+    </div>
+
+    <div id="tablaCaja"></div>
+
+    <div class="row2">
+      <button class="action" onclick="cajaGuardar()">Guardar Caja Real</button>
+      <button class="action" onclick="cajaPonerCalculado()">Copiar Calculado → Real</button>
+    </div>
+
+    <div class="small" style="margin-top:10px">
+      “Copiar Calculado → Real” te sirve cuando está todo ok y querés arrancar a controlar desde cero.
+    </div>
+  </div>
+</div>
+
 <!-- MAESTRO -->
 <div id="maestro" class="section">
   <div class="panel">
     <h3>Hoja Maestra (editable)</h3>
     <div class="small">
-      Acá agregás métodos, categorías y subcategorías sin tocar código.  
-      Nota: Si borrás algo, los movimientos viejos no se borran (solo deja de aparecer en listas).
+      Agregás métodos, categorías y subcategorías sin tocar código.  
+      Si borrás algo, los movimientos viejos no se borran (solo deja de aparecer en listas).
     </div>
 
     <div class="hr"></div>
@@ -437,8 +512,8 @@ th{
   <div class="panel">
     <h3>Backup / Exportar / Importar</h3>
     <div class="small">
-      Exporta TODO: Maestro + Movimientos.  
-      Importar reemplaza TODO (te conviene exportar antes por si te arrepentís).
+      Exporta TODO: Maestro + Caja Real + Movimientos.  
+      Importar reemplaza TODO (exportá antes por si te arrepentís).
     </div>
 
     <div class="row2">
@@ -456,14 +531,29 @@ th{
   </div>
 </div>
 
+<!-- MODAL EDICION -->
+<div id="modalBack" class="modalBack" onclick="modalClickOutside(event)">
+  <div class="modal">
+    <div class="modalHead">
+      <b id="modalTitle">Editar</b>
+      <button class="btnMini" onclick="cerrarModal()">Cerrar</button>
+    </div>
+    <div class="modalBody" id="modalBody"></div>
+    <div class="modalFoot">
+      <button class="btnMini" onclick="cerrarModal()">Cancelar</button>
+      <button class="action" onclick="modalGuardar()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast">Guardado ✅</div>
 
 <script>
 /** =========================
  *  STORAGE / VERSIONING
  * ========================= */
-const STORAGE_ALL = "SM_APP_ALL_V1";     // Nuevo: guarda todo junto
-const STORAGE_OLD = "SM_GESTION_V7";     // Viejo: solo movimientos
+const STORAGE_ALL = "SM_APP_ALL_V2";
+const STORAGE_OLD = "SM_GESTION_V7";
 const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
 
 const DEFAULT_MASTER = {
@@ -473,13 +563,13 @@ const DEFAULT_MASTER = {
     "Impuestos":["ARBA","AFIP"],
     "Empleados":["Sueldos"],
     "Otros":["Varios"]
-  }
+  },
+  cajaReal: {} // método -> número
 };
 
 let master = structuredClone(DEFAULT_MASTER);
 let movimientos = [];
 
-// Estado de cuenta SOLO para proveedores
 const PROVIDER_CATEGORY_NAME = "Proveedores";
 
 /** =========================
@@ -487,6 +577,9 @@ const PROVIDER_CATEGORY_NAME = "Proveedores";
  * ========================= */
 function hoy(){ return new Date().toISOString().split("T")[0]; }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
+function safeText(s){ return String(s||"").trim(); }
+function norm(s){ return safeText(s); }
+function round0(n){ return Math.round(Number(n)||0); }
 
 function toast(msg="Guardado ✅"){
   const t = document.getElementById("toast");
@@ -495,11 +588,7 @@ function toast(msg="Guardado ✅"){
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(()=>{ t.style.display="none"; }, 1100);
 }
-
 function activos(){ return movimientos.filter(m=>!m.anulado); }
-
-function safeText(s){ return String(s||"").trim(); }
-function norm(s){ return safeText(s); }
 
 /** =========================
  *  LOAD / SAVE
@@ -514,67 +603,65 @@ function loadAll(){
   if(data){
     try{
       const obj = JSON.parse(data) || {};
-      if(obj.master && obj.master.metodos && obj.master.categorias){
-        master = sanitizeMaster(obj.master);
-      }else{
-        master = structuredClone(DEFAULT_MASTER);
-      }
-      if(Array.isArray(obj.movimientos)){
-        movimientos = sanitizeMovimientos(obj.movimientos);
-      }else{
-        movimientos = [];
-      }
+      master = sanitizeMaster(obj.master);
+      movimientos = sanitizeMovimientos(obj.movimientos);
       return;
     }catch{}
   }
 
-  // Migración si existe viejo
+  // migración viejo
   const old = localStorage.getItem(STORAGE_OLD);
   if(old){
     try{
-      const arr = JSON.parse(old) || [];
-      movimientos = sanitizeMovimientos(arr);
+      movimientos = sanitizeMovimientos(JSON.parse(old)||[]);
       master = structuredClone(DEFAULT_MASTER);
       saveAll();
       return;
     }catch{}
   }
 
-  // default
   master = structuredClone(DEFAULT_MASTER);
   movimientos = [];
   saveAll();
 }
 
 function sanitizeMaster(m){
-  const out = { metodos: [], categorias: {} };
-  // metodos
-  if(Array.isArray(m.metodos)){
-    out.metodos = m.metodos.map(norm).filter(x=>x);
+  const out = { metodos: [], categorias: {}, cajaReal: {} };
+  if(m && typeof m === "object"){
+    if(Array.isArray(m.metodos)){
+      out.metodos = m.metodos.map(norm).filter(Boolean);
+    }
+    if(m.categorias && typeof m.categorias === "object"){
+      Object.keys(m.categorias).forEach(cat=>{
+        const c = norm(cat);
+        if(!c) return;
+        const subsRaw = m.categorias[cat];
+        const subs = Array.isArray(subsRaw) ? subsRaw.map(norm).filter(Boolean) : [];
+        out.categorias[c] = subs;
+      });
+    }
+    if(m.cajaReal && typeof m.cajaReal === "object"){
+      Object.keys(m.cajaReal).forEach(k=>{
+        const key = norm(k);
+        if(!key) return;
+        out.cajaReal[key] = round0(m.cajaReal[k]);
+      });
+    }
   }
-  // categorias
-  if(m.categorias && typeof m.categorias === "object"){
-    Object.keys(m.categorias).forEach(cat=>{
-      const c = norm(cat);
-      if(!c) return;
-      const subsRaw = m.categorias[cat];
-      const subs = Array.isArray(subsRaw) ? subsRaw.map(norm).filter(x=>x) : [];
-      out.categorias[c] = subs;
-    });
-  }
-  // asegurar defaults mínimos
-  if(out.metodos.length === 0) out.metodos = structuredClone(DEFAULT_MASTER.metodos);
-  if(Object.keys(out.categorias).length === 0) out.categorias = structuredClone(DEFAULT_MASTER.categorias);
 
-  // asegurar Proveedores existe
-  if(!out.categorias[PROVIDER_CATEGORY_NAME]){
-    out.categorias[PROVIDER_CATEGORY_NAME] = [];
-  }
+  if(out.metodos.length===0) out.metodos = structuredClone(DEFAULT_MASTER.metodos);
+  if(Object.keys(out.categorias).length===0) out.categorias = structuredClone(DEFAULT_MASTER.categorias);
+
+  if(!out.categorias[PROVIDER_CATEGORY_NAME]) out.categorias[PROVIDER_CATEGORY_NAME] = [];
+  // asegurar cajaReal tenga claves actuales
+  out.metodos.forEach(met=>{
+    if(out.cajaReal[met]===undefined) out.cajaReal[met]=0;
+  });
   return out;
 }
 
 function sanitizeMovimientos(arr){
-  return (arr||[]).map(m => ({
+  return (Array.isArray(arr)?arr:[]).map(m => ({
     id: m.id || uid(),
     anulado: !!m.anulado,
     tipo: m.tipo || "",
@@ -599,6 +686,7 @@ function go(id, ev){
   document.getElementById(id).classList.add("active");
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
   if(ev?.target) ev.target.classList.add("active");
+  if(id==="caja") renderCaja();
 }
 
 /** =========================
@@ -631,8 +719,8 @@ function refreshAllSelects(){
   cargarSubDeGasto();
   onMgCatChange(true);
 
-  // Render maestro tables
   renderMaestro();
+  renderCaja();
 }
 
 /** =========================
@@ -652,7 +740,6 @@ function iniciar(){
   document.getElementById("pMes").value = "";
   document.getElementById("mgMes").value = "";
 
-  // listeners
   document.getElementById("gCat").addEventListener("change", cargarSubDeGasto);
 
   renderAll();
@@ -717,7 +804,7 @@ function guardarGasto(){
 }
 
 /** =========================
- *  ANULAR / DESANULAR
+ *  ANULAR / DESANULAR / DUPLICAR
  * ========================= */
 function anularMovimiento(id){
   const mv = movimientos.find(x=>x.id===id);
@@ -728,7 +815,6 @@ function anularMovimiento(id){
   toast("Anulado ✅");
   renderAll();
 }
-
 function desanularMovimiento(id){
   const mv = movimientos.find(x=>x.id===id);
   if(!mv || !mv.anulado) return;
@@ -738,11 +824,24 @@ function desanularMovimiento(id){
   toast("Reactivado ✅");
   renderAll();
 }
+function duplicarMovimiento(id){
+  const mv = movimientos.find(x=>x.id===id);
+  if(!mv) return;
+  const copy = structuredClone(mv);
+  copy.id = uid();
+  copy.anulado = false;
+  // para duplicar, ponemos fecha HOY (más práctico). Si querés igual a original lo cambiamos.
+  copy.fecha = hoy();
+  movimientos.push(copy);
+  saveAll();
+  toast("Duplicado ✅ (fecha hoy)");
+  renderAll();
+}
 
 /** =========================
  *  CALCULOS BASE
  * ========================= */
-function computeSaldosPorMetodo(){
+function computeSaldosPorMetodoCalculado(){
   const saldos = {};
   master.metodos.forEach(m => saldos[m]=0);
 
@@ -787,12 +886,19 @@ function renderAll(){
   renderPagos();
   renderMovGastos();
   renderVentasHist();
-  renderMaestroTables();
+  renderMaestro();
+  // caja se renderiza al entrar, pero mantenemos el dashboard actualizado
 }
 
 /** =========================
  *  DASHBOARD
  * ========================= */
+function sumCajaReal(){
+  let total = 0;
+  master.metodos.forEach(m=>{ total += round0(master.cajaReal?.[m]||0); });
+  return total;
+}
+
 function renderDashboard(){
   const mes = document.getElementById("dashMes").value;
 
@@ -810,19 +916,35 @@ function renderDashboard(){
   let deudaProv = 0;
   Object.values(provMap).forEach(v=>{ if(v>0) deudaProv += v; });
 
-  const saldosMetodo = computeSaldosPorMetodo();
-  const disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
+  const calc = computeSaldosPorMetodoCalculado();
+  const disponible = Object.values(calc).reduce((a,b)=>a+b,0);
+
+  const cajaRealTotal = sumCajaReal();
+  const dif = cajaRealTotal - disponible;
 
   document.getElementById("dashVentas").innerText = fmt.format(ventasPeriodo);
   document.getElementById("dashGastosPag").innerText = fmt.format(gastosPagadosPeriodo);
   document.getElementById("dashResultado").innerText = fmt.format(ventasPeriodo - gastosPagadosPeriodo);
   document.getElementById("dashDeudaProv").innerText = fmt.format(deudaProv);
   document.getElementById("dashDisponible").innerText = fmt.format(disponible);
+  document.getElementById("dashCajaReal").innerText = fmt.format(cajaRealTotal);
 
-  let html = "<table><tr><th>Método</th><th>Saldo</th></tr>";
+  const difEl = document.getElementById("dashDif");
+  difEl.innerText = fmt.format(dif);
+  difEl.className = dif===0 ? "green" : (dif<0 ? "red" : "warn");
+
+  let html = "<table><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>";
   master.metodos.forEach(m=>{
-    const v = Math.round(saldosMetodo[m]||0);
-    html += `<tr><td>${m}</td><td class="${v>=0?'green':'red'}">${fmt.format(v)}</td></tr>`;
+    const c = round0(calc[m]||0);
+    const r = round0(master.cajaReal?.[m]||0);
+    const d = r - c;
+    const clsD = d===0 ? "green" : (d<0 ? "red" : "warn");
+    html += `<tr>
+      <td><b>${m}</b></td>
+      <td class="${c>=0?'green':'red'}">${fmt.format(c)}</td>
+      <td>${fmt.format(r)}</td>
+      <td class="${clsD}">${fmt.format(d)}</td>
+    </tr>`;
   });
   html += "</table>";
   document.getElementById("tablaMetodos").innerHTML = html;
@@ -956,7 +1078,7 @@ function renderMovGastos(){
   document.getElementById("mgTotPen").innerText = fmt.format(totPen);
   document.getElementById("mgCant").innerText = String(cant);
 
-  let html = "<table><tr><th>Fecha</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th><th>Acción</th></tr>";
+  let html = "<table><tr><th>Fecha</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th><th>Acciones</th></tr>";
   rows.forEach(m=>{
     const det = `<b>${m.categoria}</b> · ${m.subcategoria}${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
     const met = (m.estado==="PAGADO") ? (m.metodo||"-") : "-";
@@ -965,9 +1087,11 @@ function renderMovGastos(){
       ? `<span class="badge cero">ANULADO</span>`
       : (m.estado==="PAGADO" ? `<span class="badge debes">PAGADO</span>` : `<span class="badge cero">PENDIENTE</span>`);
 
-    const accion = m.anulado
+    const a1 = m.anulado
       ? `<button class="btnMini" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
       : `<button class="btnMini" onclick="anularMovimiento('${m.id}')">Anular</button>`;
+    const a2 = `<button class="btnMini" onclick="abrirEditar('${m.id}')">Editar</button>`;
+    const a3 = `<button class="btnMini" onclick="duplicarMovimiento('${m.id}')">Duplicar</button>`;
 
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
@@ -975,7 +1099,7 @@ function renderMovGastos(){
       <td>${estadoBadge}</td>
       <td>${met}</td>
       <td class="${clsMonto}">${fmt.format(m.monto)}</td>
-      <td>${accion}</td>
+      <td>${a2}${a3}${a1}</td>
     </tr>`;
   });
   html += "</table>";
@@ -1003,9 +1127,7 @@ function renderVentasHist(){
     const hay = `${m.metodo||""} ${m.nota||""}`;
     if(buscar && !hay.toLowerCase().includes(buscar)) return;
 
-    if(!m.anulado){
-      total += m.monto;
-    }
+    if(!m.anulado) total += m.monto;
     cant++;
     rows.push(m);
   });
@@ -1019,17 +1141,20 @@ function renderVentasHist(){
   document.getElementById("vhTotal").innerText = fmt.format(total);
   document.getElementById("vhCant").innerText = String(cant);
 
-  let html = "<table><tr><th>Fecha</th><th>Categoría (método)</th><th>Nota</th><th>Monto</th><th>Acción</th></tr>";
+  let html = "<table><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th><th>Acciones</th></tr>";
   rows.forEach(m=>{
-    const accion = m.anulado
+    const a1 = m.anulado
       ? `<button class="btnMini" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
       : `<button class="btnMini" onclick="anularMovimiento('${m.id}')">Anular</button>`;
+    const a2 = `<button class="btnMini" onclick="abrirEditar('${m.id}')">Editar</button>`;
+    const a3 = `<button class="btnMini" onclick="duplicarMovimiento('${m.id}')">Duplicar</button>`;
+
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
       <td><b>${m.metodo}</b></td>
       <td class="muted">${m.nota||""}</td>
       <td class="green">${fmt.format(m.monto)}</td>
-      <td>${accion}</td>
+      <td>${a2}${a3}${a1}</td>
     </tr>`;
   });
   html += "</table>";
@@ -1038,13 +1163,70 @@ function renderVentasHist(){
 }
 
 /** =========================
+ *  CAJA REAL
+ * ========================= */
+function renderCaja(){
+  // asegurar claves
+  master.metodos.forEach(m=>{
+    if(master.cajaReal[m]===undefined) master.cajaReal[m]=0;
+  });
+
+  const calc = computeSaldosPorMetodoCalculado();
+
+  let html = "<table><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>";
+  master.metodos.forEach(m=>{
+    const c = round0(calc[m]||0);
+    const r = round0(master.cajaReal[m]||0);
+    const d = r - c;
+    const clsD = d===0 ? "green" : (d<0 ? "red" : "warn");
+    html += `<tr>
+      <td><b>${m}</b></td>
+      <td class="${c>=0?'green':'red'}">${fmt.format(c)}</td>
+      <td><input type="number" id="caja_${escapeId(m)}" value="${r}" style="margin:0"></td>
+      <td class="${clsD}">${fmt.format(d)}</td>
+    </tr>`;
+  });
+  html += "</table>";
+  document.getElementById("tablaCaja").innerHTML = html;
+}
+
+function cajaGuardar(){
+  master.metodos.forEach(m=>{
+    const el = document.getElementById("caja_"+escapeId(m));
+    if(!el) return;
+    master.cajaReal[m] = round0(el.value);
+  });
+  saveAll();
+  toast("Caja real guardada ✅");
+  renderAll();
+}
+
+function cajaAplicarATodos(){
+  const v = round0(document.getElementById("cajaAll").value);
+  master.metodos.forEach(m=>{ master.cajaReal[m] = v; });
+  saveAll();
+  toast("Aplicado ✅");
+  renderCaja();
+  renderAll();
+}
+
+function cajaPonerCalculado(){
+  const calc = computeSaldosPorMetodoCalculado();
+  master.metodos.forEach(m=>{ master.cajaReal[m] = round0(calc[m]||0); });
+  saveAll();
+  toast("Calculado → Real ✅");
+  renderCaja();
+  renderAll();
+}
+
+function escapeId(s){
+  return String(s).replaceAll(" ","_").replaceAll("/","_").replaceAll(".","_");
+}
+
+/** =========================
  *  MAESTRO: ADD / REMOVE
  * ========================= */
 function renderMaestro(){
-  renderMaestroTables();
-}
-
-function renderMaestroTables(){
   // Métodos list
   const methodsHtml = `
     <table>
@@ -1059,16 +1241,14 @@ function renderMaestroTables(){
   `;
   document.getElementById("tablaMetodosMaestro").innerHTML = methodsHtml;
 
-  // Categorías select is refreshed on update; ensure current selection exists
+  // asegurar selección categoría
   const cats = Object.keys(master.categorias);
   const sel = document.getElementById("mCatSel");
-  if(!cats.includes(sel.value)){
-    sel.value = cats[0] || "";
-  }
+  if(!cats.includes(sel.value)) sel.value = cats[0] || "";
 
-  // Subs list for selected category
   const cat = sel.value;
   const subs = master.categorias[cat] || [];
+
   const subsHtml = `
     <table>
       <tr><th>Subcategoría</th><th>Acción</th></tr>
@@ -1085,11 +1265,11 @@ function renderMaestroTables(){
     </div>
   `;
   document.getElementById("tablaSubsMaestro").innerHTML = subsHtml;
-
-  // Backup box keep updated (opcional)
 }
 
-function escapeQuotes(s){ return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'"); }
+function escapeQuotes(s){
+  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+}
 
 function addMetodo(){
   const v = norm(document.getElementById("mNuevoMetodo").value);
@@ -1097,6 +1277,10 @@ function addMetodo(){
   if(master.metodos.includes(v)) return toast("Ya existe");
   master.metodos.push(v);
   master.metodos.sort((a,b)=>a.localeCompare(b,"es"));
+
+  // asegurar cajaReal
+  if(master.cajaReal[v]===undefined) master.cajaReal[v]=0;
+
   saveAll();
   document.getElementById("mNuevoMetodo").value = "";
   toast("Método agregado ✅");
@@ -1110,6 +1294,12 @@ function removeMetodo(m){
   if(master.metodos.length===0){
     master.metodos = structuredClone(DEFAULT_MASTER.metodos);
   }
+  // limpiar cajaReal
+  delete master.cajaReal[m];
+
+  // asegurar cajaReal de los que quedan
+  master.metodos.forEach(mm=>{ if(master.cajaReal[mm]===undefined) master.cajaReal[mm]=0; });
+
   saveAll();
   toast("Método eliminado ✅");
   refreshAllSelects();
@@ -1130,14 +1320,13 @@ function addCategoria(){
 
 function removeCategoria(cat){
   if(!cat) return;
-  if(cat === PROVIDER_CATEGORY_NAME){
-    return toast("No se puede borrar Proveedores");
-  }
+  if(cat === PROVIDER_CATEGORY_NAME) return toast("No se puede borrar Proveedores");
   if(!confirm(`¿Eliminar categoría "${cat}"?`)) return;
   delete master.categorias[cat];
   if(Object.keys(master.categorias).length===0){
     master.categorias = structuredClone(DEFAULT_MASTER.categorias);
   }
+  if(!master.categorias[PROVIDER_CATEGORY_NAME]) master.categorias[PROVIDER_CATEGORY_NAME]=[];
   saveAll();
   toast("Categoría eliminada ✅");
   refreshAllSelects();
@@ -1178,18 +1367,16 @@ function getBackupObject(){
   return {
     meta: {
       app: "StellaMarisGestion",
-      version: "V1",
+      version: "V2",
       exportedAt: new Date().toISOString()
     },
     master,
     movimientos
   };
 }
-
 function stringifyBackup(){
   return JSON.stringify(getBackupObject(), null, 2);
 }
-
 function exportarTodo(){
   const json = stringifyBackup();
   document.getElementById("backupBox").value = json;
@@ -1206,7 +1393,6 @@ function exportarTodo(){
 
   toast("Exportado ✅");
 }
-
 async function copiarBackup(){
   const json = stringifyBackup();
   document.getElementById("backupBox").value = json;
@@ -1217,21 +1403,17 @@ async function copiarBackup(){
     toast("Copiá manual ✅");
   }
 }
-
 function importarDesdeCaja(){
   const txt = document.getElementById("backupBox").value.trim();
   if(!txt) return toast("Pegá el JSON primero");
-  if(!confirm("IMPORTAR reemplaza TODO (maestro + movimientos). ¿Seguimos?")) return;
+  if(!confirm("IMPORTAR reemplaza TODO (maestro + caja + movimientos). ¿Seguimos?")) return;
 
   try{
     const obj = JSON.parse(txt);
     if(!obj || !obj.master || !obj.movimientos) return toast("JSON inválido");
 
-    const newMaster = sanitizeMaster(obj.master);
-    const newMovs = sanitizeMovimientos(obj.movimientos);
-
-    master = newMaster;
-    movimientos = newMovs;
+    master = sanitizeMaster(obj.master);
+    movimientos = sanitizeMovimientos(obj.movimientos);
 
     saveAll();
     toast("Importado ✅");
@@ -1241,9 +1423,8 @@ function importarDesdeCaja(){
     toast("JSON inválido");
   }
 }
-
 function borrarTodo(){
-  if(!confirm("Esto borra TODO (maestro + movimientos). ¿Seguro?")) return;
+  if(!confirm("Esto borra TODO (maestro + caja + movimientos). ¿Seguro?")) return;
   if(!confirm("Última confirmación: ¿borramos todo?")) return;
 
   master = structuredClone(DEFAULT_MASTER);
@@ -1253,6 +1434,225 @@ function borrarTodo(){
   document.getElementById("backupBox").value = "";
   toast("Borrado ✅");
   refreshAllSelects();
+  renderAll();
+}
+
+/** =========================
+ *  MODAL EDITAR
+ * ========================= */
+let modalEditingId = null;
+
+function modalClickOutside(ev){
+  if(ev.target.id==="modalBack") cerrarModal();
+}
+function abrirModal(title, bodyHtml){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = bodyHtml;
+  document.getElementById("modalBack").style.display = "block";
+}
+function cerrarModal(){
+  modalEditingId = null;
+  document.getElementById("modalBack").style.display = "none";
+}
+
+function abrirEditar(id){
+  const mv = movimientos.find(x=>x.id===id);
+  if(!mv) return;
+  modalEditingId = id;
+
+  if(mv.tipo==="VENTA"){
+    const body = `
+      <div class="small">Editar Venta</div>
+      <div class="row2">
+        <div>
+          <label class="small">Fecha</label>
+          <input type="date" id="eFecha" value="${mv.fecha}">
+        </div>
+        <div>
+          <label class="small">Método</label>
+          <select id="eMetodo"></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label class="small">Monto</label>
+          <input type="number" id="eMonto" value="${round0(mv.monto)}">
+        </div>
+        <div>
+          <label class="small">Anulado</label>
+          <select id="eAnulado">
+            <option value="0">No</option>
+            <option value="1">Sí</option>
+          </select>
+        </div>
+      </div>
+      <label class="small">Nota</label>
+      <input type="text" id="eNota" value="${escapeHtmlAttr(mv.nota||"")}">
+    `;
+    abrirModal("Editar Venta", body);
+    // fill
+    const sel = document.getElementById("eMetodo");
+    fillSelectOptions(sel, master.metodos, false);
+    sel.value = mv.metodo || master.metodos[0] || "";
+    document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
+  } else {
+    // GASTO
+    const body = `
+      <div class="small">Editar Gasto</div>
+      <div class="row2">
+        <div>
+          <label class="small">Fecha</label>
+          <input type="date" id="eFecha" value="${mv.fecha}">
+        </div>
+        <div>
+          <label class="small">Monto</label>
+          <input type="number" id="eMonto" value="${round0(mv.monto)}">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="small">Categoría</label>
+          <select id="eCat"></select>
+        </div>
+        <div>
+          <label class="small">Subcategoría</label>
+          <select id="eSub"></select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="small">Estado</label>
+          <select id="eEstado">
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="PAGADO">Pagado</option>
+          </select>
+        </div>
+        <div>
+          <label class="small">Método (si Pagado)</label>
+          <select id="eMetodo"></select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="small">Anulado</label>
+          <select id="eAnulado">
+            <option value="0">No</option>
+            <option value="1">Sí</option>
+          </select>
+        </div>
+        <div></div>
+      </div>
+
+      <label class="small">Nota</label>
+      <input type="text" id="eNota" value="${escapeHtmlAttr(mv.nota||"")}">
+
+      <div class="small">
+        Tip: Si cambiás de Pendiente → Pagado, poné método sí o sí.
+      </div>
+    `;
+    abrirModal("Editar Gasto", body);
+
+    // fill cats
+    const cats = Object.keys(master.categorias);
+    const catSel = document.getElementById("eCat");
+    fillSelectOptions(catSel, cats, false);
+    catSel.value = mv.categoria || cats[0] || "";
+
+    const subSel = document.getElementById("eSub");
+    fillEditSubs(catSel.value, subSel, mv.subcategoria);
+
+    // status/method
+    document.getElementById("eEstado").value = mv.estado || "PENDIENTE";
+    const metSel = document.getElementById("eMetodo");
+    fillSelectOptions(metSel, master.metodos, false);
+    metSel.value = mv.metodo || master.metodos[0] || "";
+
+    // anulado
+    document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
+
+    // listeners
+    catSel.addEventListener("change", ()=>{
+      fillEditSubs(catSel.value, subSel, "");
+    });
+    document.getElementById("eEstado").addEventListener("change", ()=>{
+      toggleEditMetodo();
+    });
+    toggleEditMetodo();
+  }
+}
+
+function fillEditSubs(cat, subSel, selected){
+  const subs = master.categorias[cat] || [];
+  fillSelectOptions(subSel, subs, false);
+  if(selected && subs.includes(selected)) subSel.value = selected;
+  else subSel.value = subs[0] || "";
+}
+
+function toggleEditMetodo(){
+  const estado = document.getElementById("eEstado")?.value;
+  const met = document.getElementById("eMetodo");
+  if(!met) return;
+  const disabled = (estado !== "PAGADO");
+  met.disabled = disabled;
+  met.style.opacity = disabled ? "0.55" : "1";
+}
+
+function escapeHtmlAttr(s){
+  return String(s||"")
+    .replaceAll("&","&amp;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function modalGuardar(){
+  if(!modalEditingId) return cerrarModal();
+  const mv = movimientos.find(x=>x.id===modalEditingId);
+  if(!mv) return cerrarModal();
+
+  const fecha = document.getElementById("eFecha")?.value || mv.fecha;
+  const monto = Number(document.getElementById("eMonto")?.value) || 0;
+  const nota = (document.getElementById("eNota")?.value || "").trim();
+  const anulado = (document.getElementById("eAnulado")?.value === "1");
+
+  if(!fecha) return toast("Falta fecha");
+  if(!monto || monto<=0) return toast("Monto inválido");
+
+  if(mv.tipo==="VENTA"){
+    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
+    if(!metodo) return toast("Falta método");
+
+    mv.fecha = fecha;
+    mv.monto = monto;
+    mv.nota = nota;
+    mv.metodo = metodo;
+    mv.anulado = anulado;
+
+  } else {
+    const categoria = document.getElementById("eCat")?.value || mv.categoria;
+    const subcategoria = document.getElementById("eSub")?.value || mv.subcategoria;
+    const estado = document.getElementById("eEstado")?.value || mv.estado;
+    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
+
+    if(!categoria || !subcategoria) return toast("Falta cat/sub");
+    if(estado==="PAGADO" && !metodo) return toast("Pagado sin método no");
+
+    mv.fecha = fecha;
+    mv.monto = monto;
+    mv.nota = nota;
+    mv.categoria = categoria;
+    mv.subcategoria = subcategoria;
+    mv.estado = estado;
+    mv.metodo = metodo;
+    mv.anulado = anulado;
+  }
+
+  saveAll();
+  toast("Editado ✅");
+  cerrarModal();
   renderAll();
 }
 
