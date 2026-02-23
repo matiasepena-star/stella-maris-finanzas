@@ -3,64 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stella Maris · Gestión Empresarial</title>
+<title>Stella Maris · Gestión</title>
 
 <style>
 :root{
---bg:#f4f6f9;
---header:#0d47a1;
---nav:#1565c0;
---navHover:#0b3c8a;
---card:#ffffff;
---line:#e5e7eb;
+--bg:#f3f4f6;
+--panel:#ffffff;
+--primary:#1e3a8a;
+--primary-dark:#172554;
+--border:#e5e7eb;
 --text:#111827;
 --muted:#6b7280;
---ok:#16a34a;
---bad:#dc2626;
+--green:#16a34a;
+--red:#dc2626;
 }
 
 body{
 margin:0;
-font-family:Arial;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
 background:var(--bg);
 height:100vh;
 display:flex;
 flex-direction:column;
-overflow:hidden;
 color:var(--text);
+overflow:hidden;
 }
 
 header{
-background:var(--header);
-color:white;
-padding:15px;
-font-weight:bold;
+background:var(--primary);
+color:#fff;
+padding:14px 18px;
+font-weight:600;
+letter-spacing:.5px;
 }
 
 nav{
 display:flex;
-flex-wrap:wrap;
-background:var(--nav);
+background:var(--primary-dark);
 }
 
 nav button{
 flex:1;
-min-width:120px;
 border:0;
-background:var(--nav);
-color:white;
+background:var(--primary-dark);
+color:#fff;
 padding:12px;
 cursor:pointer;
-font-size:14px;
-}
-
-nav button:hover{
-background:var(--navHover);
+font-size:13px;
+letter-spacing:.5px;
 }
 
 nav button.active{
-background:#08307a;
-font-weight:bold;
+background:#0f172a;
+font-weight:600;
 }
 
 .section{
@@ -74,152 +69,187 @@ overflow:auto;
 display:block;
 }
 
-.card{
-background:var(--card);
-padding:15px;
+.panel{
+background:var(--panel);
+border:1px solid var(--border);
 border-radius:10px;
+padding:15px;
 margin-bottom:15px;
-border:1px solid var(--line);
 }
+
+.panel h3{
+margin-top:0;
+font-size:14px;
+letter-spacing:.5px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:12px;
+}
+
+.stat{
+background:#f9fafb;
+padding:10px;
+border-radius:8px;
+border:1px solid var(--border);
+font-size:13px;
+}
+
+.green{color:var(--green);font-weight:600}
+.red{color:var(--red);font-weight:600}
 
 input,select{
 width:100%;
 padding:8px;
-margin:6px 0;
-border:1px solid var(--line);
+margin:5px 0 10px;
 border-radius:6px;
+border:1px solid var(--border);
+font-size:13px;
 }
 
 button.action{
-background:var(--nav);
+background:var(--primary);
 color:white;
 border:0;
-padding:10px;
+padding:8px 12px;
 border-radius:6px;
 cursor:pointer;
+font-size:13px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
+font-size:13px;
 }
 
 th,td{
-border-bottom:1px solid var(--line);
 padding:8px;
+border-bottom:1px solid var(--border);
 text-align:left;
 }
 
 th{
-background:#f1f5f9;
+background:#f9fafb;
+font-weight:600;
 }
 
-.green{color:var(--ok);font-weight:bold}
-.red{color:var(--bad);font-weight:bold}
+.small{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
 
 <header>
-Stella Maris · Gestión Empresarial
+Stella Maris · Gestión Profesional
 </header>
 
 <nav>
-<button class="active" onclick="mostrar('dashboard')">Dashboard</button>
-<button onclick="mostrar('ventas')">Ventas</button>
-<button onclick="mostrar('gastos')">Gastos</button>
-<button onclick="mostrar('transferencias')">Transferencias</button>
-<button onclick="mostrar('pendientes')">Pendientes</button>
+<button class="active" onclick="go('dashboard')">Dashboard</button>
+<button onclick="go('ventas')">Ventas</button>
+<button onclick="go('gastos')">Gastos</button>
+<button onclick="go('estado')">Estado Cuenta</button>
+<button onclick="go('movimientos')">Movimientos</button>
 </nav>
 
+<!-- DASHBOARD -->
 <div id="dashboard" class="section active">
-<div class="card">
-<h3>Resumen General</h3>
-<div>Ventas: <span id="totalVentas" class="green">$0</span></div>
-<div>Egresos pagados: <span id="totalGastos" class="red">$0</span></div>
-<div>Pendiente total: <span id="totalPendiente" class="red">$0</span></div>
-<div>Disponible total: <span id="saldoTotal">$0</span></div>
+<div class="panel">
+<h3>Resumen del período</h3>
+
+<label>Filtrar por mes</label>
+<input type="month" id="filtroMes" onchange="renderAll()">
+
+<div class="grid">
+<div class="stat">Ventas<br><span id="dashVentas" class="green">$0</span></div>
+<div class="stat">Gastos Pagados<br><span id="dashGastos" class="red">$0</span></div>
+<div class="stat">Resultado<br><span id="dashResultado">$0</span></div>
+<div class="stat">Pendiente Total<br><span id="dashPendiente" class="red">$0</span></div>
+<div class="stat">Disponible Total<br><span id="dashDisponible">$0</span></div>
+</div>
 </div>
 
-<div class="card">
+<div class="panel">
 <h3>Saldos por método</h3>
-<div id="saldosMetodos"></div>
+<div id="tablaMetodos"></div>
 </div>
 </div>
 
+<!-- VENTAS -->
 <div id="ventas" class="section">
-<div class="card">
+<div class="panel">
 <h3>Nueva Venta</h3>
-<input type="number" id="ventaMonto" placeholder="Monto">
+<input type="date" id="ventaFecha">
 <select id="ventaMetodo"></select>
+<input type="number" id="ventaMonto" placeholder="Monto">
+<input type="text" id="ventaNota" placeholder="Nota opcional">
 <button class="action" onclick="guardarVenta()">Guardar Venta</button>
 </div>
-
-<div class="card">
-<h3>Listado de Ventas</h3>
-<div id="listaVentas"></div>
-</div>
 </div>
 
+<!-- GASTOS -->
 <div id="gastos" class="section">
-<div class="card">
+<div class="panel">
 <h3>Nuevo Gasto</h3>
-<input type="text" id="gastoProveedor" placeholder="Proveedor">
+<input type="date" id="gastoFecha">
+<select id="gastoCategoria"></select>
+<select id="gastoSubcategoria"></select>
 <input type="number" id="gastoMonto" placeholder="Monto">
-<select id="gastoMetodo"></select>
 <select id="gastoEstado">
 <option value="PENDIENTE">Pendiente</option>
 <option value="PAGADO">Pagado</option>
 </select>
+<select id="gastoMetodo"></select>
+<input type="text" id="gastoNota" placeholder="Nota opcional">
 <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
 </div>
-
-<div class="card">
-<h3>Listado de Gastos</h3>
-<div id="listaGastos"></div>
-</div>
 </div>
 
-<div id="transferencias" class="section">
-<div class="card">
-<h3>Nueva Transferencia</h3>
-<select id="desdeMetodo"></select>
-<select id="haciaMetodo"></select>
-<input type="number" id="transferMonto" placeholder="Monto">
-<button class="action" onclick="guardarTransferencia()">Guardar Transferencia</button>
+<!-- ESTADO DE CUENTA -->
+<div id="estado" class="section">
+<div class="panel">
+<h3>Estado de Cuenta (Histórico Total)</h3>
+<div id="tablaEstado"></div>
 </div>
 </div>
 
-<div id="pendientes" class="section">
-<div class="card">
-<h3>Pendientes por Proveedor</h3>
-<div id="listaPendientes"></div>
+<!-- MOVIMIENTOS -->
+<div id="movimientos" class="section">
+<div class="panel">
+<h3>Movimientos</h3>
+<label>Filtrar por mes</label>
+<input type="month" id="movMes" onchange="renderMovimientos()">
+<div id="tablaMovimientos"></div>
 </div>
 </div>
 
 <script>
-const STORAGE_KEY = "stella_maris_sistema_v3";
+const STORAGE = "SM_GESTION_V4";
 
-let medios = ["Efectivo","Mercado Pago","Brubank","Provincia","Credicoop","Cheque"];
-let ventas = [];
-let gastos = [];
-let transferencias = [];
+let movimientos = [];
+let metodos = ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Cheque"];
+let categorias = {
+"Proveedores":["Juan","Pedro"],
+"Impuestos":["ARBA","AFIP"],
+"Empleados":["Sueldos"],
+"Otros":["Varios"]
+};
 
-function guardarLocal(){
-localStorage.setItem(STORAGE_KEY, JSON.stringify({ventas,gastos,transferencias}));
+function hoy(){
+return new Date().toISOString().split("T")[0];
 }
 
-function cargarLocal(){
-let data = localStorage.getItem(STORAGE_KEY);
-if(data){
-let obj = JSON.parse(data);
-ventas = obj.ventas || [];
-gastos = obj.gastos || [];
-transferencias = obj.transferencias || [];
-}
+function guardar(){
+localStorage.setItem(STORAGE, JSON.stringify(movimientos));
 }
 
-function mostrar(id){
+function cargar(){
+let data = localStorage.getItem(STORAGE);
+if(data) movimientos = JSON.parse(data);
+}
+
+function go(id){
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
@@ -227,115 +257,181 @@ event.target.classList.add("active");
 }
 
 function iniciar(){
-cargarLocal();
-let selects = ["ventaMetodo","gastoMetodo","desdeMetodo","haciaMetodo"];
-selects.forEach(id=>{
-let sel = document.getElementById(id);
-sel.innerHTML="";
-medios.forEach(m=>{
-let op=document.createElement("option");
-op.value=m;
-op.textContent=m;
-sel.appendChild(op);
+cargar();
+
+document.getElementById("ventaFecha").value = hoy();
+document.getElementById("gastoFecha").value = hoy();
+
+let vm = document.getElementById("ventaMetodo");
+let gm = document.getElementById("gastoMetodo");
+vm.innerHTML="";
+gm.innerHTML="";
+metodos.forEach(m=>{
+vm.innerHTML += `<option>${m}</option>`;
+gm.innerHTML += `<option>${m}</option>`;
 });
+
+let catSel = document.getElementById("gastoCategoria");
+catSel.innerHTML="";
+Object.keys(categorias).forEach(c=>{
+catSel.innerHTML += `<option>${c}</option>`;
 });
-renderTodo();
+
+cargarSubcategorias();
+renderAll();
 }
 
+function cargarSubcategorias(){
+let cat = document.getElementById("gastoCategoria").value;
+let subSel = document.getElementById("gastoSubcategoria");
+subSel.innerHTML="";
+categorias[cat].forEach(s=>{
+subSel.innerHTML += `<option>${s}</option>`;
+});
+}
+
+document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
+
 function guardarVenta(){
-let monto = parseFloat(document.getElementById("ventaMonto").value);
+let fecha = document.getElementById("ventaFecha").value;
 let metodo = document.getElementById("ventaMetodo").value;
+let monto = parseFloat(document.getElementById("ventaMonto").value);
+let nota = document.getElementById("ventaNota").value;
+
 if(!monto) return;
-ventas.push({monto,metodo});
+
+movimientos.push({
+tipo:"VENTA",
+fecha,
+metodo,
+monto,
+nota
+});
+
+guardar();
+renderAll();
 document.getElementById("ventaMonto").value="";
-guardarLocal();
-renderTodo();
 }
 
 function guardarGasto(){
-let proveedor = document.getElementById("gastoProveedor").value;
+let fecha = document.getElementById("gastoFecha").value;
+let categoria = document.getElementById("gastoCategoria").value;
+let subcategoria = document.getElementById("gastoSubcategoria").value;
 let monto = parseFloat(document.getElementById("gastoMonto").value);
-let metodo = document.getElementById("gastoMetodo").value;
 let estado = document.getElementById("gastoEstado").value;
-if(!monto || !proveedor) return;
-gastos.push({proveedor,monto,metodo,estado});
-document.getElementById("gastoProveedor").value="";
+let metodo = document.getElementById("gastoMetodo").value;
+let nota = document.getElementById("gastoNota").value;
+
+if(!monto) return;
+
+movimientos.push({
+tipo:"GASTO",
+fecha,
+categoria,
+subcategoria,
+monto,
+estado,
+metodo,
+nota
+});
+
+guardar();
+renderAll();
 document.getElementById("gastoMonto").value="";
-guardarLocal();
-renderTodo();
 }
 
-function guardarTransferencia(){
-let desde = document.getElementById("desdeMetodo").value;
-let hacia = document.getElementById("haciaMetodo").value;
-let monto = parseFloat(document.getElementById("transferMonto").value);
-if(!monto || desde===hacia) return;
-transferencias.push({desde,hacia,monto});
-document.getElementById("transferMonto").value="";
-guardarLocal();
-renderTodo();
+function renderAll(){
+renderDashboard();
+renderEstado();
+renderMovimientos();
 }
 
-function calcularSaldos(){
-let saldos={};
-medios.forEach(m=>saldos[m]=0);
+function renderDashboard(){
+let mes = document.getElementById("filtroMes").value;
 
-ventas.forEach(v=>{
-saldos[v.metodo]+=v.monto;
+let ventas = 0;
+let gastosPagados = 0;
+let pendiente = 0;
+let saldosMetodo = {};
+
+metodos.forEach(m=>saldosMetodo[m]=0);
+
+movimientos.forEach(m=>{
+let esMes = !mes || m.fecha.startsWith(mes);
+
+if(m.tipo==="VENTA"){
+saldosMetodo[m.metodo]+=m.monto;
+if(esMes) ventas+=m.monto;
+}
+
+if(m.tipo==="GASTO"){
+if(m.estado==="PAGADO"){
+saldosMetodo[m.metodo]-=m.monto;
+if(esMes) gastosPagados+=m.monto;
+}else{
+pendiente+=m.monto;
+}
+}
 });
 
-gastos.forEach(g=>{
-if(g.estado==="PAGADO"){
-saldos[g.metodo]-=g.monto;
+let disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
+
+document.getElementById("dashVentas").innerText="$"+ventas;
+document.getElementById("dashGastos").innerText="$"+gastosPagados;
+document.getElementById("dashResultado").innerText="$"+(ventas-gastosPagados);
+document.getElementById("dashPendiente").innerText="$"+pendiente;
+document.getElementById("dashDisponible").innerText="$"+disponible;
+
+let html="<table><tr><th>Método</th><th>Saldo</th></tr>";
+for(let m in saldosMetodo){
+html+=`<tr><td>${m}</td><td>$${saldosMetodo[m]}</td></tr>`;
+}
+html+="</table>";
+document.getElementById("tablaMetodos").innerHTML=html;
+}
+
+function renderEstado(){
+let estado = {};
+
+movimientos.forEach(m=>{
+if(m.tipo==="GASTO"){
+let key = m.categoria+"|"+m.subcategoria;
+if(!estado[key]) estado[key]=0;
+if(m.estado==="PENDIENTE") estado[key]+=m.monto;
+if(m.estado==="PAGADO") estado[key]-=m.monto;
 }
 });
 
-transferencias.forEach(t=>{
-saldos[t.desde]-=t.monto;
-saldos[t.hacia]+=t.monto;
+let html="<table><tr><th>Categoría</th><th>Subcategoría</th><th>Saldo</th></tr>";
+for(let k in estado){
+let parts=k.split("|");
+html+=`<tr><td>${parts[0]}</td><td>${parts[1]}</td><td>$${estado[k]}</td></tr>`;
+}
+html+="</table>";
+
+document.getElementById("tablaEstado").innerHTML=html;
+}
+
+function renderMovimientos(){
+let mes = document.getElementById("movMes").value;
+let html="<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>";
+
+movimientos.forEach(m=>{
+if(!mes || m.fecha.startsWith(mes)){
+let detalle="";
+if(m.tipo==="VENTA") detalle=m.metodo;
+if(m.tipo==="GASTO") detalle=m.categoria+" - "+m.subcategoria+" ("+m.estado+")";
+html+=`<tr>
+<td>${m.fecha}</td>
+<td>${m.tipo}</td>
+<td>${detalle}</td>
+<td>$${m.monto}</td>
+</tr>`;
+}
 });
 
-return saldos;
-}
-
-function renderTodo(){
-
-let totalVentas = ventas.reduce((a,b)=>a+b.monto,0);
-let totalGastos = gastos.filter(g=>g.estado==="PAGADO").reduce((a,b)=>a+b.monto,0);
-let totalPendiente = gastos.filter(g=>g.estado==="PENDIENTE").reduce((a,b)=>a+b.monto,0);
-
-let saldos = calcularSaldos();
-let saldoTotal = Object.values(saldos).reduce((a,b)=>a+b,0);
-
-document.getElementById("totalVentas").innerText="$"+totalVentas;
-document.getElementById("totalGastos").innerText="$"+totalGastos;
-document.getElementById("totalPendiente").innerText="$"+totalPendiente;
-document.getElementById("saldoTotal").innerText="$"+saldoTotal;
-
-let html="";
-for(let m in saldos){
-html+=m+": $"+saldos[m]+"<br>";
-}
-document.getElementById("saldosMetodos").innerHTML=html;
-
-document.getElementById("listaVentas").innerHTML=
-ventas.map(v=>"$"+v.monto+" - "+v.metodo).join("<br>");
-
-document.getElementById("listaGastos").innerHTML=
-gastos.map(g=>g.proveedor+" - $"+g.monto+" - "+g.estado).join("<br>");
-
-let pendientesAgrupados={};
-gastos.filter(g=>g.estado==="PENDIENTE").forEach(g=>{
-if(!pendientesAgrupados[g.proveedor]) pendientesAgrupados[g.proveedor]=0;
-pendientesAgrupados[g.proveedor]+=g.monto;
-});
-
-let htmlPend="";
-for(let p in pendientesAgrupados){
-htmlPend+=p+" - $"+pendientesAgrupados[p]+"<br>";
-}
-document.getElementById("listaPendientes").innerHTML=htmlPend;
-
+html+="</table>";
+document.getElementById("tablaMovimientos").innerHTML=html;
 }
 
 iniciar();
