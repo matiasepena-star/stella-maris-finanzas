@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stella Maris Finanzas</title>
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:20px;
+}
+h1{
+  text-align:center;
+}
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+input, select, button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:6px;
+  border:none;
+  font-size:16px;
+}
+button{
+  background:#22c55e;
+  color:white;
+  font-weight:bold;
+}
+.resumen{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+.ingreso{color:#22c55e;}
+.gasto{color:#ef4444;}
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid #334155;
+}
+</style>
+</head>
+<body>
 
+<h1>Stella Maris Finanzas</h1>
+
+<div class="card">
+  <label>Descripción</label>
+  <input type="text" id="descripcion">
+
+  <label>Monto</label>
+  <input type="number" id="monto">
+
+  <label>Tipo</label>
+  <select id="tipo">
+    <option value="ingreso">Ingreso</option>
+    <option value="gasto">Gasto</option>
+  </select>
+
+  <button onclick="agregar()">Agregar movimiento</button>
+</div>
+
+<div class="card">
+  <div class="resumen">
+    <div>Ingresos: <span id="totalIngresos" class="ingreso">$0</span></div>
+    <div>Gastos: <span id="totalGastos" class="gasto">$0</span></div>
+  </div>
+  <h2>Saldo: $<span id="saldo">0</span></h2>
+</div>
+
+<div class="card">
+  <h3>Movimientos</h3>
+  <div id="lista"></div>
+</div>
+
+<script>
+let movimientos = [];
+
+function agregar(){
+  const descripcion = document.getElementById("descripcion").value;
+  const monto = parseFloat(document.getElementById("monto").value);
+  const tipo = document.getElementById("tipo").value;
+
+  if(!descripcion || !monto) return;
+
+  movimientos.push({descripcion, monto, tipo});
+  actualizar();
+  document.getElementById("descripcion").value="";
+  document.getElementById("monto").value="";
+}
+
+function actualizar(){
+  const lista = document.getElementById("lista");
+  lista.innerHTML="";
+  let totalIngresos=0;
+  let totalGastos=0;
+
+  movimientos.forEach(m => {
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`
+      <span>${m.descripcion}</span>
+      <span class="${m.tipo}">
+        ${m.tipo==="gasto"?"-":"+"}$${m.monto}
+      </span>
+    `;
+    lista.appendChild(div);
+
+    if(m.tipo==="ingreso") totalIngresos+=m.monto;
+    else totalGastos+=m.monto;
+  });
+
+  document.getElementById("totalIngresos").innerText="$"+totalIngresos;
+  document.getElementById("totalGastos").innerText="$"+totalGastos;
+  document.getElementById("saldo").innerText= totalIngresos-totalGastos;
+}
+</script>
+
+</body>
+</html>
