@@ -12,8 +12,8 @@
 }
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);height:100vh;display:flex;flex-direction:column;color:var(--text);overflow:hidden}
 header{background:var(--primary);color:#fff;padding:14px 18px;font-weight:600;letter-spacing:.5px}
-nav{display:flex;background:var(--primary-dark)}
-nav button{flex:1;border:0;background:var(--primary-dark);color:#fff;padding:12px;cursor:pointer;font-size:13px;letter-spacing:.5px}
+nav{display:flex;background:var(--primary-dark);flex-wrap:wrap}
+nav button{flex:1;min-width:120px;border:0;background:var(--primary-dark);color:#fff;padding:12px;cursor:pointer;font-size:13px;letter-spacing:.5px}
 nav button.active{background:#0f172a;font-weight:600}
 .section{display:none;flex:1;padding:15px;overflow:auto}
 .section.active{display:block}
@@ -46,6 +46,7 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
 <button onclick="go('ventas', event)">Ventas</button>
 <button onclick="go('gastos', event)">Gastos</button>
 <button onclick="go('estado', event)">Estado Cuenta</button>
+<button onclick="go('pagos', event)">Pagos</button>
 <button onclick="go('movimientos', event)">Movimientos</button>
 </nav>
 
@@ -60,13 +61,13 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
       <div class="stat">Ventas<br><span id="dashVentas" class="green">$0</span></div>
       <div class="stat">Gastos Pagados<br><span id="dashGastos" class="red">$0</span></div>
       <div class="stat">Resultado<br><span id="dashResultado">$0</span></div>
-      <div class="stat">Pendiente Total (deuda actual)<br><span id="dashPendiente" class="red">$0</span></div>
+      <div class="stat">Pendiente Total (deuda actual proveedores)<br><span id="dashPendiente" class="red">$0</span></div>
       <div class="stat">Disponible Total (hoy)<br><span id="dashDisponible">$0</span></div>
     </div>
 
     <div class="small" style="margin-top:10px">
-      *Pendiente Total es <b>deuda real actual</b>: suma de saldos positivos (lo que debés). Si pagás, baja.<br>
-      *El filtro de mes NO afecta la deuda real (porque tu deuda no “se resetea” por mes).
+      *“Pendiente Total” acá muestra <b>deuda real de Proveedores</b> (saldos positivos).<br>
+      *El filtro de mes NO afecta la deuda real.
     </div>
   </div>
 
@@ -107,17 +108,27 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
     <button class="action" onclick="guardarGasto()">Guardar Gasto</button>
 
     <div class="small">
-      Tip: Si cargás “Pendiente” Juan 10.000 y otro día “Pagado” Juan 4.000, en Estado Cuenta Juan te queda <b>Debés 6.000</b>.
+      Para Proveedores: Pendiente suma deuda. Pagado descuenta deuda (puede quedar en 0 o a favor).<br>
+      Para Impuestos: como no cargás deuda previa, miralos en la hoja <b>Pagos</b>.
     </div>
   </div>
 </div>
 
-<!-- ESTADO DE CUENTA -->
+<!-- ESTADO DE CUENTA (solo proveedores) -->
 <div id="estado" class="section">
   <div class="panel">
-    <h3>Estado de Cuenta (Histórico Total)</h3>
-    <div class="small">Muestra solo el <b>saldo final</b> por subcategoría (puede ser Debés / Saldado / A favor).</div>
+    <h3>Estado de Cuenta · Proveedores (Histórico Total)</h3>
+    <div class="small">Muestra el <b>saldo final</b> por proveedor: Debés / Saldado / A favor.</div>
     <div id="tablaEstado" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- PAGOS (todas las categorías, solo pagado) -->
+<div id="pagos" class="section">
+  <div class="panel">
+    <h3>Pagos (Histórico Total)</h3>
+    <div class="small">Solo lo pagado, agrupado por categoría y subcategoría.</div>
+    <div id="tablaPagos" style="margin-top:10px"></div>
   </div>
 </div>
 
@@ -132,8 +143,11 @@ th{background:#f9fafb;font-weight:700;position:sticky;top:0}
 </div>
 
 <script>
-const STORAGE = "SM_GESTION_V4";
+const STORAGE = "SM_GESTION_V5";
 const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
+
+// CONFIG: Estado de Cuenta solo para estas categorías
+const ACCOUNT_CATS = ["Proveedores"];
 
 let movimientos = [];
 let metodos = ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Cheque"];
@@ -145,9 +159,7 @@ let categorias = {
 };
 
 function hoy(){ return new Date().toISOString().split("T")[0]; }
-
 function guardar(){ localStorage.setItem(STORAGE, JSON.stringify(movimientos)); }
-
 function cargar(){
   let data = localStorage.getItem(STORAGE);
   if(data){
@@ -169,25 +181,20 @@ function iniciar(){
   document.getElementById("ventaFecha").value = hoy();
   document.getElementById("gastoFecha").value = hoy();
 
-  // selects métodos
   let vm = document.getElementById("ventaMetodo");
   let gm = document.getElementById("gastoMetodo");
-  vm.innerHTML = "";
-  gm.innerHTML = "";
+  vm.innerHTML = ""; gm.innerHTML = "";
   metodos.forEach(m=>{
     vm.innerHTML += `<option>${m}</option>`;
     gm.innerHTML += `<option>${m}</option>`;
   });
 
-  // categorías gastos
   let catSel = document.getElementById("gastoCategoria");
   catSel.innerHTML = "";
   Object.keys(categorias).forEach(c=>{ catSel.innerHTML += `<option>${c}</option>`; });
 
-  // subcategorías inicial
   cargarSubcategorias();
 
-  // filtros default
   document.getElementById("filtroMes").value = "";
   document.getElementById("movMes").value = "";
 
@@ -201,7 +208,6 @@ function cargarSubcategorias(){
   subSel.innerHTML = "";
   (categorias[cat]||[]).forEach(s=>{ subSel.innerHTML += `<option>${s}</option>`; });
 }
-
 document.getElementById("gastoCategoria").addEventListener("change", cargarSubcategorias);
 
 function toggleMetodoGasto(){
@@ -256,15 +262,15 @@ function computeSaldosPorMetodo(){
       saldos[m.metodo]-=m.monto;
     }
   });
-
   return saldos;
 }
 
-function computeEstadoCuentaMap(){
-  // Mapa saldo por (categoria|subcategoria): pendiente suma, pagado resta.
+// Saldo “cuenta corriente” (pendiente suma, pagado resta) SOLO para categorías de ACCOUNT_CATS
+function computeAccountMap(){
   const map = {};
   movimientos.forEach(m=>{
     if(m.tipo!=="GASTO") return;
+    if(!ACCOUNT_CATS.includes(m.categoria)) return;
     const key = `${m.categoria}|${m.subcategoria}`;
     if(map[key]===undefined) map[key]=0;
     if(m.estado==="PENDIENTE") map[key]+=m.monto;
@@ -273,14 +279,29 @@ function computeEstadoCuentaMap(){
   return map;
 }
 
+// Totales pagados (solo PAGADO) para todas las categorías
+function computePaidTotals(){
+  const map = {}; // key cat|sub -> total pagado
+  movimientos.forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+    if(m.estado!=="PAGADO") return;
+    const key = `${m.categoria}|${m.subcategoria}`;
+    if(map[key]===undefined) map[key]=0;
+    map[key]+=m.monto;
+  });
+  return map;
+}
+
 function renderAll(){
   renderDashboard();
   renderEstado();
+  renderPagos();
   renderMovimientos();
 }
 
 function renderDashboard(){
-  const mes = document.getElementById("filtroMes").value; // solo afecta ventas/gastos del período
+  const mes = document.getElementById("filtroMes").value;
+
   let ventasPeriodo=0;
   let gastosPagadosPeriodo=0;
 
@@ -291,21 +312,17 @@ function renderDashboard(){
     if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagadosPeriodo += m.monto;
   });
 
-  // Pendiente real actual (histórico): suma de saldos positivos
-  const estadoMap = computeEstadoCuentaMap();
-  let pendienteReal = 0;
-  Object.values(estadoMap).forEach(v=>{
-    if(v>0) pendienteReal += v;
-  });
+  const accMap = computeAccountMap();
+  let deudaProveedores = 0;
+  Object.values(accMap).forEach(v=>{ if(v>0) deudaProveedores += v; });
 
-  // Disponible real actual (histórico): saldos por método
   const saldosMetodo = computeSaldosPorMetodo();
   const disponible = Object.values(saldosMetodo).reduce((a,b)=>a+b,0);
 
   document.getElementById("dashVentas").innerText = fmt.format(ventasPeriodo);
   document.getElementById("dashGastos").innerText = fmt.format(gastosPagadosPeriodo);
   document.getElementById("dashResultado").innerText = fmt.format(ventasPeriodo - gastosPagadosPeriodo);
-  document.getElementById("dashPendiente").innerText = fmt.format(pendienteReal);
+  document.getElementById("dashPendiente").innerText = fmt.format(deudaProveedores);
   document.getElementById("dashDisponible").innerText = fmt.format(disponible);
 
   let html = "<table><tr><th>Método</th><th>Saldo</th></tr>";
@@ -318,35 +335,56 @@ function renderDashboard(){
   document.getElementById("tablaMetodos").innerHTML = html;
 }
 
-function renderEstado(){
-  const estadoMap = computeEstadoCuentaMap();
+function labelSaldo(saldo){
+  saldo = Math.round(saldo);
+  if(saldo>0) return `<span class="badge debes">Debés ${fmt.format(saldo)}</span>`;
+  if(saldo<0) return `<span class="badge afavor">A favor ${fmt.format(Math.abs(saldo))}</span>`;
+  return `<span class="badge cero">Saldado</span>`;
+}
 
-  // Querés que NO desaparezca: mostramos TODOS los del maestro aunque estén en 0
+function renderEstado(){
+  // Solo Proveedores (o lo que esté en ACCOUNT_CATS)
+  const accMap = computeAccountMap();
+
   let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Saldo</th></tr>";
 
-  Object.keys(categorias).forEach(cat=>{
+  ACCOUNT_CATS.forEach(cat=>{
     html += `<tr class="catRow"><td colspan="3">${cat}</td></tr>`;
-
     (categorias[cat]||[]).forEach(sub=>{
       const key = `${cat}|${sub}`;
-      const saldo = Math.round(estadoMap[key] ?? 0);
-
-      let badge = "";
-      let label = "";
-      if(saldo>0){ badge = "debes"; label = `Debés ${fmt.format(saldo)}`; }
-      else if(saldo<0){ badge = "afavor"; label = `A favor ${fmt.format(Math.abs(saldo))}`; }
-      else { badge="cero"; label = "Saldado"; }
-
+      const saldo = (accMap[key] ?? 0);
       html += `<tr>
         <td class="muted">${cat}</td>
         <td><b>${sub}</b></td>
-        <td><span class="badge ${badge}">${label}</span></td>
+        <td>${labelSaldo(saldo)}</td>
       </tr>`;
     });
   });
 
   html += "</table>";
   document.getElementById("tablaEstado").innerHTML = html;
+}
+
+function renderPagos(){
+  const paidMap = computePaidTotals();
+
+  let html = "<table><tr><th style='width:28%'>Categoría</th><th>Subcategoría</th><th style='width:26%'>Total pagado</th></tr>";
+
+  Object.keys(categorias).forEach(cat=>{
+    html += `<tr class="catRow"><td colspan="3">${cat}</td></tr>`;
+    (categorias[cat]||[]).forEach(sub=>{
+      const key = `${cat}|${sub}`;
+      const total = Math.round(paidMap[key] ?? 0);
+      html += `<tr>
+        <td class="muted">${cat}</td>
+        <td><b>${sub}</b></td>
+        <td>${fmt.format(total)}</td>
+      </tr>`;
+    });
+  });
+
+  html += "</table>";
+  document.getElementById("tablaPagos").innerHTML = html;
 }
 
 function renderMovimientos(){
@@ -368,7 +406,6 @@ function renderMovimientos(){
     }
   });
 
-  // orden por fecha (y orden de carga dentro del día)
   rows.sort((a,b)=> (a.fecha>b.fecha?1:(a.fecha<b.fecha?-1:0)));
 
   let html = "<table><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>";
