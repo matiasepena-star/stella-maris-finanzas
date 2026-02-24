@@ -128,7 +128,6 @@ button.action:disabled{opacity:.6; cursor:not-allowed;}
 @media (max-width:720px){
   .row2{grid-template-columns:1fr}
 }
-
 table{
   width:100%;
   border-collapse:collapse;
@@ -160,7 +159,6 @@ th{
 .badge.debes{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.08);color:var(--red)}
 .badge.afavor{border-color:rgba(22,163,74,.35);background:rgba(22,163,74,.08);color:var(--green)}
 .badge.cero{border-color:rgba(107,114,128,.35);background:rgba(107,114,128,.08);color:var(--muted)}
-
 .btnMini{
   border:1px solid var(--border);
   background:#fff;
@@ -189,6 +187,20 @@ th{
   max-width:92vw;
 }
 .hr{height:1px;background:var(--border);margin:10px 0}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.chip{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.chip:active{transform:translateY(1px)}
+.chip.primary{border-color:rgba(30,58,138,.35);background:rgba(30,58,138,.06);color:var(--primary)}
 
 /* MODAL */
 .modalBack{
@@ -247,14 +259,29 @@ th{
 <!-- DASHBOARD -->
 <div id="dashboard" class="section active">
   <div class="panel">
-    <h3>Resumen del período</h3>
-    <label class="small">Filtrar por mes (solo para ventas y gastos pagados del período)</label>
+    <h3>Dashboard rápido</h3>
+
+    <div class="grid" style="margin-bottom:10px">
+      <div class="stat">HOY · Ventas<br><span id="hoyVentas" class="green">$0</span></div>
+      <div class="stat">HOY · Gastos pagados<br><span id="hoyPag" class="red">$0</span></div>
+      <div class="stat">HOY · Pendientes cargados<br><span id="hoyPen" class="red">$0</span></div>
+      <div class="stat">HOY · Neto real<br><span id="hoyNeto">$0</span></div>
+
+      <div class="stat">7 días · Ventas<br><span id="s7Ventas" class="green">$0</span></div>
+      <div class="stat">7 días · Gastos pagados<br><span id="s7Pag" class="red">$0</span></div>
+      <div class="stat">7 días · Pendientes cargados<br><span id="s7Pen" class="red">$0</span></div>
+      <div class="stat">7 días · Neto real<br><span id="s7Neto">$0</span></div>
+    </div>
+
+    <label class="small">Mes (para resumen mensual)</label>
     <input type="month" id="dashMes" onchange="renderAll()">
 
     <div class="grid">
-      <div class="stat">Ventas período<br><span id="dashVentas" class="green">$0</span></div>
-      <div class="stat">Gastos pagados período<br><span id="dashGastosPag" class="red">$0</span></div>
-      <div class="stat">Resultado período<br><span id="dashResultado">$0</span></div>
+      <div class="stat">Mes · Ventas<br><span id="dashVentas" class="green">$0</span></div>
+      <div class="stat">Mes · Gastos pagados<br><span id="dashGastosPag" class="red">$0</span></div>
+      <div class="stat">Mes · Pendientes cargados<br><span id="dashPendMes" class="red">$0</span></div>
+      <div class="stat">Mes · Resultado real<br><span id="dashRealMes">$0</span></div>
+
       <div class="stat">Deuda Proveedores (hoy)<br><span id="dashDeudaProv" class="red">$0</span></div>
       <div class="stat">Disponible calculado (hoy)<br><span id="dashDisponible">$0</span></div>
       <div class="stat">Caja real (hoy)<br><span id="dashCajaReal">$0</span></div>
@@ -267,7 +294,7 @@ th{
     </div>
 
     <div class="small" style="margin-top:10px">
-      * Deuda Proveedores es histórico total (no cambia con el mes). Movimientos anulados no cuentan.
+      “Resultado real” = Ventas − (Gastos pagados + Pendientes cargados) del mes.
     </div>
   </div>
 
@@ -290,7 +317,6 @@ th{
       <button class="action" id="btnGuardarVenta" onclick="guardarVenta()">Guardar Venta</button>
       <button class="action" onclick="editarUltimo()">Editar lo último</button>
     </div>
-    <div class="small">Si te equivocás: hoja <b>Ventas</b> → Editar / Anular / Duplicar.</div>
   </div>
 </div>
 
@@ -332,6 +358,9 @@ th{
     <label class="small">Categoría</label>
     <select id="gCat"></select>
 
+    <div class="small" style="margin-top:4px">Recientes (tocás y listo)</div>
+    <div id="chipsRecientes" class="chips"></div>
+
     <label class="small">Subcategoría</label>
     <select id="gSub"></select>
 
@@ -352,12 +381,6 @@ th{
       <button class="action" id="btnGuardarGasto" onclick="guardarGasto()">Guardar Gasto</button>
       <button class="action" onclick="editarUltimo()">Editar lo último</button>
     </div>
-
-    <div class="small">
-      Proveedores: Pendiente suma deuda, Pagado descuenta (puede quedar a favor).
-      Impuestos miralos en “Pagos”.
-      Correcciones: “Movimientos (Gastos)” → Editar / Anular / Duplicar.
-    </div>
   </div>
 </div>
 
@@ -365,7 +388,6 @@ th{
 <div id="estado" class="section">
   <div class="panel">
     <h3>Estado de Proveedores (Histórico total)</h3>
-    <div class="small">Solo proveedores: Debés / Saldado / A favor. No tiene filtro por mes.</div>
     <div id="tablaEstado"></div>
   </div>
 </div>
@@ -374,7 +396,6 @@ th{
 <div id="pagos" class="section">
   <div class="panel">
     <h3>Pagos (solo Pagado)</h3>
-    <div class="small">Agrupado por categoría y subcategoría. Con filtros.</div>
 
     <div class="filters">
       <div>
@@ -400,7 +421,6 @@ th{
 <div id="movGastos" class="section">
   <div class="panel">
     <h3>Movimientos (solo Gastos)</h3>
-    <div class="small">Acá se corrige: Editar / Anular / Desanular / Duplicar. Ventas NO aparecen acá.</div>
 
     <div class="filters">
       <div>
@@ -447,9 +467,6 @@ th{
 <div id="caja" class="section">
   <div class="panel">
     <h3>Caja Real</h3>
-    <div class="small">
-      Cargás lo que tenés <b>real</b> por método. Dashboard te muestra diferencia contra lo calculado.
-    </div>
 
     <div class="filters">
       <div>
@@ -470,11 +487,7 @@ th{
 
     <div class="row2" style="margin-top:10px">
       <button class="action" onclick="cajaPonerCalculado()">Copiar Calculado → Real</button>
-      <button class="action" onclick="renderCaja()">Recalcular tabla</button>
-    </div>
-
-    <div class="small" style="margin-top:10px">
-      “Copiar Calculado → Real” te sirve cuando está todo ok y querés arrancar a controlar desde cero.
+      <button class="action" onclick="renderCaja();renderAll()">Recalcular</button>
     </div>
   </div>
 </div>
@@ -483,9 +496,6 @@ th{
 <div id="maestro" class="section">
   <div class="panel">
     <h3>Hoja Maestra (editable)</h3>
-    <div class="small">
-      Agregás métodos, categorías y subcategorías sin tocar código.
-    </div>
 
     <div class="hr"></div>
 
@@ -524,10 +534,6 @@ th{
 <div id="backup" class="section">
   <div class="panel">
     <h3>Backup / Exportar / Importar</h3>
-    <div class="small">
-      Exporta TODO: Maestro + Caja Real + Movimientos.
-      Importar reemplaza TODO.
-    </div>
 
     <div class="row2">
       <button class="action" onclick="exportarTodo()">Exportar todo (descargar .json)</button>
@@ -562,8 +568,7 @@ th{
 <div id="toast" class="toast">Guardado ✅</div>
 
 <script>
-const STORAGE_ALL = "SM_APP_ALL_V2";
-const STORAGE_OLD = "SM_GESTION_V7";
+const STORAGE_ALL = "SM_APP_ALL_V3";
 const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
 
 const DEFAULT_MASTER = {
@@ -574,14 +579,13 @@ const DEFAULT_MASTER = {
     "Empleados":["Sueldos"],
     "Otros":["Varios"]
   },
-  cajaReal: {}
+  cajaReal: {},
+  recientes: {} // categoria -> [sub1, sub2, ...]
 };
 
 let master = structuredClone(DEFAULT_MASTER);
 let movimientos = [];
 const PROVIDER_CATEGORY_NAME = "Proveedores";
-
-let lastCreatedId = null; // para "Editar lo último"
 
 /** HELPERS */
 function hoy(){ return new Date().toISOString().split("T")[0]; }
@@ -598,7 +602,7 @@ function toast(msg="Guardado ✅"){
 }
 function activos(){ return movimientos.filter(m=>!m.anulado); }
 
-/** LOAD / SAVE */
+/** LOAD/SAVE */
 function saveAll(){
   localStorage.setItem(STORAGE_ALL, JSON.stringify({ master, movimientos }));
 }
@@ -612,25 +616,16 @@ function loadAll(){
       return;
     }catch{}
   }
-  const old = localStorage.getItem(STORAGE_OLD);
-  if(old){
-    try{
-      movimientos = sanitizeMovimientos(JSON.parse(old)||[]);
-      master = structuredClone(DEFAULT_MASTER);
-      saveAll();
-      return;
-    }catch{}
-  }
   master = structuredClone(DEFAULT_MASTER);
   movimientos = [];
   saveAll();
 }
-
 function sanitizeMaster(m){
-  const out = { metodos: [], categorias: {}, cajaReal: {} };
-  if(m && typeof m === "object"){
+  const out = structuredClone(DEFAULT_MASTER);
+  if(m && typeof m==="object"){
     if(Array.isArray(m.metodos)) out.metodos = m.metodos.map(norm).filter(Boolean);
     if(m.categorias && typeof m.categorias==="object"){
+      out.categorias = {};
       Object.keys(m.categorias).forEach(cat=>{
         const c = norm(cat);
         if(!c) return;
@@ -640,18 +635,23 @@ function sanitizeMaster(m){
       });
     }
     if(m.cajaReal && typeof m.cajaReal==="object"){
-      Object.keys(m.cajaReal).forEach(k=>{
-        out.cajaReal[norm(k)] = round0(m.cajaReal[k]);
+      out.cajaReal = {};
+      Object.keys(m.cajaReal).forEach(k=>{ out.cajaReal[norm(k)] = round0(m.cajaReal[k]); });
+    }
+    if(m.recientes && typeof m.recientes==="object"){
+      out.recientes = {};
+      Object.keys(m.recientes).forEach(k=>{
+        const cat = norm(k);
+        const arr = Array.isArray(m.recientes[k]) ? m.recientes[k].map(norm).filter(Boolean) : [];
+        out.recientes[cat] = arr.slice(0,8);
       });
     }
   }
-  if(out.metodos.length===0) out.metodos = structuredClone(DEFAULT_MASTER.metodos);
-  if(Object.keys(out.categorias).length===0) out.categorias = structuredClone(DEFAULT_MASTER.categorias);
   if(!out.categorias[PROVIDER_CATEGORY_NAME]) out.categorias[PROVIDER_CATEGORY_NAME]=[];
   out.metodos.forEach(mm=>{ if(out.cajaReal[mm]===undefined) out.cajaReal[mm]=0; });
+  if(!out.recientes) out.recientes = {};
   return out;
 }
-
 function sanitizeMovimientos(arr){
   return (Array.isArray(arr)?arr:[]).map(m=>({
     id: m.id || uid(),
@@ -696,7 +696,7 @@ function refreshAllSelects(){
 
   cargarSubDeGasto();
   onMgCatChange(true);
-
+  renderChipsRecientes();
   renderMaestro();
 }
 
@@ -713,17 +713,49 @@ function iniciar(){
 
   refreshAllSelects();
   toggleMetodoGasto();
-  document.getElementById("gCat").addEventListener("change", cargarSubDeGasto);
+
+  document.getElementById("gCat").addEventListener("change", ()=>{
+    cargarSubDeGasto();
+    renderChipsRecientes();
+  });
 
   renderAll();
 }
 
-/** GASTOS SUB */
+/** GASTOS SUB + CHIPS */
 function cargarSubDeGasto(){
   const cat = document.getElementById("gCat").value;
   const subs = master.categorias[cat] || [];
   fillSelectOptions(document.getElementById("gSub"), subs, false);
 }
+function renderChipsRecientes(){
+  const cat = document.getElementById("gCat").value;
+  const box = document.getElementById("chipsRecientes");
+  const rec = (master.recientes && master.recientes[cat]) ? master.recientes[cat] : [];
+  if(!rec.length){
+    box.innerHTML = `<span class="small">Todavía no hay recientes para esta categoría.</span>`;
+    return;
+  }
+  box.innerHTML = rec.map(s=>`<button class="chip primary" onclick="pickSub('${escapeQuotes(s)}')">${s}</button>`).join("");
+}
+function pickSub(sub){
+  const sel = document.getElementById("gSub");
+  if(!sel) return;
+  const opt = Array.from(sel.options).find(o=>o.value===sub);
+  if(opt){
+    sel.value = sub;
+    toast(`Seleccionado: ${sub}`);
+  }
+}
+function pushReciente(cat, sub){
+  if(!cat || !sub) return;
+  if(!master.recientes) master.recientes = {};
+  const arr = Array.isArray(master.recientes[cat]) ? master.recientes[cat] : [];
+  const next = [sub, ...arr.filter(x=>x!==sub)].slice(0,8);
+  master.recientes[cat] = next;
+}
+
+/** METODO GASTO */
 function toggleMetodoGasto(){
   const estado = document.getElementById("gEstado").value;
   const selMetodo = document.getElementById("gMetodo");
@@ -740,7 +772,7 @@ function lockBtn(id, ms=900){
   setTimeout(()=>{ b.disabled = false; }, ms);
 }
 
-/** WARN MONTO (cero de mas) */
+/** WARN MONTO */
 function confirmarMontoRaro(monto){
   if(monto >= 2000000){
     return confirm(`Cargaste ${fmt.format(monto)}. ¿Seguro? (puede haber un 0 de más)`);
@@ -748,10 +780,9 @@ function confirmarMontoRaro(monto){
   return true;
 }
 
-/** SAVE VENTA/GASTO */
+/** SAVE */
 function guardarVenta(){
   lockBtn("btnGuardarVenta", 900);
-
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
   const monto = parseFloat(document.getElementById("vMonto").value);
@@ -761,17 +792,13 @@ function guardarVenta(){
   if(!metodo) return toast("Falta método");
   if(!confirmarMontoRaro(monto)) return;
 
-  const id = uid();
-  movimientos.push({ id, anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
-  lastCreatedId = id;
-
+  movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
   saveAll();
   document.getElementById("vMonto").value = "";
   document.getElementById("vNota").value = "";
   toast("Venta guardada ✅");
   renderAll();
 }
-
 function guardarGasto(){
   lockBtn("btnGuardarGasto", 900);
 
@@ -788,29 +815,29 @@ function guardarGasto(){
   if(estado === "PAGADO" && !metodo) return toast("Pagado sin método no");
   if(!confirmarMontoRaro(monto)) return;
 
-  const id = uid();
-  movimientos.push({ id, anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo, nota });
-  lastCreatedId = id;
+  movimientos.push({ id:uid(), anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo, nota });
+
+  // guardar como “reciente” (selección sin escribir)
+  pushReciente(categoria, subcategoria);
 
   saveAll();
   document.getElementById("gMonto").value = "";
   document.getElementById("gNota").value = "";
   toast("Gasto guardado ✅");
+  renderChipsRecientes();
   renderAll();
 }
 
-/** DESHACER ULTIMO */
+/** DESHACER */
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
-  if(!confirm(`¿Deshacer el último movimiento?\n${last.tipo} · ${last.fecha} · ${fmt.format(last.monto)}`)) return;
-
+  if(!confirm(`¿Deshacer el último?\n${last.tipo} · ${last.fecha} · ${fmt.format(last.monto)}`)) return;
   movimientos.pop();
   saveAll();
   toast("Deshecho ✅");
   renderAll();
 }
-
 function editarUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para editar");
@@ -830,7 +857,7 @@ function anularMovimiento(id){
 function desanularMovimiento(id){
   const mv = movimientos.find(x=>x.id===id);
   if(!mv || !mv.anulado) return;
-  if(!confirm("¿Desanular (reactivar) este movimiento?")) return;
+  if(!confirm("¿Desanular (reactivar)?")) return;
   mv.anulado = false;
   saveAll();
   toast("Reactivado ✅");
@@ -842,7 +869,7 @@ function duplicarMovimiento(id){
   const copy = structuredClone(mv);
   copy.id = uid();
   copy.anulado = false;
-  copy.fecha = hoy(); // como pediste: NO, no cambia esto
+  copy.fecha = hoy(); // duplicado con fecha HOY
   movimientos.push(copy);
   saveAll();
   toast("Duplicado ✅ (fecha hoy)");
@@ -853,7 +880,6 @@ function duplicarMovimiento(id){
 function computeSaldosPorMetodoCalculado(){
   const saldos = {};
   master.metodos.forEach(m => saldos[m]=0);
-
   activos().forEach(m=>{
     if(m.tipo==="VENTA"){
       saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
@@ -883,13 +909,21 @@ function labelSaldo(saldo){
   if(saldo<0) return `<span class="badge afavor">A favor ${fmt.format(Math.abs(saldo))}</span>`;
   return `<span class="badge cero">Saldado</span>`;
 }
-
-/** RENDER ALL */
 function sumCajaReal(){
   let total = 0;
   master.metodos.forEach(m=>{ total += round0(master.cajaReal?.[m]||0); });
   return total;
 }
+function isInLastNDays(isoDate, n){
+  // isoDate = YYYY-MM-DD
+  const d = new Date(isoDate+"T00:00:00");
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // hoy 00:00
+  const diffDays = Math.floor((start - d) / (1000*60*60*24));
+  return diffDays >= 0 && diffDays < n;
+}
+
+/** RENDER ALL */
 function renderAll(){
   renderDashboard();
   renderEstadoProveedores();
@@ -903,33 +937,79 @@ function renderAll(){
 function renderDashboard(){
   const mes = document.getElementById("dashMes").value;
 
-  let ventasPeriodo=0;
-  let gastosPagadosPeriodo=0;
+  // HOY y 7 días
+  let hv=0, hpag=0, hpen=0;
+  let s7v=0, s7pag=0, s7pen=0;
 
+  activos().forEach(m=>{
+    const isToday = (m.fecha === hoy());
+    const is7 = isInLastNDays(m.fecha, 7);
+
+    if(m.tipo==="VENTA"){
+      if(isToday) hv += m.monto;
+      if(is7) s7v += m.monto;
+    }
+    if(m.tipo==="GASTO"){
+      if(m.estado==="PAGADO"){
+        if(isToday) hpag += m.monto;
+        if(is7) s7pag += m.monto;
+      }else{
+        if(isToday) hpen += m.monto;
+        if(is7) s7pen += m.monto;
+      }
+    }
+  });
+
+  const hoyNeto = hv - (hpag + hpen);
+  const s7Neto = s7v - (s7pag + s7pen);
+
+  document.getElementById("hoyVentas").innerText = fmt.format(hv);
+  document.getElementById("hoyPag").innerText = fmt.format(hpag);
+  document.getElementById("hoyPen").innerText = fmt.format(hpen);
+  document.getElementById("hoyNeto").innerText = fmt.format(hoyNeto);
+  document.getElementById("hoyNeto").className = hoyNeto>=0 ? "green" : "red";
+
+  document.getElementById("s7Ventas").innerText = fmt.format(s7v);
+  document.getElementById("s7Pag").innerText = fmt.format(s7pag);
+  document.getElementById("s7Pen").innerText = fmt.format(s7pen);
+  document.getElementById("s7Neto").innerText = fmt.format(s7Neto);
+  document.getElementById("s7Neto").className = s7Neto>=0 ? "green" : "red";
+
+  // mensual
+  let ventasMes=0, gastosPagMes=0, pendMes=0;
   activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
     if(!esMes) return;
-    if(m.tipo==="VENTA") ventasPeriodo += m.monto;
-    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagadosPeriodo += m.monto;
+
+    if(m.tipo==="VENTA") ventasMes += m.monto;
+    if(m.tipo==="GASTO"){
+      if(m.estado==="PAGADO") gastosPagMes += m.monto;
+      else pendMes += m.monto;
+    }
   });
 
+  const realMes = ventasMes - (gastosPagMes + pendMes);
+
+  document.getElementById("dashVentas").innerText = fmt.format(ventasMes);
+  document.getElementById("dashGastosPag").innerText = fmt.format(gastosPagMes);
+  document.getElementById("dashPendMes").innerText = fmt.format(pendMes);
+  document.getElementById("dashRealMes").innerText = fmt.format(realMes);
+  document.getElementById("dashRealMes").className = realMes>=0 ? "green" : "red";
+
+  // deuda proveedores hoy
   const provMap = computeProveedorMap();
   let deudaProv = 0;
   Object.values(provMap).forEach(v=>{ if(v>0) deudaProv += v; });
+  document.getElementById("dashDeudaProv").innerText = fmt.format(deudaProv);
 
+  // caja calculada vs real
   const calc = computeSaldosPorMetodoCalculado();
   const disponible = Object.values(calc).reduce((a,b)=>a+b,0);
-
   const cajaRealTotal = sumCajaReal();
   const dif = cajaRealTotal - disponible;
 
-  document.getElementById("dashVentas").innerText = fmt.format(ventasPeriodo);
-  document.getElementById("dashGastosPag").innerText = fmt.format(gastosPagadosPeriodo);
-  document.getElementById("dashResultado").innerText = fmt.format(ventasPeriodo - gastosPagadosPeriodo);
-  document.getElementById("dashDeudaProv").innerText = fmt.format(deudaProv);
   document.getElementById("dashDisponible").innerText = fmt.format(disponible);
   document.getElementById("dashCajaReal").innerText = fmt.format(cajaRealTotal);
-
   const difEl = document.getElementById("dashDif");
   difEl.innerText = fmt.format(dif);
   difEl.className = dif===0 ? "green" : (dif<0 ? "red" : "warn");
@@ -955,7 +1035,6 @@ function renderDashboard(){
 function renderEstadoProveedores(){
   const map = computeProveedorMap();
   const lista = master.categorias[PROVIDER_CATEGORY_NAME] || [];
-
   let html = "<table><tr><th>Proveedor</th><th>Saldo</th></tr>";
   lista.forEach(p=>{
     const saldo = map[p] ?? 0;
@@ -974,7 +1053,6 @@ function computePaidTotals(filterMes, filterCat){
     if(m.estado!=="PAGADO") return;
     if(filterMes && !(m.fecha||"").startsWith(filterMes)) return;
     if(filterCat && filterCat!=="ALL" && m.categoria!==filterCat) return;
-
     const key = `${m.categoria}|${m.subcategoria}`;
     map[key] = (map[key]||0) + m.monto;
     cant++; total += m.monto;
@@ -1087,7 +1165,6 @@ function renderMovGastos(){
     </tr>`;
   });
   html += "</table>";
-
   document.getElementById("tablaMovGastos").innerHTML = html;
 }
 
@@ -1104,10 +1181,8 @@ function renderVentasHist(){
     if(m.tipo!=="VENTA") return;
     if(mes && !(m.fecha||"").startsWith(mes)) return;
     if(metodo!=="ALL" && m.metodo!==metodo) return;
-
     const hay = `${m.metodo||""} ${m.nota||""}`;
     if(buscar && !hay.toLowerCase().includes(buscar)) return;
-
     if(!m.anulado) total += m.monto;
     cant++;
     rows.push(m);
@@ -1145,7 +1220,6 @@ function renderVentasHist(){
 /** CAJA REAL */
 function renderCaja(){
   master.metodos.forEach(m=>{ if(master.cajaReal[m]===undefined) master.cajaReal[m]=0; });
-
   const calc = computeSaldosPorMetodoCalculado();
   let html = "<table><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>";
   master.metodos.forEach(m=>{
@@ -1163,14 +1237,11 @@ function renderCaja(){
   html += "</table>";
   document.getElementById("tablaCaja").innerHTML = html;
 }
-function escapeId(s){
-  return String(s).replaceAll(" ","_").replaceAll("/","_").replaceAll(".","_");
-}
+function escapeId(s){ return String(s).replaceAll(" ","_").replaceAll("/","_").replaceAll(".","_"); }
 function cajaGuardar(){
   master.metodos.forEach(m=>{
     const el = document.getElementById("caja_"+escapeId(m));
-    if(!el) return;
-    master.cajaReal[m] = round0(el.value);
+    if(el) master.cajaReal[m] = round0(el.value);
   });
   saveAll();
   toast("Caja real guardada ✅");
@@ -1181,30 +1252,25 @@ function cajaAplicarATodos(){
   master.metodos.forEach(m=>{ master.cajaReal[m] = v; });
   saveAll();
   toast("Aplicado ✅");
-  renderCaja();
-  renderAll();
+  renderCaja(); renderAll();
 }
 function cajaPonerCero(){
   if(!confirm("¿Poner TODO en 0?")) return;
   master.metodos.forEach(m=>{ master.cajaReal[m] = 0; });
   saveAll();
   toast("Todo en 0 ✅");
-  renderCaja();
-  renderAll();
+  renderCaja(); renderAll();
 }
 function cajaPonerCalculado(){
   const calc = computeSaldosPorMetodoCalculado();
   master.metodos.forEach(m=>{ master.cajaReal[m] = round0(calc[m]||0); });
   saveAll();
   toast("Calculado → Real ✅");
-  renderCaja();
-  renderAll();
+  renderCaja(); renderAll();
 }
 
 /** MAESTRO */
-function escapeQuotes(s){
-  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-}
+function escapeQuotes(s){ return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'"); }
 function renderMaestro(){
   const methodsHtml = `
     <table>
@@ -1235,10 +1301,6 @@ function renderMaestro(){
         </tr>
       `).join("")}
     </table>
-    <div class="small" style="margin-top:8px">
-      Categoría seleccionada: <b>${cat}</b>
-      &nbsp; <button class="btnMini" onclick="removeCategoria('${escapeQuotes(cat)}')">Eliminar categoría</button>
-    </div>
   `;
   document.getElementById("tablaSubsMaestro").innerHTML = subsHtml;
 }
@@ -1252,8 +1314,7 @@ function addMetodo(){
   saveAll();
   document.getElementById("mNuevoMetodo").value = "";
   toast("Método agregado ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 function removeMetodo(m){
   if(!confirm(`¿Eliminar método "${m}"?`)) return;
@@ -1263,8 +1324,7 @@ function removeMetodo(m){
   master.metodos.forEach(mm=>{ if(master.cajaReal[mm]===undefined) master.cajaReal[mm]=0; });
   saveAll();
   toast("Método eliminado ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 function addCategoria(){
   const v = norm(document.getElementById("mNuevaCat").value);
@@ -1274,20 +1334,7 @@ function addCategoria(){
   saveAll();
   document.getElementById("mNuevaCat").value = "";
   toast("Categoría agregada ✅");
-  refreshAllSelects();
-  renderAll();
-}
-function removeCategoria(cat){
-  if(!cat) return;
-  if(cat === PROVIDER_CATEGORY_NAME) return toast("No se puede borrar Proveedores");
-  if(!confirm(`¿Eliminar categoría "${cat}"?`)) return;
-  delete master.categorias[cat];
-  if(Object.keys(master.categorias).length===0) master.categorias = structuredClone(DEFAULT_MASTER.categorias);
-  if(!master.categorias[PROVIDER_CATEGORY_NAME]) master.categorias[PROVIDER_CATEGORY_NAME]=[];
-  saveAll();
-  toast("Categoría eliminada ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 function addSubcategoria(){
   const cat = document.getElementById("mCatSel").value;
@@ -1302,22 +1349,23 @@ function addSubcategoria(){
   saveAll();
   document.getElementById("mNuevaSub").value = "";
   toast("Subcategoría agregada ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 function removeSubcategoria(cat, sub){
   if(!confirm(`¿Eliminar "${sub}" de "${cat}"?`)) return;
-  const subs = master.categorias[cat] || [];
-  master.categorias[cat] = subs.filter(x=>x!==sub);
+  master.categorias[cat] = (master.categorias[cat]||[]).filter(x=>x!==sub);
+  // también lo saco de recientes
+  if(master.recientes && master.recientes[cat]){
+    master.recientes[cat] = master.recientes[cat].filter(x=>x!==sub);
+  }
   saveAll();
   toast("Subcategoría eliminada ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 
 /** BACKUP */
 function getBackupObject(){
-  return { meta:{app:"StellaMarisGestion",version:"V2",exportedAt:new Date().toISOString()}, master, movimientos };
+  return { meta:{app:"StellaMarisGestion",version:"V3",exportedAt:new Date().toISOString()}, master, movimientos };
 }
 function stringifyBackup(){ return JSON.stringify(getBackupObject(), null, 2); }
 function exportarTodo(){
@@ -1356,8 +1404,7 @@ function importarDesdeCaja(){
     movimientos = sanitizeMovimientos(obj.movimientos);
     saveAll();
     toast("Importado ✅");
-    refreshAllSelects();
-    renderAll();
+    refreshAllSelects(); renderAll();
   }catch{
     toast("JSON inválido");
   }
@@ -1370,33 +1417,21 @@ function borrarTodo(){
   saveAll();
   document.getElementById("backupBox").value = "";
   toast("Borrado ✅");
-  refreshAllSelects();
-  renderAll();
+  refreshAllSelects(); renderAll();
 }
 
 /** MODAL EDITAR */
 let modalEditingId = null;
-
-function modalClickOutside(ev){
-  if(ev.target.id==="modalBack") cerrarModal();
-}
+function modalClickOutside(ev){ if(ev.target.id==="modalBack") cerrarModal(); }
 function abrirModal(title, bodyHtml){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
   document.getElementById("modalBack").style.display = "block";
 }
-function cerrarModal(){
-  modalEditingId = null;
-  document.getElementById("modalBack").style.display = "none";
-}
+function cerrarModal(){ modalEditingId = null; document.getElementById("modalBack").style.display="none"; }
 function escapeHtmlAttr(s){
-  return String(s||"")
-    .replaceAll("&","&amp;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
+  return String(s||"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
-
 function abrirEditar(id){
   const mv = movimientos.find(x=>x.id===id);
   if(!mv) return;
@@ -1406,26 +1441,13 @@ function abrirEditar(id){
     const body = `
       <div class="small">Editar Venta</div>
       <div class="row2">
-        <div>
-          <label class="small">Fecha</label>
-          <input type="date" id="eFecha" value="${mv.fecha}">
-        </div>
-        <div>
-          <label class="small">Método</label>
-          <select id="eMetodo"></select>
-        </div>
+        <div><label class="small">Fecha</label><input type="date" id="eFecha" value="${mv.fecha}"></div>
+        <div><label class="small">Método</label><select id="eMetodo"></select></div>
       </div>
       <div class="row2">
-        <div>
-          <label class="small">Monto</label>
-          <input type="number" id="eMonto" value="${round0(mv.monto)}">
-        </div>
-        <div>
-          <label class="small">Anulado</label>
-          <select id="eAnulado">
-            <option value="0">No</option>
-            <option value="1">Sí</option>
-          </select>
+        <div><label class="small">Monto</label><input type="number" id="eMonto" value="${round0(mv.monto)}"></div>
+        <div><label class="small">Anulado</label>
+          <select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
         </div>
       </div>
       <label class="small">Nota</label>
@@ -1435,57 +1457,30 @@ function abrirEditar(id){
     fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
     document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
     document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
-  } else {
+  }else{
     const cats = Object.keys(master.categorias);
     const body = `
       <div class="small">Editar Gasto</div>
       <div class="row2">
-        <div>
-          <label class="small">Fecha</label>
-          <input type="date" id="eFecha" value="${mv.fecha}">
-        </div>
-        <div>
-          <label class="small">Monto</label>
-          <input type="number" id="eMonto" value="${round0(mv.monto)}">
-        </div>
+        <div><label class="small">Fecha</label><input type="date" id="eFecha" value="${mv.fecha}"></div>
+        <div><label class="small">Monto</label><input type="number" id="eMonto" value="${round0(mv.monto)}"></div>
       </div>
-
       <div class="row2">
-        <div>
-          <label class="small">Categoría</label>
-          <select id="eCat"></select>
-        </div>
-        <div>
-          <label class="small">Subcategoría</label>
-          <select id="eSub"></select>
-        </div>
+        <div><label class="small">Categoría</label><select id="eCat"></select></div>
+        <div><label class="small">Subcategoría</label><select id="eSub"></select></div>
       </div>
-
       <div class="row2">
-        <div>
-          <label class="small">Estado</label>
-          <select id="eEstado">
-            <option value="PENDIENTE">Pendiente</option>
-            <option value="PAGADO">Pagado</option>
-          </select>
+        <div><label class="small">Estado</label>
+          <select id="eEstado"><option value="PENDIENTE">Pendiente</option><option value="PAGADO">Pagado</option></select>
         </div>
-        <div>
-          <label class="small">Método (si Pagado)</label>
-          <select id="eMetodo"></select>
-        </div>
+        <div><label class="small">Método (si Pagado)</label><select id="eMetodo"></select></div>
       </div>
-
       <div class="row2">
-        <div>
-          <label class="small">Anulado</label>
-          <select id="eAnulado">
-            <option value="0">No</option>
-            <option value="1">Sí</option>
-          </select>
+        <div><label class="small">Anulado</label>
+          <select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
         </div>
         <div></div>
       </div>
-
       <label class="small">Nota</label>
       <input type="text" id="eNota" value="${escapeHtmlAttr(mv.nota||"")}">
     `;
@@ -1509,7 +1504,6 @@ function abrirEditar(id){
     toggleEditMetodo();
   }
 }
-
 function fillEditSubs(cat, subSel, selected){
   const subs = master.categorias[cat] || [];
   fillSelectOptions(subSel, subs, false);
@@ -1524,7 +1518,6 @@ function toggleEditMetodo(){
   met.disabled = disabled;
   met.style.opacity = disabled ? "0.55" : "1";
 }
-
 function modalGuardar(){
   if(!modalEditingId) return cerrarModal();
   const mv = movimientos.find(x=>x.id===modalEditingId);
@@ -1552,19 +1545,14 @@ function modalGuardar(){
     mv.fecha = fecha; mv.monto = monto; mv.nota = nota;
     mv.categoria = categoria; mv.subcategoria = subcategoria;
     mv.estado = estado; mv.metodo = metodo; mv.anulado = anulado;
+    // update recientes también cuando editás
+    pushReciente(categoria, subcategoria);
   }
 
   saveAll();
   toast("Editado ✅");
   cerrarModal();
   renderAll();
-}
-
-/** SELECTS iniciales */
-function cargarSubDeGasto(){
-  const cat = document.getElementById("gCat").value;
-  const subs = master.categorias[cat] || [];
-  fillSelectOptions(document.getElementById("gSub"), subs, false);
 }
 
 /** START */
