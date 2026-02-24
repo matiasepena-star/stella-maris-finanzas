@@ -215,7 +215,7 @@ input,select,textarea{
 .table tr:last-child td{border-bottom:none}
 .rowAnulada{opacity:.55}
 
-/* Modal confirm */
+/* Modal */
 .modalBack{
   position:fixed;inset:0;
   background: rgba(0,0,0,.74);
@@ -253,44 +253,29 @@ input,select,textarea{
   display:none;z-index:200;max-width: 92vw;
 }
 
-/* =========================
-   FIX (A + B): Real editable ancho + scroll horizontal
-========================= */
+/* Real editable: A + B */
 .tableWrap{
   width:100%;
-  overflow-x:auto;             /* B */
+  overflow-x:auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 16px;
 }
-.tableWrap .table{
-  min-width: 720px;            /* fuerza ancho para permitir scroll y no cortar */
-}
+.tableWrap .table{ min-width: 720px; }
 
-.table td:nth-child(3),
-.table th:nth-child(3){
-  width: 210px;                /* A */
-  min-width: 210px;
-  white-space: nowrap;
+.table td:nth-child(3), .table th:nth-child(3){
+  width: 210px; min-width:210px; white-space: nowrap;
 }
-
 .realSaldoInput{
-  width: 210px;
-  min-width: 210px;
-  max-width: 210px;
-  text-align: right;
-  font-size: 15px;
-  font-weight: 1100;
-  letter-spacing:.2px;
+  width: 210px; min-width:210px; max-width:210px;
+  text-align:right; font-size:15px; font-weight:1100; letter-spacing:.2px;
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   padding: 10px 10px;
 }
-
 @media (max-width:420px){
-  .tableWrap .table{min-width: 760px;}
-  .table td:nth-child(3),
-  .table th:nth-child(3){width: 220px; min-width:220px;}
-  .realSaldoInput{width:220px; min-width:220px; max-width:220px; font-size:14px;}
+  .tableWrap .table{ min-width: 760px; }
+  .table td:nth-child(3), .table th:nth-child(3){ width:220px; min-width:220px; }
+  .realSaldoInput{ width:220px; min-width:220px; max-width:220px; font-size:14px; }
 }
 </style>
 </head>
@@ -316,12 +301,10 @@ input,select,textarea{
 
   <div class="content">
 
-    <!-- HOME -->
     <div id="home" class="screen active">
       <div class="homeGrid" id="homeGrid"></div>
     </div>
 
-    <!-- DASHBOARD -->
     <div id="dashboard" class="screen">
       <div class="sectionHeader">
         <div>
@@ -357,13 +340,11 @@ input,select,textarea{
             <button class="iconBtn small" onclick="setRealToCalc()">Real = Calculado</button>
           </div>
 
-          <!-- B: wrapper con scroll horizontal -->
           <div class="tableWrap" style="margin-top:10px" id="tablaMetodos"></div>
         </div>
       </div>
     </div>
 
-    <!-- CARGAR VENTAS -->
     <div id="ventasCarga" class="screen">
       <div class="sectionHeader">
         <div>
@@ -395,7 +376,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- HISTORIAL VENTAS -->
     <div id="ventasHist" class="screen">
       <div class="sectionHeader">
         <div>
@@ -431,7 +411,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- CARGAR GASTOS -->
     <div id="gastosCarga" class="screen">
       <div class="sectionHeader">
         <div>
@@ -480,7 +459,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- TRASPASO ENTRE CUENTAS -->
     <div id="traspaso" class="screen">
       <div class="sectionHeader">
         <div>
@@ -520,7 +498,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- MOVIMIENTOS -->
     <div id="movHist" class="screen">
       <div class="sectionHeader">
         <div>
@@ -564,7 +541,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- PENDIENTES -->
     <div id="pendientes" class="screen">
       <div class="sectionHeader">
         <div>
@@ -591,10 +567,74 @@ input,select,textarea{
       </div>
     </div>
 
+    <!-- ✅ MAESTROS -->
+    <div id="maestros" class="screen">
+      <div class="sectionHeader">
+        <div>
+          <h2>Maestros</h2>
+          <div class="hint">Cargás una vez. Después se usa en Gastos/Ventas/Traspaso.</div>
+        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
+      </div>
+
+      <div class="sectionBody">
+        <div class="panel">
+          <div style="font-weight:1100;font-size:13px">Métodos</div>
+          <div class="muted" style="font-size:12px;margin-top:6px">Ej: Efectivo, Mercado Pago, Credicoop...</div>
+
+          <div class="row2" style="margin-top:10px">
+            <div>
+              <label>Nuevo método</label>
+              <input id="mNuevoMetodo" placeholder="Ej: Ualá">
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px">
+              <button class="btn primary" style="width:100%" onclick="agregarMetodo()">Agregar</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+          <div id="listaMetodos"></div>
+        </div>
+
+        <div class="panel">
+          <div style="font-weight:1100;font-size:13px">Categorías y subcategorías</div>
+          <div class="muted" style="font-size:12px;margin-top:6px">Ej: Proveedores → Juan, Pedro</div>
+
+          <div class="row2" style="margin-top:10px">
+            <div>
+              <label>Nueva categoría</label>
+              <input id="mNuevaCat" placeholder="Ej: Servicios">
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px">
+              <button class="btn primary" style="width:100%" onclick="agregarCategoria()">Agregar</button>
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px">
+            <div>
+              <label>Categoría</label>
+              <select id="mCatSelect" onchange="renderSubsCat()"></select>
+            </div>
+            <div>
+              <label>Nueva subcategoría</label>
+              <input id="mNuevaSub" placeholder="Ej: Edenor / Juan">
+            </div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" onclick="agregarSub()">Agregar subcategoría</button>
+            <button class="btn" onclick="resetMaestrosDemo()">Reset demo</button>
+          </div>
+
+          <div class="hr"></div>
+          <div id="listaSubs"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- MODAL -->
 <div id="modalBack" class="modalBack" onclick="modalClickOutside(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modalHead">
@@ -611,7 +651,7 @@ input,select,textarea{
 
 <div id="toast" class="toast">OK</div>
 <script>
-const STORAGE_ALL  = "SM_APP_ALL_V6";
+const STORAGE_ALL  = "SM_APP_ALL_V7";
 const STORAGE_REAL = "SM_APP_REAL_SALDOS_V3";
 
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
@@ -635,16 +675,18 @@ const HOME_TILES = [
   { id:"ventasCarga", title:"Cargar Ventas",      sub:"Venta directa",    icon:"➕", cls:"green",  size:"w"},
   { id:"ventasHist",  title:"Historial Ventas",   sub:"Mes / método",     icon:"🧠", cls:"green",  size:"s"},
   { id:"gastosCarga", title:"Cargar Gastos",      sub:"Pagado/Pendiente", icon:"➖", cls:"red",    size:"w"},
+  { id:"pendientes",  title:"Pendientes",         sub:"Saldo final",      icon:"🧾", cls:"purple", size:"s"},
   { id:"traspaso",    title:"Traspaso",           sub:"Entre cuentas",    icon:"🔁", cls:"",       size:"s"},
   { id:"movHist",     title:"Movimientos",        sub:"Lista completa",   icon:"📋", cls:"",       size:"w"},
-  { id:"pendientes",  title:"Pendientes",         sub:"Saldo final",      icon:"🧾", cls:"purple", size:"s"},
+  { id:"maestros",    title:"Maestros",           sub:"Métodos + Listas", icon:"⚙️", cls:"",       size:"w"},
 ];
 
 const crumbs = {
   home:"Home", dashboard:"Dashboard",
   ventasCarga:"Cargar Ventas", ventasHist:"Historial Ventas",
   gastosCarga:"Cargar Gastos", traspaso:"Traspaso",
-  movHist:"Movimientos", pendientes:"Pendientes"
+  movHist:"Movimientos", pendientes:"Pendientes",
+  maestros:"Maestros"
 };
 
 function hoy(){ return new Date().toISOString().split("T")[0]; }
@@ -732,6 +774,7 @@ function go(id){
   if(id==="pendientes") renderPendientes(true);
   if(id==="ventasHist") renderVentasHist();
   if(id==="movHist") renderMovHist();
+  if(id==="maestros") renderMaestros(true);
 }
 function goHome(){ go("home"); }
 
@@ -758,9 +801,11 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 }
 
 function refreshSelects(){
+  // Ventas
   fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
   fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
 
+  // Gastos
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
@@ -768,10 +813,15 @@ function refreshSelects(){
   cargarSubDeGasto();
   toggleMetodoGasto();
 
+  // Traspasos
   fillSelectOptions(document.getElementById("tDesde"), master.metodos, false);
   fillSelectOptions(document.getElementById("tHacia"), master.metodos, false);
 
+  // Mov hist
   fillSelectOptions(document.getElementById("mhMetodo"), master.metodos, true, "Todos");
+
+  // Maestros
+  fillSelectOptions(document.getElementById("mCatSelect"), Object.keys(master.categorias), false);
 }
 
 function cargarSubDeGasto(){
@@ -787,6 +837,9 @@ function toggleMetodoGasto(){
   selMetodo.style.opacity = disabled ? "0.55" : "1";
 }
 
+/* =======================
+   MODAL
+======================= */
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
@@ -815,6 +868,9 @@ function modalGuardar(){
   cerrarModal();
 }
 
+/* =======================
+   GUARDAR MOVS
+======================= */
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
@@ -917,6 +973,9 @@ function confirmarYGuardarTraspaso(){
   ], "Guardar");
 }
 
+/* =======================
+   DESHACER
+======================= */
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -930,6 +989,9 @@ function deshacerUltimo(){
   renderMovHist();
 }
 
+/* =======================
+   PENDIENTES (MAP)
+======================= */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -989,6 +1051,9 @@ function renderPendientes(resetScroll){
   }
 }
 
+/* =======================
+   HISTORIAL VENTAS
+======================= */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
@@ -1022,6 +1087,9 @@ function renderVentasHist(){
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
+/* =======================
+   HISTORIAL MOVIMIENTOS
+======================= */
 function renderMovHist(){
   const mes = document.getElementById("mhMes").value;
   const tipo = document.getElementById("mhTipo").value || "ALL";
@@ -1078,6 +1146,168 @@ function renderMovHist(){
   });
   html += `</table>`;
   document.getElementById("tablaMovHist").innerHTML = html;
+}
+
+/* =======================
+   MAESTROS UI
+======================= */
+function renderMaestros(resetScroll){
+  // select de categoría
+  const cats = Object.keys(master.categorias);
+  if(cats.length===0){
+    master.categorias = {"Otros":["Varios"]};
+  }
+  fillSelectOptions(document.getElementById("mCatSelect"), Object.keys(master.categorias), false);
+
+  renderListaMetodos();
+  renderSubsCat();
+
+  if(resetScroll){
+    const sb = document.querySelector("#maestros .sectionBody");
+    if(sb) sb.scrollTop = 0;
+  }
+}
+
+function renderListaMetodos(){
+  const wrap = document.getElementById("listaMetodos");
+  let html = `<table class="table"><tr><th>Método</th><th>Acción</th></tr>`;
+  master.metodos.forEach((m,idx)=>{
+    html += `<tr>
+      <td style="font-weight:1100">${m}</td>
+      <td><button class="btn danger" onclick="eliminarMetodo(${idx})">Eliminar</button></td>
+    </tr>`;
+  });
+  html += `</table>`;
+  wrap.innerHTML = html;
+}
+
+function agregarMetodo(){
+  const inp = document.getElementById("mNuevoMetodo");
+  const val = (inp.value||"").trim();
+  if(!val) return toast("Escribí un método");
+  if(master.metodos.some(x=>x.toLowerCase()===val.toLowerCase())) return toast("Ya existe");
+  master.metodos.push(val);
+  inp.value="";
+  saveAll();
+  refreshSelects();
+  // asegurar real saldos incluye el nuevo
+  const real = getRealSaldos();
+  if(real[val]===undefined) real[val]=0;
+  setRealSaldos(real);
+
+  toast("Método agregado ✅");
+  renderMaestros(false);
+  renderDashboard();
+}
+
+function eliminarMetodo(idx){
+  const m = master.metodos[idx];
+  if(!m) return;
+  // no eliminar si está usado
+  const usado = movimientos.some(x=>
+    (x.tipo==="VENTA" && x.metodo===m) ||
+    (x.tipo==="GASTO" && x.estado==="PAGADO" && x.metodo===m) ||
+    (x.tipo==="TRASPASO" && (x.desde===m || x.hacia===m))
+  );
+  if(usado) return toast("No se puede: método usado");
+  if(!confirm(`¿Eliminar método "${m}"?`)) return;
+  master.metodos.splice(idx,1);
+  saveAll();
+  refreshSelects();
+
+  const real = getRealSaldos();
+  delete real[m];
+  setRealSaldos(real);
+
+  toast("Eliminado ✅");
+  renderMaestros(false);
+  renderDashboard();
+}
+
+function agregarCategoria(){
+  const inp = document.getElementById("mNuevaCat");
+  const val = (inp.value||"").trim();
+  if(!val) return toast("Escribí una categoría");
+  if(master.categorias[val]) return toast("Ya existe");
+  master.categorias[val] = [];
+  inp.value="";
+  saveAll();
+  refreshSelects();
+  toast("Categoría agregada ✅");
+  renderMaestros(false);
+  renderPendientes(false);
+}
+
+function renderSubsCat(){
+  const cat = document.getElementById("mCatSelect").value;
+  const subs = master.categorias[cat] || [];
+  const wrap = document.getElementById("listaSubs");
+
+  let html = `<table class="table"><tr><th>Subcategoría</th><th>Acción</th></tr>`;
+  subs.forEach((s,idx)=>{
+    html += `<tr>
+      <td style="font-weight:1100">${s}</td>
+      <td><button class="btn danger" onclick="eliminarSub('${escapeHtml(cat)}', ${idx})">Eliminar</button></td>
+    </tr>`;
+  });
+  html += `</table>`;
+
+  wrap.innerHTML = html;
+}
+
+function agregarSub(){
+  const cat = document.getElementById("mCatSelect").value;
+  const inp = document.getElementById("mNuevaSub");
+  const val = (inp.value||"").trim();
+  if(!cat) return toast("Elegí una categoría");
+  if(!val) return toast("Escribí una subcategoría");
+  const arr = master.categorias[cat] || (master.categorias[cat]=[]);
+  if(arr.some(x=>x.toLowerCase()===val.toLowerCase())) return toast("Ya existe");
+  arr.push(val);
+  inp.value="";
+  saveAll();
+  refreshSelects();
+  toast("Subcategoría agregada ✅");
+  renderMaestros(false);
+  renderPendientes(false);
+}
+
+function eliminarSub(cat, idx){
+  if(!master.categorias[cat]) return;
+  const sub = master.categorias[cat][idx];
+  if(!sub) return;
+  // no eliminar si está usada
+  const usado = movimientos.some(x=> x.tipo==="GASTO" && x.categoria===cat && x.subcategoria===sub);
+  if(usado) return toast("No se puede: usada en gastos");
+  if(!confirm(`¿Eliminar "${sub}" de ${cat}?`)) return;
+  master.categorias[cat].splice(idx,1);
+  saveAll();
+  refreshSelects();
+  toast("Eliminada ✅");
+  renderMaestros(false);
+  renderPendientes(false);
+}
+
+function resetMaestrosDemo(){
+  if(!confirm("¿Resetear Maestros al demo?")) return;
+  master = structuredClone(DEFAULT_MASTER);
+  saveAll();
+  refreshSelects();
+  // reset real saldos
+  const real = {};
+  master.metodos.forEach(m=> real[m]=0);
+  setRealSaldos(real);
+  toast("Reseteado ✅");
+  renderMaestros(true);
+  renderDashboard();
+  renderPendientes(false);
+}
+
+/* Helpers */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
 }
 function calcBalances(){
   const calc = {};
@@ -1242,6 +1472,9 @@ function editarUltimo(){
   go("movHist");
 }
 
+/* =======================
+   EXPORT / IMPORT
+======================= */
 function exportarDatos(){
   const data = { master, movimientos, realSaldos: getRealSaldos() };
   const texto = JSON.stringify(data, null, 2);
@@ -1311,6 +1544,9 @@ function confirmarImportacion(){
   renderMovHist();
 }
 
+/* =======================
+   INIT
+======================= */
 function iniciar(){
   loadAll();
 
@@ -1321,6 +1557,7 @@ function iniciar(){
   refreshSelects();
 
   document.getElementById("gCat").addEventListener("change", ()=>{ cargarSubDeGasto(); });
+  document.getElementById("mCatSelect").addEventListener("change", ()=>{ renderSubsCat(); });
 
   document.getElementById("dashMes").value = thisMonth();
   document.getElementById("vhMes").value = thisMonth();
@@ -1330,6 +1567,7 @@ function iniciar(){
   wireMoneyInput(document.getElementById("gMonto"));
   wireMoneyInput(document.getElementById("tMonto"));
 
+  // real saldos: asegurar keys
   const real = getRealSaldos();
   master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
   setRealSaldos(real);
