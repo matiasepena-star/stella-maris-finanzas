@@ -75,6 +75,11 @@ body{
   border-color: rgba(68,208,123,.22);
   background: rgba(68,208,123,.10);
 }
+.iconBtn.small{
+  padding:8px 10px;
+  font-size:12px;
+  border-radius:12px;
+}
 
 .content{flex:1 1 auto;min-height:0;padding:0 14px 14px;overflow:hidden;}
 .screen{height:100%;display:none;overflow:hidden;}
@@ -190,6 +195,11 @@ input,select,textarea{
 }
 textarea{min-height:140px; resize:vertical}
 
+.money{
+  font-weight:1100;
+  letter-spacing:.2px;
+}
+
 .btn{
   border:1px solid var(--stroke);
   background: rgba(255,255,255,.05);
@@ -296,29 +306,6 @@ textarea{min-height:140px; resize:vertical}
   border-top:1px solid var(--stroke);
   background: rgba(255,255,255,.02);
 }
-
-/* PIN overlay */
-.pinBack{
-  position:fixed;inset:0;z-index:400;
-  background: radial-gradient(900px 600px at 20% -10%, rgba(122,162,255,.22), transparent 60%),
-              radial-gradient(900px 550px at 100% 0%, rgba(68,208,123,.10), transparent 55%),
-              var(--bg);
-  display:none;
-  padding:18px;
-}
-.pinCard{
-  max-width:460px;margin: 8vh auto 0;
-  border:1px solid var(--stroke);
-  border-radius: 22px;
-  background: rgba(255,255,255,.04);
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-.pinTitle{font-weight:1100;letter-spacing:.2px;font-size:14px}
-.pinHint{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.25}
-.pinRow{display:flex;gap:10px;margin-top:12px}
-.pinRow input{flex:1}
-.pinActions{display:flex;gap:10px;margin-top:12px;justify-content:flex-end}
 </style>
 </head>
 
@@ -368,22 +355,22 @@ textarea{min-height:140px; resize:vertical}
             <label>Mes</label>
             <input type="month" id="dashMes" onchange="renderDashboard()">
           </div>
-          <button class="btn" onclick="copiarResumenWhatsApp()">Copiar resumen WhatsApp</button>
+          <button class="iconBtn small" onclick="copiarResumenWhatsApp()">WhatsApp</button>
         </div>
       </div>
 
       <div class="sectionBody">
         <div class="panel">
           <div class="statGrid">
-            <div class="stat"><div class="k">Ventas mes</div><div class="v goodTxt" id="dVentas">$0</div></div>
-            <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dPag">$0</div></div>
-            <div class="stat"><div class="k">Pendientes cargados mes</div><div class="v badTxt" id="dPenMes">$0</div></div>
-            <div class="stat"><div class="k">Resultado real mes</div><div class="v" id="dRealMes">$0</div></div>
+            <div class="stat"><div class="k">Ventas mes</div><div class="v goodTxt" id="dVentas">$ 0</div></div>
+            <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dPag">$ 0</div></div>
+            <div class="stat"><div class="k">Pendientes cargados mes</div><div class="v badTxt" id="dPenMes">$ 0</div></div>
+            <div class="stat"><div class="k">Resultado real mes</div><div class="v" id="dRealMes">$ 0</div></div>
 
-            <div class="stat"><div class="k">Deuda proveedores (hoy)</div><div class="v badTxt" id="dDeuda">$0</div></div>
-            <div class="stat"><div class="k">Disponible calculado (hoy)</div><div class="v" id="dDisp">$0</div></div>
-            <div class="stat"><div class="k">Caja real (hoy)</div><div class="v" id="dCaja">$0</div></div>
-            <div class="stat"><div class="k">Diferencia (Real - Calculado)</div><div class="v" id="dDif">$0</div></div>
+            <div class="stat"><div class="k">Deuda proveedores (hoy)</div><div class="v badTxt" id="dDeuda">$ 0</div></div>
+            <div class="stat"><div class="k">Disponible calculado (hoy)</div><div class="v" id="dDisp">$ 0</div></div>
+            <div class="stat"><div class="k">Caja real (hoy)</div><div class="v" id="dCaja">$ 0</div></div>
+            <div class="stat"><div class="k">Diferencia (Real - Calculado)</div><div class="v" id="dDif">$ 0</div></div>
           </div>
         </div>
 
@@ -414,7 +401,7 @@ textarea{min-height:140px; resize:vertical}
           <select id="vMetodo"></select>
 
           <label>Monto</label>
-          <input type="number" id="vMonto" placeholder="Monto">
+          <input class="money" type="text" id="vMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
 
           <label>Nota (opcional)</label>
           <input type="text" id="vNota" placeholder="Ej: cierre, mostrador...">
@@ -456,8 +443,7 @@ textarea{min-height:140px; resize:vertical}
           <div class="hr"></div>
 
           <div class="statGrid">
-            <div class="stat"><div class="k">Total filtrado</div><div class="v goodTxt" id="vhTotal">$0</div></div>
-            <div class="stat"><div class="k">Cantidad</div><div class="v" id="vhCant">0</div></div>
+            <div class="stat"><div class="k">Total filtrado</div><div class="v goodTxt" id="vhTotal">$ 0</div></div>
           </div>
         </div>
 
@@ -490,7 +476,7 @@ textarea{min-height:140px; resize:vertical}
           <select id="gSub"></select>
 
           <label>Monto</label>
-          <input type="number" id="gMonto" placeholder="Monto">
+          <input class="money" type="text" id="gMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
 
           <div class="row2">
             <div>
@@ -522,7 +508,7 @@ textarea{min-height:140px; resize:vertical}
       <div class="sectionHeader">
         <div>
           <h2>Movimientos (Gastos)</h2>
-          <div class="hint">Filtros + acciones.</div>
+          <div class="hint">Filtros + editar.</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
           <button class="btn" onclick="setMovEsteMes()">Este mes</button>
@@ -573,9 +559,8 @@ textarea{min-height:140px; resize:vertical}
           <div class="hr"></div>
 
           <div class="statGrid">
-            <div class="stat"><div class="k">Pagado filtrado</div><div class="v badTxt" id="mgTotPag">$0</div></div>
-            <div class="stat"><div class="k">Pendiente filtrado</div><div class="v badTxt" id="mgTotPen">$0</div></div>
-            <div class="stat"><div class="k">Cantidad</div><div class="v" id="mgCant">0</div></div>
+            <div class="stat"><div class="k">Pagado filtrado</div><div class="v badTxt" id="mgTotPag">$ 0</div></div>
+            <div class="stat"><div class="k">Pendiente filtrado</div><div class="v badTxt" id="mgTotPen">$ 0</div></div>
           </div>
         </div>
 
@@ -583,111 +568,17 @@ textarea{min-height:140px; resize:vertical}
       </div>
     </div>
 
-    <!-- PAGOS (solo pagados) -->
-    <div id="pagos" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Pagos</h2>
-          <div class="hint">Solo gastos PAGADOS.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <label>Mes</label>
-              <input type="month" id="pMes" onchange="renderPagos()">
-            </div>
-            <div>
-              <label>Categoría</label>
-              <select id="pCat" onchange="renderPagos()"></select>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="statGrid">
-            <div class="stat"><div class="k">Total pagado filtrado</div><div class="v badTxt" id="pTotal">$0</div></div>
-            <div class="stat"><div class="k">Cantidad</div><div class="v" id="pCant">0</div></div>
-          </div>
-        </div>
-
-        <div class="panel" id="tablaPagos"></div>
-      </div>
-    </div>
-
-    <!-- ESTADO PROVEEDORES -->
-    <div id="estado" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Pendientes (Proveedores)</h2>
-          <div class="hint">Saldo final por proveedor (positivo: debés / negativo: a favor / cero: se queda).</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel" id="tablaEstado"></div>
-      </div>
-    </div>
-
-    <!-- CAJA REAL -->
-    <div id="caja" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Caja Real</h2>
-          <div class="hint">Lo que tenés hoy por método.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <label>Aplicar mismo valor a todos</label>
-              <input type="number" id="cajaAll" placeholder="Ej: 0 o 100000">
-            </div>
-            <div style="display:flex; align-items:flex-end; gap:10px">
-              <button class="btn" onclick="cajaAplicarATodos()">Aplicar</button>
-              <button class="btn danger" onclick="cajaPonerCero()">Todo en 0</button>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div id="tablaCaja"></div>
-
-          <div class="row2" style="margin-top:10px">
-            <button class="btn primary" onclick="cajaGuardar()">Guardar Caja</button>
-            <button class="btn" onclick="cajaPonerCalculado()">Copiar Calculado → Real</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MAESTRO -->
+    <!-- MAESTRO (simple) -->
     <div id="maestro" class="screen">
       <div class="sectionHeader">
         <div>
           <h2>Maestro</h2>
-          <div class="hint">Escribís acá una vez. Incluye PIN.</div>
+          <div class="hint">Solo métodos y listas (simple).</div>
         </div>
         <button class="btn" onclick="goHome()">Volver</button>
       </div>
 
       <div class="sectionBody">
-        <div class="panel">
-          <div style="font-weight:1100;font-size:13px">Seguridad (PIN)</div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Para que nadie toque en el mostrador.</div>
-          <div class="row2" style="margin-top:10px">
-            <button class="btn primary" onclick="cambiarPIN()">Cambiar PIN</button>
-            <button class="btn danger" onclick="desactivarPIN()">Desactivar PIN</button>
-          </div>
-        </div>
-
         <div class="panel">
           <div class="row2">
             <div>
@@ -724,34 +615,6 @@ textarea{min-height:140px; resize:vertical}
       </div>
     </div>
 
-    <!-- BACKUP -->
-    <div id="backup" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Backup</h2>
-          <div class="hint">Exportar / Importar (reemplaza todo).</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <button class="btn primary" onclick="exportarTodo()">Exportar (descargar .json)</button>
-            <button class="btn" onclick="copiarBackup()">Copiar backup</button>
-          </div>
-
-          <label style="margin-top:10px">Backup JSON</label>
-          <textarea id="backupBox" placeholder="Acá aparece el JSON al exportar / copiar"></textarea>
-
-          <div class="row2">
-            <button class="btn good" onclick="importarDesdeCaja()">Importar (reemplaza todo)</button>
-            <button class="btn danger" onclick="borrarTodo()">Borrar todo</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div><!-- /content -->
 </div><!-- /app -->
 
@@ -770,32 +633,16 @@ textarea{min-height:140px; resize:vertical}
   </div>
 </div>
 
-<!-- PIN -->
-<div id="pinBack" class="pinBack">
-  <div class="pinCard">
-    <div class="pinTitle" id="pinTitle">Bloqueado</div>
-    <div class="pinHint" id="pinHint">Ingresá tu PIN para entrar.</div>
-    <div class="pinRow">
-      <input id="pinInput" inputmode="numeric" maxlength="8" placeholder="PIN (4-8 dígitos)">
-      <button class="btn primary" onclick="pinSubmit()">OK</button>
-    </div>
-    <div class="pinActions">
-      <button class="btn" onclick="pinCerrarSiNoHayPIN()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
 <div id="toast" class="toast">OK</div>
 
 <script>
 /* =========================
-   STORAGE KEYS
+   STORAGE
 ========================= */
-const STORAGE_ALL  = "SM_APP_ALL_DARK_V2";
-const STORAGE_PIN  = "SM_APP_PIN_V1";
+const STORAGE_ALL  = "SM_APP_ALL_DARK_V3";
 const STORAGE_HOME = "SM_APP_HOME_ORDER_V1";
 
-const fmt = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0});
+const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
 /* =========================
    DATA
@@ -815,38 +662,7 @@ const DEFAULT_MASTER = {
 let master = structuredClone(DEFAULT_MASTER);
 let movimientos = [];
 const PROVIDER_CATEGORY_NAME = "Proveedores";
-
 let homeEditMode = false;
-
-/* =========================
-   HOME TILES
-========================= */
-const HOME_TILES = [
-  { id:"dashboard",   title:"Dashboard",              sub:"Resumen + control general", icon:"📊", cls:"" },
-  { id:"ventasCarga", title:"Cargar Ventas",          sub:"Efectivo, MP, bancos, etc.", icon:"➕", cls:"green" },
-  { id:"gastosCarga", title:"Cargar Gastos",          sub:"Pagado o Pendiente", icon:"➖", cls:"red" },
-  { id:"movGastos",   title:"Movimientos (Gastos)",   sub:"Editar / Anular / Desanular", icon:"📋", cls:"" },
-  { id:"ventasHist",  title:"Historial de Ventas",    sub:"Filtros por mes y método", icon:"🧾", cls:"green" },
-  { id:"pagos",       title:"Pagos",                  sub:"Solo gastos PAGADOS", icon:"💸", cls:"gold" },
-  { id:"estado",      title:"Pendientes (Proveedores)", sub:"Saldo por proveedor", icon:"📦", cls:"red" },
-  { id:"caja",        title:"Caja Real",              sub:"Lo que tenés hoy por método", icon:"🏦", cls:"" },
-  { id:"maestro",     title:"Maestro",                sub:"Proveedores, impuestos, métodos", icon:"⚙️", cls:"" },
-  { id:"backup",      title:"Backup",                 sub:"Exportar / Importar", icon:"🛟", cls:"" }
-];
-
-const crumbs = {
-  home:"Home",
-  dashboard:"Dashboard",
-  ventasCarga:"Cargar Ventas",
-  ventasHist:"Historial Ventas",
-  gastosCarga:"Cargar Gastos",
-  movGastos:"Movimientos (Gastos)",
-  pagos:"Pagos",
-  estado:"Pendientes (Proveedores)",
-  caja:"Caja Real",
-  maestro:"Maestro",
-  backup:"Backup"
-};
 
 /* =========================
    HELPERS
@@ -856,7 +672,6 @@ function thisMonth(){ return new Date().toISOString().slice(0,7); }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
 function norm(s){ return String(s||"").trim(); }
 function round0(n){ return Math.round(Number(n)||0); }
-function ativos(){ return movimientos.filter(m=>!m.anulado); } // legacy typo safe
 function activos(){ return movimientos.filter(m=>!m.anulado); }
 
 function toast(msg="OK"){
@@ -874,6 +689,45 @@ function escapeHtml(s){
 }
 function escapeQuotes(s){
   return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+}
+
+/* =========================
+   MONEY INPUT
+========================= */
+function formatARS(n){
+  const val = Math.max(0, round0(n));
+  return "$ " + fmtMoney.format(val);
+}
+function parseARS(str){
+  const digits = String(str||"").replace(/[^\d]/g,"");
+  return digits ? Number(digits) : 0;
+}
+function wireMoneyInput(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+
+  const apply = ()=>{
+    const n = parseARS(el.value);
+    el.dataset.raw = String(n);
+    el.value = n ? formatARS(n) : "";
+  };
+
+  el.addEventListener("input", ()=>{
+    // Deja escribir solo números, formatea suave
+    const n = parseARS(el.value);
+    el.dataset.raw = String(n);
+    // No formateo agresivo mientras tipea si está vacío
+    if(n===0){ el.value = ""; return; }
+    el.value = formatARS(n);
+  });
+
+  el.addEventListener("blur", apply);
+  el.addEventListener("focus", ()=>{
+    // Mantengo formato (como pediste). Si querés que al foco quede solo número, decime.
+  });
+
+  // init
+  apply();
 }
 
 /* =========================
@@ -944,137 +798,27 @@ function sanitizeMovimientos(arr){
 }
 
 /* =========================
-   PIN
+   HOME TILES
 ========================= */
-function getPIN(){ return localStorage.getItem(STORAGE_PIN) || ""; }
-function setPIN(pin){ localStorage.setItem(STORAGE_PIN, pin); }
-function clearPIN(){ localStorage.removeItem(STORAGE_PIN); }
+const HOME_TILES = [
+  { id:"dashboard",   title:"Dashboard",        sub:"Resumen + control general", icon:"📊", cls:"" },
+  { id:"ventasCarga", title:"Cargar Ventas",    sub:"Efectivo, MP, bancos, etc.", icon:"➕", cls:"green" },
+  { id:"gastosCarga", title:"Cargar Gastos",    sub:"Pagado o Pendiente", icon:"➖", cls:"red" },
+  { id:"movGastos",   title:"Movimientos",      sub:"Editar movimientos", icon:"📋", cls:"" },
+  { id:"ventasHist",  title:"Historial Ventas", sub:"Filtros por mes y método", icon:"🧾", cls:"green" },
+  { id:"maestro",     title:"Maestro",          sub:"Métodos / categorías", icon:"⚙️", cls:"" }
+];
 
-function showPINOverlay(mode){
-  // mode: "unlock" | "setup" | "change"
-  const back = document.getElementById("pinBack");
-  const title = document.getElementById("pinTitle");
-  const hint = document.getElementById("pinHint");
-  const input = document.getElementById("pinInput");
-  input.value = "";
-  input.type = "password";
-  input.setAttribute("inputmode","numeric");
+const crumbs = {
+  home:"Home",
+  dashboard:"Dashboard",
+  ventasCarga:"Cargar Ventas",
+  ventasHist:"Historial Ventas",
+  gastosCarga:"Cargar Gastos",
+  movGastos:"Movimientos",
+  maestro:"Maestro"
+};
 
-  window.__pinMode = mode;
-
-  if(mode==="setup"){
-    title.textContent = "Crear PIN";
-    hint.textContent = "Elegí un PIN de 4 a 8 dígitos (solo números).";
-  }else if(mode==="change"){
-    title.textContent = "Cambiar PIN";
-    hint.textContent = "Ingresá tu PIN actual para continuar.";
-  }else{
-    title.textContent = "Bloqueado";
-    hint.textContent = "Ingresá tu PIN para entrar.";
-  }
-  back.style.display = "block";
-  setTimeout(()=>input.focus(), 50);
-}
-function hidePINOverlay(){
-  document.getElementById("pinBack").style.display = "none";
-}
-function pinCerrarSiNoHayPIN(){
-  // Si hay PIN no dejamos "cerrar". Si no hay PIN, sí.
-  if(getPIN()) return toast("Ingresá PIN");
-  hidePINOverlay();
-}
-
-function isValidPIN(pin){
-  return /^\d{4,8}$/.test(pin);
-}
-
-function pinSubmit(){
-  const input = document.getElementById("pinInput");
-  const v = (input.value||"").trim();
-  const mode = window.__pinMode || "unlock";
-
-  if(mode==="setup"){
-    if(!isValidPIN(v)) return toast("PIN inválido (4-8 dígitos)");
-    window.__pinTemp = v;
-    window.__pinMode = "setup_confirm";
-    document.getElementById("pinTitle").textContent = "Confirmar PIN";
-    document.getElementById("pinHint").textContent = "Repetí el PIN para confirmar.";
-    input.value = "";
-    input.focus();
-    return;
-  }
-
-  if(mode==="setup_confirm"){
-    if(v !== window.__pinTemp) return toast("No coincide");
-    setPIN(v);
-    window.__pinTemp = null;
-    hidePINOverlay();
-    toast("PIN creado ✅");
-    return;
-  }
-
-  if(mode==="unlock"){
-    const pin = getPIN();
-    if(!pin){
-      showPINOverlay("setup");
-      return;
-    }
-    if(v !== pin) return toast("PIN incorrecto");
-    hidePINOverlay();
-    toast("OK ✅");
-    return;
-  }
-
-  if(mode==="change"){
-    const pin = getPIN();
-    if(v !== pin) return toast("PIN incorrecto");
-    // paso 2: nuevo pin
-    window.__pinMode = "change_new";
-    document.getElementById("pinTitle").textContent = "Nuevo PIN";
-    document.getElementById("pinHint").textContent = "Elegí un PIN nuevo (4-8 dígitos).";
-    input.value = "";
-    input.focus();
-    return;
-  }
-
-  if(mode==="change_new"){
-    if(!isValidPIN(v)) return toast("PIN inválido (4-8 dígitos)");
-    window.__pinTemp = v;
-    window.__pinMode = "change_confirm";
-    document.getElementById("pinTitle").textContent = "Confirmar nuevo PIN";
-    document.getElementById("pinHint").textContent = "Repetí el PIN nuevo.";
-    input.value = "";
-    input.focus();
-    return;
-  }
-
-  if(mode==="change_confirm"){
-    if(v !== window.__pinTemp) return toast("No coincide");
-    setPIN(v);
-    window.__pinTemp = null;
-    hidePINOverlay();
-    toast("PIN cambiado ✅");
-    return;
-  }
-}
-
-function cambiarPIN(){
-  if(!getPIN()){
-    showPINOverlay("setup");
-  }else{
-    showPINOverlay("change");
-  }
-}
-function desactivarPIN(){
-  if(!getPIN()) return toast("No hay PIN");
-  if(!confirm("¿Desactivar PIN?")) return;
-  clearPIN();
-  toast("PIN desactivado ✅");
-}
-
-/* =========================
-   NAV
-========================= */
 function go(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   const el = document.getElementById(id);
@@ -1083,9 +827,6 @@ function go(id){
 
   if(id==="home") renderHome();
   if(id==="dashboard") renderDashboard();
-  if(id==="caja") renderCaja();
-  if(id==="estado") renderEstadoProveedores();
-  if(id==="pagos") renderPagos();
   if(id==="movGastos") renderMovGastos();
   if(id==="ventasHist") renderVentasHist();
   if(id==="maestro") renderMaestro();
@@ -1102,7 +843,6 @@ function getHomeOrder(){
   try{
     const arr = JSON.parse(raw);
     if(!Array.isArray(arr)) throw new Error();
-    // completar faltantes
     const all = HOME_TILES.map(t=>t.id);
     const set = new Set(arr);
     const merged = arr.filter(x=>all.includes(x));
@@ -1121,14 +861,12 @@ function renderHome(){
   const map = new Map(HOME_TILES.map(t=>[t.id,t]));
   grid.innerHTML = "";
 
-  order.forEach((id, idx)=>{
+  order.forEach((id)=>{
     const t = map.get(id);
     if(!t) return;
 
     const tile = document.createElement("div");
     tile.className = `card tile ${t.cls || ""} ${homeEditMode ? "reorder" : ""}`;
-    tile.setAttribute("data-tile-id", t.id);
-
     tile.innerHTML = `
       <div class="tIcon">${t.icon}</div>
       <div class="tTitle">${t.title}</div>
@@ -1138,12 +876,10 @@ function renderHome(){
         <button class="miniBtn" onclick="moveTileDown('${escapeQuotes(t.id)}'); event.stopPropagation();">↓</button>
       </div>
     `;
-
     tile.addEventListener("click", ()=>{
-      if(homeEditMode) return; // en modo editar no navega
+      if(homeEditMode) return;
       go(t.id);
     });
-
     grid.appendChild(tile);
   });
 
@@ -1190,7 +926,6 @@ function refreshAllSelects(){
 
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
-  fillSelectOptions(document.getElementById("pCat"), cats, true, "Todas");
   fillSelectOptions(document.getElementById("mgCat"), cats, true, "Todas");
   fillSelectOptions(document.getElementById("mCatSel"), cats, false);
 
@@ -1236,7 +971,7 @@ function pickSub(sub){
 }
 
 /* =========================
-   CONFIRM BEFORE SAVE (4)
+   CONFIRM BEFORE SAVE
 ========================= */
 let pendingConfirmAction = null;
 
@@ -1250,11 +985,23 @@ function abrirConfirm(title, lines, confirmLabel="Confirmar"){
   `;
   abrirModal("Confirmar", body, confirmLabel);
 }
+function confirmarMontoRaro(monto){
+  if(monto >= 2000000){
+    return confirm(`Cargaste ${formatARS(monto)}. ¿Seguro? (puede haber un 0 de más)`);
+  }
+  return true;
+}
+function lockBtn(id, ms=900){
+  const b = document.getElementById(id);
+  if(!b) return;
+  b.disabled = true;
+  setTimeout(()=>{ b.disabled = false; }, ms);
+}
 
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
-  const monto = parseFloat(document.getElementById("vMonto").value);
+  const monto = parseARS(document.getElementById("vMonto").value);
   const nota = (document.getElementById("vNota").value || "").trim();
 
   if(!monto || monto <= 0) return toast("Monto inválido");
@@ -1265,7 +1012,7 @@ function confirmarYGuardarVenta(){
   abrirConfirm("Venta", [
     {k:"Fecha", v:fecha},
     {k:"Método", v:metodo},
-    {k:"Monto", v: fmt.format(monto)},
+    {k:"Monto", v: formatARS(monto)},
     {k:"Nota", v: nota || "-"}
   ], "Guardar");
 }
@@ -1274,7 +1021,7 @@ function confirmarYGuardarGasto(){
   const fecha = (document.getElementById("gFecha").value || hoy());
   const categoria = document.getElementById("gCat").value;
   const subcategoria = document.getElementById("gSub").value;
-  const monto = parseFloat(document.getElementById("gMonto").value);
+  const monto = parseARS(document.getElementById("gMonto").value);
   const estado = document.getElementById("gEstado").value;
   const metodo = document.getElementById("gMetodo").value;
   const nota = (document.getElementById("gNota").value || "").trim();
@@ -1291,7 +1038,7 @@ function confirmarYGuardarGasto(){
     {k:"Subcategoría", v:subcategoria},
     {k:"Estado", v:estado},
     {k:"Método", v: estado==="PAGADO" ? metodo : "-"},
-    {k:"Monto", v: fmt.format(monto)},
+    {k:"Monto", v: formatARS(monto)},
     {k:"Nota", v: nota || "-"}
   ], "Guardar");
 }
@@ -1299,19 +1046,6 @@ function confirmarYGuardarGasto(){
 /* =========================
    SAVE ACTIONS
 ========================= */
-function lockBtn(id, ms=900){
-  const b = document.getElementById(id);
-  if(!b) return;
-  b.disabled = true;
-  setTimeout(()=>{ b.disabled = false; }, ms);
-}
-function confirmarMontoRaro(monto){
-  if(monto >= 2000000){
-    return confirm(`Cargaste ${fmt.format(monto)}. ¿Seguro? (puede haber un 0 de más)`);
-  }
-  return true;
-}
-
 function guardarVentaDirecto({fecha, metodo, monto, nota}){
   lockBtn("btnGuardarVenta", 700);
   movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
@@ -1321,6 +1055,7 @@ function guardarVentaDirecto({fecha, metodo, monto, nota}){
   toast("Venta guardada ✅");
   cerrarModal();
   renderDashboard();
+  renderVentasHist();
 }
 
 function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, metodo, nota}){
@@ -1334,12 +1069,13 @@ function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, met
   cerrarModal();
   renderChipsRecientes();
   renderDashboard();
+  renderMovGastos();
 }
 
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
-  if(!confirm(`¿Deshacer el último?\n${last.tipo} · ${last.fecha} · ${fmt.format(last.monto)}`)) return;
+  if(!confirm(`¿Deshacer el último?\n${last.tipo} · ${last.fecha} · ${formatARS(last.monto)}`)) return;
   movimientos.pop();
   saveAll();
   toast("Deshecho ✅");
@@ -1349,36 +1085,6 @@ function editarUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para editar");
   abrirEditar(last.id);
-}
-function anularMovimiento(id){
-  const mv = movimientos.find(x=>x.id===id);
-  if(!mv || mv.anulado) return;
-  if(!confirm("¿Anular este movimiento?")) return;
-  mv.anulado = true;
-  saveAll();
-  toast("Anulado ✅");
-  renderAll();
-}
-function desanularMovimiento(id){
-  const mv = movimientos.find(x=>x.id===id);
-  if(!mv || !mv.anulado) return;
-  if(!confirm("¿Desanular (reactivar)?")) return;
-  mv.anulado = false;
-  saveAll();
-  toast("Reactivado ✅");
-  renderAll();
-}
-function duplicarMovimiento(id){
-  const mv = movimientos.find(x=>x.id===id);
-  if(!mv) return;
-  const copy = structuredClone(mv);
-  copy.id = uid();
-  copy.anulado = false;
-  copy.fecha = hoy();
-  movimientos.push(copy);
-  saveAll();
-  toast("Duplicado ✅ (fecha hoy)");
-  renderAll();
 }
 
 /* =========================
@@ -1423,14 +1129,10 @@ function renderAll(){
   const active = document.querySelector(".screen.active")?.id || "home";
   if(active==="home") renderHome();
   if(active==="dashboard") renderDashboard();
-  if(active==="caja") renderCaja();
-  if(active==="estado") renderEstadoProveedores();
-  if(active==="pagos") renderPagos();
   if(active==="movGastos") renderMovGastos();
   if(active==="ventasHist") renderVentasHist();
   if(active==="maestro") renderMaestro();
 }
-
 function setText(id, v){ const el = document.getElementById(id); if(el) el.textContent = v; }
 
 function renderDashboard(){
@@ -1459,16 +1161,16 @@ function renderDashboard(){
   const cajaRealTotal = sumCajaReal();
   const dif = cajaRealTotal - disponible;
 
-  setText("dVentas", fmt.format(ventasMes));
-  setText("dPag", fmt.format(gastosPagMes));
-  setText("dPenMes", fmt.format(pendMes));
-  setText("dRealMes", fmt.format(realMes));
+  setText("dVentas", formatARS(ventasMes));
+  setText("dPag", formatARS(gastosPagMes));
+  setText("dPenMes", formatARS(pendMes));
+  setText("dRealMes", formatARS(realMes));
   document.getElementById("dRealMes").className = "v " + (realMes>=0 ? "goodTxt" : "badTxt");
 
-  setText("dDeuda", fmt.format(deudaProv));
-  setText("dDisp", fmt.format(disponible));
-  setText("dCaja", fmt.format(cajaRealTotal));
-  setText("dDif", fmt.format(dif));
+  setText("dDeuda", formatARS(deudaProv));
+  setText("dDisp", formatARS(disponible));
+  setText("dCaja", formatARS(cajaRealTotal));
+  setText("dDif", formatARS(dif));
   document.getElementById("dDif").className = "v " + (dif===0 ? "goodTxt" : (dif<0 ? "badTxt" : "warnTxt"));
 
   let html = `<table class="table"><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>`;
@@ -1480,70 +1182,16 @@ function renderDashboard(){
     const clsD = d===0 ? "goodTxt" : (d<0 ? "badTxt" : "warnTxt");
     html += `<tr>
       <td style="font-weight:1100">${m}</td>
-      <td class="${clsC}">${fmt.format(c)}</td>
-      <td>${fmt.format(r)}</td>
-      <td class="${clsD}">${fmt.format(d)}</td>
+      <td class="${clsC}">${formatARS(c)}</td>
+      <td>${formatARS(r)}</td>
+      <td class="${clsD}">${formatARS(d)}</td>
     </tr>`;
   });
   html += `</table>`;
   document.getElementById("tablaMetodos").innerHTML = html;
 }
 
-function renderEstadoProveedores(){
-  const map = computeProveedorMap();
-  const lista = master.categorias[PROVIDER_CATEGORY_NAME] || [];
-
-  let html = `<table class="table"><tr><th>Proveedor</th><th>Saldo</th></tr>`;
-  lista.forEach(p=>{
-    const saldo = Math.round(map[p] ?? 0);
-    let badge = `<span class="badge neu">Saldado</span>`;
-    if(saldo>0) badge = `<span class="badge bad">Debés ${fmt.format(saldo)}</span>`;
-    if(saldo<0) badge = `<span class="badge good">A favor ${fmt.format(Math.abs(saldo))}</span>`;
-    html += `<tr><td style="font-weight:1100">${p}</td><td>${badge}</td></tr>`;
-  });
-  html += `</table>`;
-  document.getElementById("tablaEstado").innerHTML = html;
-}
-
-function computePaidTotals(filterMes, filterCat){
-  const map = {};
-  let cant = 0, total = 0;
-  activos().forEach(m=>{
-    if(m.tipo!=="GASTO") return;
-    if(m.estado!=="PAGADO") return;
-    if(filterMes && !(m.fecha||"").startsWith(filterMes)) return;
-    if(filterCat && filterCat!=="ALL" && m.categoria!==filterCat) return;
-    const key = `${m.categoria}|${m.subcategoria}`;
-    map[key] = (map[key]||0) + m.monto;
-    cant++; total += m.monto;
-  });
-  return {map, cant, total};
-}
-
-function renderPagos(){
-  const mes = document.getElementById("pMes").value;
-  const cat = document.getElementById("pCat").value || "ALL";
-  const {map, cant, total} = computePaidTotals(mes, cat);
-
-  setText("pTotal", fmt.format(total));
-  setText("pCant", String(cant));
-
-  const catsToShow = (cat && cat!=="ALL") ? [cat] : Object.keys(master.categorias);
-
-  let html = `<table class="table"><tr><th>Categoría</th><th>Subcategoría</th><th>Total pagado</th></tr>`;
-  catsToShow.forEach(c=>{
-    html += `<tr><td colspan="3" style="font-weight:1100; color:var(--brand)">${c}</td></tr>`;
-    (master.categorias[c]||[]).forEach(sub=>{
-      const key = `${c}|${sub}`;
-      const t = Math.round(map[key]||0);
-      html += `<tr><td class="muted">${c}</td><td style="font-weight:1100">${sub}</td><td>${fmt.format(t)}</td></tr>`;
-    });
-  });
-  html += `</table>`;
-  document.getElementById("tablaPagos").innerHTML = html;
-}
-
-/* MOV FILTER QUICK (7) */
+/* MOV FILTER QUICK */
 function setMovEsteMes(){
   document.getElementById("mgMes").value = thisMonth();
   renderMovGastos();
@@ -1560,7 +1208,6 @@ function limpiarFiltrosMov(){
   renderMovGastos();
   toast("Filtros limpios ✅");
 }
-
 function onMgCatChange(isInit=false){
   const cat = document.getElementById("mgCat").value || "ALL";
   const subSel = document.getElementById("mgSub");
@@ -1582,7 +1229,7 @@ function renderMovGastos(){
   const buscar = (document.getElementById("mgBuscar").value || "").trim().toLowerCase();
 
   let rows = [];
-  let totPag = 0, totPen = 0, cant = 0;
+  let totPag = 0, totPen = 0;
 
   movimientos.forEach(m=>{
     if(m.tipo!=="GASTO") return;
@@ -1603,7 +1250,6 @@ function renderMovGastos(){
       if(m.estado==="PAGADO") totPag += m.monto;
       if(m.estado==="PENDIENTE") totPen += m.monto;
     }
-    cant++;
     rows.push(m);
   });
 
@@ -1613,11 +1259,10 @@ function renderMovGastos(){
     return (a.id>b.id) ? -1 : 1;
   });
 
-  setText("mgTotPag", fmt.format(totPag));
-  setText("mgTotPen", fmt.format(totPen));
-  setText("mgCant", String(cant));
+  setText("mgTotPag", formatARS(totPag));
+  setText("mgTotPen", formatARS(totPen));
 
-  let html = `<table class="table"><tr><th>Fecha</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th><th>Acciones</th></tr>`;
+  let html = `<table class="table"><tr><th>Fecha</th><th>Detalle</th><th>Estado</th><th>Método</th><th>Monto</th><th>Acción</th></tr>`;
   rows.forEach(m=>{
     const det = `<span style="font-weight:1100">${escapeHtml(m.categoria)}</span> · ${escapeHtml(m.subcategoria||"")}${m.nota?` · <span class="muted">${escapeHtml(m.nota)}</span>`:""}`;
     const met = (m.estado==="PAGADO") ? (escapeHtml(m.metodo||"-")) : "-";
@@ -1627,18 +1272,14 @@ function renderMovGastos(){
     if(m.anulado) estadoBadge = `<span class="badge neu">ANULADO</span>`;
 
     const a1 = `<button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button>`;
-    const a2 = `<button class="iconBtn" onclick="duplicarMovimiento('${m.id}')">Duplicar</button>`;
-    const a3 = m.anulado
-      ? `<button class="iconBtn primary" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
-      : `<button class="iconBtn" onclick="anularMovimiento('${m.id}')">Anular</button>`;
 
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${escapeHtml(m.fecha)}</td>
       <td>${det}</td>
       <td>${estadoBadge}</td>
       <td>${met}</td>
-      <td class="${montoCls}">${fmt.format(m.monto)}</td>
-      <td style="white-space:nowrap">${a1} ${a2} ${a3}</td>
+      <td class="${montoCls}">${formatARS(m.monto)}</td>
+      <td style="white-space:nowrap">${a1}</td>
     </tr>`;
   });
   html += `</table>`;
@@ -1651,7 +1292,7 @@ function renderVentasHist(){
   const buscar = (document.getElementById("vhBuscar").value || "").trim().toLowerCase();
 
   let rows = [];
-  let total = 0, cant = 0;
+  let total = 0;
 
   movimientos.forEach(m=>{
     if(m.tipo!=="VENTA") return;
@@ -1661,7 +1302,6 @@ function renderVentasHist(){
     if(buscar && !hay.toLowerCase().includes(buscar)) return;
 
     if(!m.anulado) total += m.monto;
-    cant++;
     rows.push(m);
   });
 
@@ -1671,23 +1311,17 @@ function renderVentasHist(){
     return (a.id>b.id) ? -1 : 1;
   });
 
-  setText("vhTotal", fmt.format(total));
-  setText("vhCant", String(cant));
+  setText("vhTotal", formatARS(total));
 
-  let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th><th>Acciones</th></tr>`;
+  let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th><th>Acción</th></tr>`;
   rows.forEach(m=>{
     const a1 = `<button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button>`;
-    const a2 = `<button class="iconBtn" onclick="duplicarMovimiento('${m.id}')">Duplicar</button>`;
-    const a3 = m.anulado
-      ? `<button class="iconBtn primary" onclick="desanularMovimiento('${m.id}')">Desanular</button>`
-      : `<button class="iconBtn" onclick="anularMovimiento('${m.id}')">Anular</button>`;
-
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${escapeHtml(m.fecha)}</td>
       <td style="font-weight:1100">${escapeHtml(m.metodo||"")}</td>
       <td class="muted">${escapeHtml(m.nota||"")}</td>
-      <td class="goodTxt">${fmt.format(m.monto)}</td>
-      <td style="white-space:nowrap">${a1} ${a2} ${a3}</td>
+      <td class="goodTxt">${formatARS(m.monto)}</td>
+      <td style="white-space:nowrap">${a1}</td>
     </tr>`;
   });
   html += `</table>`;
@@ -1695,12 +1329,12 @@ function renderVentasHist(){
 }
 
 /* =========================
-   WHATSAPP SUMMARY (8)
+   WHATSAPP SUMMARY (chico)
 ========================= */
 async function copiarResumenWhatsApp(){
   const mes = document.getElementById("dashMes")?.value || thisMonth();
-  // calcular con ese mes
   let ventasMes=0, gastosPagMes=0, pendMes=0;
+
   activos().forEach(m=>{
     const esMes = (m.fecha||"").startsWith(mes);
     if(!esMes) return;
@@ -1710,8 +1344,8 @@ async function copiarResumenWhatsApp(){
       else pendMes += m.monto;
     }
   });
-  const realMes = ventasMes - (gastosPagMes + pendMes);
 
+  const realMes = ventasMes - (gastosPagMes + pendMes);
   const provMap = computeProveedorMap();
   let deudaProv = 0;
   Object.values(provMap).forEach(v=>{ if(v>0) deudaProv += v; });
@@ -1721,85 +1355,25 @@ async function copiarResumenWhatsApp(){
   const cajaRealTotal = sumCajaReal();
   const dif = cajaRealTotal - disponible;
 
-  const mesNombre = mes;
-
   const txt =
-`📌 *Stella Maris · Resumen ${mesNombre}*
-💰 Ventas: ${fmt.format(ventasMes)}
-💸 Gastos pagados: ${fmt.format(gastosPagMes)}
-⏳ Pendientes cargados: ${fmt.format(pendMes)}
-📈 Resultado real: ${fmt.format(realMes)}
+`📌 *Stella Maris · ${mes}*
+💰 Ventas: ${formatARS(ventasMes)}
+💸 Gastos pagados: ${formatARS(gastosPagMes)}
+⏳ Pendientes: ${formatARS(pendMes)}
+📈 Real: ${formatARS(realMes)}
 
-📦 Deuda proveedores (hoy): ${fmt.format(deudaProv)}
-🧮 Disponible calculado: ${fmt.format(disponible)}
-🏦 Caja real: ${fmt.format(cajaRealTotal)}
-⚖️ Diferencia (Real-Calc): ${fmt.format(dif)}`;
+📦 Proveedores (hoy): ${formatARS(deudaProv)}
+🧮 Disponible: ${formatARS(disponible)}
+🏦 Caja real: ${formatARS(cajaRealTotal)}
+⚖️ Dif: ${formatARS(dif)}`;
 
   try{
     await navigator.clipboard.writeText(txt);
-    toast("Resumen copiado ✅");
+    toast("Copiado ✅");
   }catch{
-    // fallback modal
     abrirModal("Resumen WhatsApp", `<div class="panel" style="margin:0"><textarea>${escapeHtml(txt)}</textarea></div>`, "Cerrar");
     document.getElementById("modalFoot").innerHTML = `<button class="btn primary" onclick="cerrarModal()">Cerrar</button>`;
   }
-}
-
-/* =========================
-   CAJA
-========================= */
-function escapeId(s){ return String(s).replaceAll(" ","_").replaceAll("/","_").replaceAll(".","_"); }
-
-function renderCaja(){
-  master.metodos.forEach(m=>{ if(master.cajaReal[m]===undefined) master.cajaReal[m]=0; });
-  const calc = computeSaldosPorMetodoCalculado();
-
-  let html = `<table class="table"><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>`;
-  master.metodos.forEach(m=>{
-    const c = round0(calc[m]||0);
-    const r = round0(master.cajaReal[m]||0);
-    const d = r - c;
-    const clsC = c>=0 ? "goodTxt" : "badTxt";
-    const clsD = d===0 ? "goodTxt" : (d<0 ? "badTxt" : "warnTxt");
-    html += `<tr>
-      <td style="font-weight:1100">${escapeHtml(m)}</td>
-      <td class="${clsC}">${fmt.format(c)}</td>
-      <td><input type="number" id="caja_${escapeId(m)}" value="${r}" style="margin:0"></td>
-      <td class="${clsD}">${fmt.format(d)}</td>
-    </tr>`;
-  });
-  html += `</table>`;
-  document.getElementById("tablaCaja").innerHTML = html;
-}
-function cajaGuardar(){
-  master.metodos.forEach(m=>{
-    const el = document.getElementById("caja_"+escapeId(m));
-    if(el) master.cajaReal[m] = round0(el.value);
-  });
-  saveAll();
-  toast("Caja guardada ✅");
-  renderDashboard();
-}
-function cajaAplicarATodos(){
-  const v = round0(document.getElementById("cajaAll").value);
-  master.metodos.forEach(m=>{ master.cajaReal[m] = v; });
-  saveAll();
-  toast("Aplicado ✅");
-  renderCaja(); renderDashboard();
-}
-function cajaPonerCero(){
-  if(!confirm("¿Poner TODO en 0?")) return;
-  master.metodos.forEach(m=>{ master.cajaReal[m] = 0; });
-  saveAll();
-  toast("Todo en 0 ✅");
-  renderCaja(); renderDashboard();
-}
-function cajaPonerCalculado(){
-  const calc = computeSaldosPorMetodoCalculado();
-  master.metodos.forEach(m=>{ master.cajaReal[m] = round0(calc[m]||0); });
-  saveAll();
-  toast("Calculado → Real ✅");
-  renderCaja(); renderDashboard();
 }
 
 /* =========================
@@ -1850,6 +1424,7 @@ function addMetodo(){
   document.getElementById("mNuevoMetodo").value = "";
   toast("Método agregado ✅");
   refreshAllSelects();
+  renderDashboard();
 }
 function removeMetodo(m){
   if(!confirm(`¿Eliminar método "${m}"?`)) return;
@@ -1899,72 +1474,7 @@ function removeSubcategoria(cat, sub){
 }
 
 /* =========================
-   BACKUP
-========================= */
-function getBackupObject(){
-  return { meta:{app:"StellaMarisGestion",version:"DARK_V2",exportedAt:new Date().toISOString()}, master, movimientos, homeOrder:getHomeOrder(), hasPIN: !!getPIN() };
-}
-function stringifyBackup(){ return JSON.stringify(getBackupObject(), null, 2); }
-
-function exportarTodo(){
-  const json = stringifyBackup();
-  document.getElementById("backupBox").value = json;
-
-  const blob = new Blob([json], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `stella-maris-backup-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  toast("Exportado ✅");
-}
-async function copiarBackup(){
-  const json = stringifyBackup();
-  document.getElementById("backupBox").value = json;
-  try{
-    await navigator.clipboard.writeText(json);
-    toast("Copiado ✅");
-  }catch{
-    toast("Copiá manual ✅");
-  }
-}
-function importarDesdeCaja(){
-  const txt = document.getElementById("backupBox").value.trim();
-  if(!txt) return toast("Pegá el JSON primero");
-  if(!confirm("IMPORTAR reemplaza TODO. ¿Seguimos?")) return;
-  try{
-    const obj = JSON.parse(txt);
-    if(!obj || !obj.master || !obj.movimientos) return toast("JSON inválido");
-    master = sanitizeMaster(obj.master);
-    movimientos = sanitizeMovimientos(obj.movimientos);
-
-    if(Array.isArray(obj.homeOrder)) setHomeOrder(obj.homeOrder);
-
-    saveAll();
-    toast("Importado ✅");
-    refreshAllSelects();
-    renderAll();
-  }catch{
-    toast("JSON inválido");
-  }
-}
-function borrarTodo(){
-  if(!confirm("Esto borra TODO. ¿Seguro?")) return;
-  if(!confirm("Última confirmación: ¿borramos todo?")) return;
-  master = structuredClone(DEFAULT_MASTER);
-  movimientos = [];
-  saveAll();
-  document.getElementById("backupBox").value = "";
-  toast("Borrado ✅");
-  refreshAllSelects();
-  renderAll();
-}
-
-/* =========================
-   MODAL CORE
+   MODAL
 ========================= */
 let modalEditingId = null;
 
@@ -1974,7 +1484,6 @@ function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
 
-  // default footer
   document.getElementById("modalFoot").innerHTML = `
     <button class="btn" onclick="cerrarModal()">Cancelar</button>
     <button class="btn primary" onclick="modalGuardar()">${escapeHtml(confirmLabel)}</button>
@@ -1982,7 +1491,6 @@ function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
 
   document.getElementById("modalBack").style.display = "block";
 }
-
 function cerrarModal(){
   modalEditingId = null;
   pendingConfirmAction = null;
@@ -2002,7 +1510,7 @@ function abrirEditar(id){
         <label>Método</label>
         <select id="eMetodo"></select>
         <label>Monto</label>
-        <input type="number" id="eMonto" value="${round0(mv.monto)}">
+        <input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${escapeHtml(formatARS(mv.monto))}">
         <label>Nota</label>
         <input type="text" id="eNota" value="${escapeHtml(mv.nota||"")}">
         <label>Anulado</label>
@@ -2013,6 +1521,7 @@ function abrirEditar(id){
     fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
     document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
     document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
+    wireMoneyInput("eMonto");
   }else{
     const cats = Object.keys(master.categorias);
     const body = `
@@ -2030,7 +1539,7 @@ function abrirEditar(id){
           </div>
         </div>
         <label>Monto</label>
-        <input type="number" id="eMonto" value="${round0(mv.monto)}">
+        <input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${escapeHtml(formatARS(mv.monto))}">
         <div class="row2">
           <div>
             <label>Estado</label>
@@ -2064,6 +1573,7 @@ function abrirEditar(id){
     catSel.addEventListener("change", ()=> fillEditSubs(catSel.value, subSel, ""));
     document.getElementById("eEstado").addEventListener("change", toggleEditMetodo);
     toggleEditMetodo();
+    wireMoneyInput("eMonto");
   }
 }
 
@@ -2073,7 +1583,6 @@ function fillEditSubs(cat, subSel, selected){
   if(selected && subs.includes(selected)) subSel.value = selected;
   else subSel.value = subs[0] || "";
 }
-
 function toggleEditMetodo(){
   const estado = document.getElementById("eEstado")?.value;
   const met = document.getElementById("eMetodo");
@@ -2084,7 +1593,7 @@ function toggleEditMetodo(){
 }
 
 function modalGuardar(){
-  // 1) si venimos de confirmación (venta/gasto)
+  // 1) confirmación venta/gasto
   if(typeof pendingConfirmAction === "function"){
     const fn = pendingConfirmAction;
     pendingConfirmAction = null;
@@ -2098,7 +1607,7 @@ function modalGuardar(){
   if(!mv) return cerrarModal();
 
   const fecha = document.getElementById("eFecha")?.value || mv.fecha;
-  const monto = Number(document.getElementById("eMonto")?.value) || 0;
+  const monto = parseARS(document.getElementById("eMonto")?.value) || 0;
   const nota = (document.getElementById("eNota")?.value || "").trim();
   const anulado = (document.getElementById("eAnulado")?.value === "1");
 
@@ -2139,7 +1648,6 @@ function iniciar(){
   document.getElementById("vFecha").value = hoy();
   document.getElementById("gFecha").value = hoy();
 
-  // listeners
   document.getElementById("gCat").addEventListener("change", ()=>{
     cargarSubDeGasto();
     renderChipsRecientes();
@@ -2152,19 +1660,14 @@ function iniciar(){
 
   toggleMetodoGasto();
 
-  // render home
+  // money inputs
+  wireMoneyInput("vMonto");
+  wireMoneyInput("gMonto");
+
+  // render
   renderHome();
   renderDashboard();
-
-  // PIN gating
-  if(getPIN()){
-    showPINOverlay("unlock");
-  }else{
-    // si querés, podés obligarlo igual:
-    // showPINOverlay("setup");
-  }
 }
-
 iniciar();
 </script>
 </body>
