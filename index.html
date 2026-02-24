@@ -252,6 +252,46 @@ input,select,textarea{
   font-size:13px;border: 1px solid var(--stroke);
   display:none;z-index:200;max-width: 92vw;
 }
+
+/* =========================
+   FIX (A + B): Real editable ancho + scroll horizontal
+========================= */
+.tableWrap{
+  width:100%;
+  overflow-x:auto;             /* B */
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+}
+.tableWrap .table{
+  min-width: 720px;            /* fuerza ancho para permitir scroll y no cortar */
+}
+
+.table td:nth-child(3),
+.table th:nth-child(3){
+  width: 210px;                /* A */
+  min-width: 210px;
+  white-space: nowrap;
+}
+
+.realSaldoInput{
+  width: 210px;
+  min-width: 210px;
+  max-width: 210px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 1100;
+  letter-spacing:.2px;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  padding: 10px 10px;
+}
+
+@media (max-width:420px){
+  .tableWrap .table{min-width: 760px;}
+  .table td:nth-child(3),
+  .table th:nth-child(3){width: 220px; min-width:220px;}
+  .realSaldoInput{width:220px; min-width:220px; max-width:220px; font-size:14px;}
+}
 </style>
 </head>
 
@@ -266,7 +306,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- BOTONES (solo agregué Exportar/Importar) -->
     <div class="topActions">
       <button class="iconBtn" onclick="goHome()">Home</button>
       <button class="iconBtn primary" onclick="deshacerUltimo()">Deshacer</button>
@@ -317,7 +356,9 @@ input,select,textarea{
             </div>
             <button class="iconBtn small" onclick="setRealToCalc()">Real = Calculado</button>
           </div>
-          <div style="margin-top:10px" id="tablaMetodos"></div>
+
+          <!-- B: wrapper con scroll horizontal -->
+          <div class="tableWrap" style="margin-top:10px" id="tablaMetodos"></div>
         </div>
       </div>
     </div>
@@ -479,7 +520,7 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- MOVIMIENTOS (lista única) -->
+    <!-- MOVIMIENTOS -->
     <div id="movHist" class="screen">
       <div class="sectionHeader">
         <div>
@@ -570,9 +611,6 @@ input,select,textarea{
 
 <div id="toast" class="toast">OK</div>
 <script>
-/* =========================
-   STORAGE
-========================= */
 const STORAGE_ALL  = "SM_APP_ALL_V6";
 const STORAGE_REAL = "SM_APP_REAL_SALDOS_V3";
 
@@ -589,13 +627,9 @@ const DEFAULT_MASTER = {
 };
 
 let master = structuredClone(DEFAULT_MASTER);
-let movimientos = []; // {id,tipo,fecha,monto,nota,metodo,categoria,subcategoria,estado,desde,hacia,anulado}
-
+let movimientos = [];
 let pendingConfirmAction = null;
 
-/* =========================
-   HOME tiles
-========================= */
 const HOME_TILES = [
   { id:"dashboard",   title:"Dashboard",          sub:"Totales + saldos", icon:"📊", cls:"",       size:"l"},
   { id:"ventasCarga", title:"Cargar Ventas",      sub:"Venta directa",    icon:"➕", cls:"green",  size:"w"},
@@ -613,9 +647,6 @@ const crumbs = {
   movHist:"Movimientos", pendientes:"Pendientes"
 };
 
-/* =========================
-   HELPERS
-========================= */
 function hoy(){ return new Date().toISOString().split("T")[0]; }
 function thisMonth(){ return new Date().toISOString().slice(0,7); }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
@@ -660,9 +691,6 @@ function wireMoneyInput(el){
   apply();
 }
 
-/* =========================
-   SAVE / LOAD
-========================= */
 function saveAll(){
   localStorage.setItem(STORAGE_ALL, JSON.stringify({ master, movimientos }));
 }
@@ -681,9 +709,6 @@ function loadAll(){
   saveAll();
 }
 
-/* =========================
-   REAL SALDOS (B) fijo por método
-========================= */
 function getRealSaldos(){
   const raw = localStorage.getItem(STORAGE_REAL);
   let obj = {};
@@ -696,9 +721,6 @@ function setRealSaldos(obj){
   localStorage.setItem(STORAGE_REAL, JSON.stringify(obj));
 }
 
-/* =========================
-   NAV
-========================= */
 function go(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   const el = document.getElementById(id);
@@ -713,9 +735,6 @@ function go(id){
 }
 function goHome(){ go("home"); }
 
-/* =========================
-   HOME
-========================= */
 function renderHome(){
   const grid = document.getElementById("homeGrid");
   grid.innerHTML = "";
@@ -732,9 +751,6 @@ function renderHome(){
   });
 }
 
-/* =========================
-   SELECTS
-========================= */
 function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
   sel.innerHTML = "";
   if(includeAll) sel.innerHTML += `<option value="ALL">${allLabel}</option>`;
@@ -742,13 +758,9 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 }
 
 function refreshSelects(){
-  // ventas
   fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
-
-  // historial ventas
   fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
 
-  // gastos
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
@@ -756,17 +768,12 @@ function refreshSelects(){
   cargarSubDeGasto();
   toggleMetodoGasto();
 
-  // traspaso
   fillSelectOptions(document.getElementById("tDesde"), master.metodos, false);
   fillSelectOptions(document.getElementById("tHacia"), master.metodos, false);
 
-  // movimientos (lista)
   fillSelectOptions(document.getElementById("mhMetodo"), master.metodos, true, "Todos");
 }
 
-/* =========================
-   GASTOS cat->sub
-========================= */
 function cargarSubDeGasto(){
   const cat = document.getElementById("gCat").value;
   const subs = master.categorias[cat] || [];
@@ -780,9 +787,6 @@ function toggleMetodoGasto(){
   selMetodo.style.opacity = disabled ? "0.55" : "1";
 }
 
-/* =========================
-   MODAL
-========================= */
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
@@ -811,9 +815,6 @@ function modalGuardar(){
   cerrarModal();
 }
 
-/* =========================
-   GUARDAR VENTA
-========================= */
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
@@ -842,9 +843,6 @@ function confirmarYGuardarVenta(){
   ], "Guardar");
 }
 
-/* =========================
-   GUARDAR GASTO
-========================= */
 function confirmarYGuardarGasto(){
   const fecha = (document.getElementById("gFecha").value || hoy());
   const categoria = document.getElementById("gCat").value;
@@ -885,9 +883,6 @@ function confirmarYGuardarGasto(){
   ], "Guardar");
 }
 
-/* =========================
-   GUARDAR TRASPASO (entre cuentas)
-========================= */
 function confirmarYGuardarTraspaso(){
   const fecha = (document.getElementById("tFecha").value || hoy());
   const desde = document.getElementById("tDesde").value;
@@ -922,9 +917,6 @@ function confirmarYGuardarTraspaso(){
   ], "Guardar");
 }
 
-/* =========================
-   DESHACER
-========================= */
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -938,9 +930,6 @@ function deshacerUltimo(){
   renderMovHist();
 }
 
-/* =========================
-   PENDIENTES
-========================= */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -957,7 +946,7 @@ function computePendientesMap(){
     if(map[cat][sub]===undefined) map[cat][sub]=0;
 
     if(m.estado==="PENDIENTE") map[cat][sub] += m.monto;
-    if(m.estado==="PAGADO") map[cat][sub] -= m.monto; // resta al pagar (puede quedar negativo)
+    if(m.estado==="PAGADO") map[cat][sub] -= m.monto;
   });
 
   return map;
@@ -1000,9 +989,6 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* =========================
-   HISTORIAL VENTAS
-========================= */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
@@ -1036,9 +1022,6 @@ function renderVentasHist(){
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
-/* =========================
-   MOVIMIENTOS (lista única)
-========================= */
 function renderMovHist(){
   const mes = document.getElementById("mhMes").value;
   const tipo = document.getElementById("mhTipo").value || "ALL";
@@ -1096,9 +1079,6 @@ function renderMovHist(){
   html += `</table>`;
   document.getElementById("tablaMovHist").innerHTML = html;
 }
-/* =========================
-   DASHBOARD (incluye traspasos)
-========================= */
 function calcBalances(){
   const calc = {};
   master.metodos.forEach(m => calc[m]=0);
@@ -1133,7 +1113,6 @@ function setRealToCalc(){
 function renderDashboard(){
   const mes = document.getElementById("dashMes")?.value || "";
 
-  // Totales del mes (ventas y gastos pagados)
   let ventasMes=0, gastosPagMes=0;
   activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
@@ -1188,7 +1167,7 @@ function renderDashboard(){
             pattern="[0-9]*"
             placeholder="$ 0"
             value="${r!==0 ? formatARS(r) : ""}"
-            style="margin:0"
+            title="Escribí el saldo real (ej: 1500000)"
           >
         </td>
         <td class="${dCls}" style="font-weight:1100">${formatARS(dif)}</td>
@@ -1226,9 +1205,6 @@ function renderDashboard(){
   });
 }
 
-/* =========================
-   WhatsApp resumen
-========================= */
 async function copiarResumenWhatsApp(){
   const mes = document.getElementById("dashMes")?.value || thisMonth();
   let ventasMes=0, gastosPagMes=0;
@@ -1261,23 +1237,13 @@ async function copiarResumenWhatsApp(){
   }
 }
 
-/* =========================
-   Editar último (placeholder)
-========================= */
 function editarUltimo(){
   toast("Abrí Movimientos para revisar 👇");
   go("movHist");
 }
 
-/* =========================
-   EXPORTAR / IMPORTAR (REEMPLAZA TODO)
-========================= */
 function exportarDatos(){
-  const data = {
-    master,
-    movimientos,
-    realSaldos: getRealSaldos()
-  };
+  const data = { master, movimientos, realSaldos: getRealSaldos() };
   const texto = JSON.stringify(data, null, 2);
 
   navigator.clipboard.writeText(texto).then(()=>{
@@ -1345,9 +1311,6 @@ function confirmarImportacion(){
   renderMovHist();
 }
 
-/* =========================
-   INIT
-========================= */
 function iniciar(){
   loadAll();
 
