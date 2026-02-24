@@ -31,16 +31,9 @@ body{
   overflow:hidden;
   overscroll-behavior: none;
 }
-
-/* Scroll estable iOS */
-*{
-  -webkit-tap-highlight-color: transparent;
-}
 .sectionBody, .homeGrid{
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  scroll-behavior: auto;
-  scroll-padding-top: 12px;
   touch-action: pan-y;
 }
 input,select,textarea{
@@ -188,7 +181,7 @@ input,select,textarea{
 
 label{display:block;font-size:12px;color:var(--muted);margin:6px 0 6px}
 
-/* iOS FIX: 16px evita zoom */
+/* iOS: 16px evita zoom */
 input,select,textarea{
   width:100%;
   padding: 11px 12px;
@@ -199,8 +192,6 @@ input,select,textarea{
   outline:none;
   font-size:16px;
 }
-textarea{min-height:140px; resize:vertical}
-
 .money{font-weight:1100; letter-spacing:.2px;}
 
 .btn{
@@ -259,18 +250,6 @@ textarea{min-height:140px; resize:vertical}
 }
 .table td{padding:10px 10px;border-bottom: 1px solid rgba(255,255,255,.06);}
 .table tr:last-child td{border-bottom:none}
-
-.badge{
-  display:inline-block;
-  padding: 5px 10px;
-  border-radius:999px;
-  border: 1px solid var(--stroke);
-  background: rgba(255,255,255,.04);
-  font-size:12px;
-  font-weight:1100;
-}
-.badge.bad{border-color: rgba(255,91,107,.25); background: rgba(255,91,107,.10); color: var(--bad);}
-.badge.neu{border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: var(--muted);}
 .rowAnulada{opacity:.55}
 
 .toast{
@@ -343,18 +322,28 @@ textarea{min-height:140px; resize:vertical}
       <div class="homeGrid" id="homeGrid"></div>
     </div>
 
-    <!-- DASHBOARD (MINIMAL) -->
+    <!-- DASHBOARD -->
     <div id="dashboard" class="screen">
       <div class="sectionHeader">
         <div>
           <h2>Dashboard</h2>
-          <div class="hint">Solo totales + saldos por método.</div>
+          <div class="hint">REAL (plata hoy) vs TOTAL (incluye a cobrar).</div>
         </div>
+
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end">
           <div style="min-width:170px">
             <label>Mes</label>
             <input type="month" id="dashMes" onchange="renderDashboard()">
           </div>
+
+          <div>
+            <label>Modo</label>
+            <div style="display:flex;gap:8px">
+              <button class="iconBtn small" id="btnModoReal" onclick="setDashMode('REAL')">REAL</button>
+              <button class="iconBtn small" id="btnModoTotal" onclick="setDashMode('TOTAL')">TOTAL</button>
+            </div>
+          </div>
+
           <button class="iconBtn small" onclick="copiarResumenWhatsApp()">WhatsApp</button>
         </div>
       </div>
@@ -362,14 +351,15 @@ textarea{min-height:140px; resize:vertical}
       <div class="sectionBody">
         <div class="panel">
           <div class="statGrid">
-            <div class="stat"><div class="k">Ventas mes</div><div class="v goodTxt" id="dVentas">$ 0</div></div>
+            <div class="stat"><div class="k" id="kVentas">Ventas mes</div><div class="v goodTxt" id="dVentas">$ 0</div></div>
             <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dGastos">$ 0</div></div>
+            <div class="stat"><div class="k">A cobrar mes</div><div class="v warnTxt" id="dACobrar">$ 0</div></div>
           </div>
         </div>
 
         <div class="panel">
           <div style="font-weight:1100; font-size:13px">Saldos por método</div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Ventas - gastos pagados (calculado)</div>
+          <div class="muted" style="font-size:12px;margin-top:6px" id="metHint">Calculado según modo</div>
           <div style="margin-top:10px" id="tablaMetodos"></div>
         </div>
       </div>
@@ -408,7 +398,7 @@ textarea{min-height:140px; resize:vertical}
       <div class="sectionHeader">
         <div>
           <h2>Cargar Ventas</h2>
-          <div class="hint">Confirmás antes de guardar.</div>
+          <div class="hint">Marcás si es plata HOY o A COBRAR (tarjeta).</div>
         </div>
         <button class="btn" onclick="editarUltimo()">Editar lo último</button>
       </div>
@@ -419,7 +409,13 @@ textarea{min-height:140px; resize:vertical}
           <input type="date" id="vFecha">
 
           <label>Método</label>
-          <select id="vMetodo"></select>
+          <select id="vMetodo" onchange="autoDisponibilidadVenta()"></select>
+
+          <label>Disponibilidad</label>
+          <select id="vDisp">
+            <option value="HOY">Disponible hoy</option>
+            <option value="ACOBRAR">A cobrar (tarjeta / diferido)</option>
+          </select>
 
           <label>Monto</label>
           <input class="money" type="text" id="vMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
@@ -440,7 +436,7 @@ textarea{min-height:140px; resize:vertical}
       <div class="sectionHeader">
         <div>
           <h2>Historial de Ventas</h2>
-          <div class="hint">Filtros por mes, método y búsqueda.</div>
+          <div class="hint">Se ve HOY vs A COBRAR.</div>
         </div>
         <button class="btn" onclick="goHome()">Volver</button>
       </div>
@@ -464,7 +460,8 @@ textarea{min-height:140px; resize:vertical}
           <div class="hr"></div>
 
           <div class="statGrid">
-            <div class="stat"><div class="k">Total filtrado</div><div class="v goodTxt" id="vhTotal">$ 0</div></div>
+            <div class="stat"><div class="k">Total HOY filtrado</div><div class="v goodTxt" id="vhTotalHoy">$ 0</div></div>
+            <div class="stat"><div class="k">Total A COBRAR filtrado</div><div class="v warnTxt" id="vhTotalAC">$ 0</div></div>
           </div>
         </div>
 
@@ -524,12 +521,12 @@ textarea{min-height:140px; resize:vertical}
       </div>
     </div>
 
-    <!-- MOVIMIENTOS (solo gastos) -->
+    <!-- MOVIMIENTOS (GASTOS) -->
     <div id="movGastos" class="screen">
       <div class="sectionHeader">
         <div>
           <h2>Movimientos (Gastos)</h2>
-          <div class="hint">Filtros + editar.</div>
+          <div class="hint">Día a día + editar.</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
           <button class="btn" onclick="setMovEsteMes()">Este mes</button>
@@ -589,8 +586,69 @@ textarea{min-height:140px; resize:vertical}
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /app -->
+    <!-- HISTORIAL GASTOS -->
+    <div id="gastosHist" class="screen">
+      <div class="sectionHeader">
+        <div>
+          <h2>Historial de Gastos</h2>
+          <div class="hint">Filtros completos. (Separado de Movimientos).</div>
+        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
+      </div>
+
+      <div class="sectionBody">
+        <div class="panel">
+          <div class="row2">
+            <div>
+              <label>Mes</label>
+              <input type="month" id="ghMes" onchange="renderGastosHist()">
+            </div>
+            <div>
+              <label>Estado</label>
+              <select id="ghEstado" onchange="renderGastosHist()">
+                <option value="ALL">Todos</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="PAGADO">Pagado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row2">
+            <div>
+              <label>Categoría</label>
+              <select id="ghCat" onchange="onGhCatChange()"></select>
+            </div>
+            <div>
+              <label>Subcategoría</label>
+              <select id="ghSub" onchange="renderGastosHist()"></select>
+            </div>
+          </div>
+
+          <div class="row2">
+            <div>
+              <label>Método (pagados)</label>
+              <select id="ghMetodo" onchange="renderGastosHist()"></select>
+            </div>
+            <div>
+              <label>Buscar</label>
+              <input type="text" id="ghBuscar" placeholder="nota..." oninput="renderGastosHist()">
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="statGrid">
+            <div class="stat"><div class="k">Pagado filtrado</div><div class="v badTxt" id="ghTotPag">$ 0</div></div>
+            <div class="stat"><div class="k">Pendiente filtrado</div><div class="v badTxt" id="ghTotPen">$ 0</div></div>
+          </div>
+        </div>
+
+        <div class="panel" id="tablaGastosHist"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- MODAL -->
 <div id="modalBack" class="modalBack" onclick="modalClickOutside(event)">
@@ -610,40 +668,39 @@ textarea{min-height:140px; resize:vertical}
 <div id="toast" class="toast">OK</div>
 
 <script>
-/* =========================
-   STORAGE
-========================= */
-const STORAGE_ALL  = "SM_APP_ALL_MIN_DASH_V1";
+const STORAGE_ALL  = "SM_APP_ALL_WITH_GHIST_V1";
 const STORAGE_HOME = "SM_APP_HOME_ORDER_V1";
+const STORAGE_DASHMODE = "SM_APP_DASH_MODE_V1";
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
-/* =========================
-   DATA
-========================= */
 const DEFAULT_MASTER = {
-  metodos: ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Cheque"],
+  metodos: ["Efectivo","Mercado Pago","Credicoop","Provincia","Brubank","Tarjeta","Cheque"],
   categorias: {
     "Proveedores":["Juan","Pedro"],
     "Impuestos":["ARBA","AFIP"],
     "Empleados":["Sueldos"],
     "Otros":["Varios"]
   },
-  cajaReal: {},
   recientes: {}
 };
 let master = structuredClone(DEFAULT_MASTER);
 let movimientos = [];
 let homeEditMode = false;
 
-/* =========================
-   HELPERS
-========================= */
+function getDashMode(){ return localStorage.getItem(STORAGE_DASHMODE) || "REAL"; }
+function setDashMode(mode){
+  localStorage.setItem(STORAGE_DASHMODE, mode);
+  renderDashboard();
+  toast(mode==="REAL" ? "Modo REAL ✅" : "Modo TOTAL ✅");
+}
+
 function hoy(){ return new Date().toISOString().split("T")[0]; }
 function thisMonth(){ return new Date().toISOString().slice(0,7); }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
 function norm(s){ return String(s||"").trim(); }
 function round0(n){ return Math.round(Number(n)||0); }
 function activos(){ return movimientos.filter(m=>!m.anulado); }
+function escapeQuotes(s){ return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'"); }
 
 function toast(msg="OK"){
   const t = document.getElementById("toast");
@@ -652,13 +709,7 @@ function toast(msg="OK"){
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(()=>{ t.style.display="none"; }, 1100);
 }
-function escapeQuotes(s){
-  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-}
 
-/* =========================
-   MONEY INPUT
-========================= */
 function formatARS(n){
   const val = round0(n);
   const sign = val < 0 ? "-" : "";
@@ -690,12 +741,7 @@ function wireMoneyInput(id){
   apply();
 }
 
-/* =========================
-   SAVE/LOAD
-========================= */
-function saveAll(){
-  localStorage.setItem(STORAGE_ALL, JSON.stringify({ master, movimientos }));
-}
+function saveAll(){ localStorage.setItem(STORAGE_ALL, JSON.stringify({ master, movimientos })); }
 function loadAll(){
   const data = localStorage.getItem(STORAGE_ALL);
   if(data){
@@ -724,10 +770,6 @@ function sanitizeMaster(m){
         out.categorias[c] = subs;
       });
     }
-    if(m.cajaReal && typeof m.cajaReal==="object"){
-      out.cajaReal = {};
-      Object.keys(m.cajaReal).forEach(k=>{ out.cajaReal[norm(k)] = round0(m.cajaReal[k]); });
-    }
     if(m.recientes && typeof m.recientes==="object"){
       out.recientes = {};
       Object.keys(m.recientes).forEach(k=>{
@@ -737,7 +779,6 @@ function sanitizeMaster(m){
       });
     }
   }
-  out.metodos.forEach(mm=>{ if(out.cajaReal[mm]===undefined) out.cajaReal[mm]=0; });
   if(!out.recientes) out.recientes = {};
   return out;
 }
@@ -752,26 +793,25 @@ function sanitizeMovimientos(arr){
     subcategoria: m.subcategoria,
     estado: m.estado,
     monto: Number(m.monto)||0,
-    nota: m.nota || ""
+    nota: m.nota || "",
+    disp: m.disp || (m.tipo==="VENTA" ? "HOY" : undefined)
   }));
 }
 
-/* =========================
-   HOME TILES
-========================= */
+/* HOME TILES (+ Historial Gastos) */
 const HOME_TILES = [
-  { id:"dashboard",   title:"Dashboard",        sub:"Totales + saldos", icon:"📊", cls:"" },
-  { id:"pendientes",  title:"Pendientes",       sub:"Saldo final por item", icon:"🧾", cls:"purple" },
-  { id:"ventasCarga", title:"Cargar Ventas",    sub:"Efectivo, MP, bancos", icon:"➕", cls:"green" },
-  { id:"gastosCarga", title:"Cargar Gastos",    sub:"Pagado o Pendiente", icon:"➖", cls:"red" },
-  { id:"movGastos",   title:"Movimientos",      sub:"Filtros + editar", icon:"📋", cls:"" },
-  { id:"ventasHist",  title:"Historial Ventas", sub:"Filtros por mes/método", icon:"🧠", cls:"green" }
+  { id:"dashboard",   title:"Dashboard",         sub:"REAL vs TOTAL", icon:"📊", cls:"" },
+  { id:"pendientes",  title:"Pendientes",        sub:"Saldo final por item", icon:"🧾", cls:"purple" },
+  { id:"ventasCarga", title:"Cargar Ventas",     sub:"HOY o A cobrar", icon:"➕", cls:"green" },
+  { id:"ventasHist",  title:"Historial Ventas",  sub:"HOY vs A cobrar", icon:"🧠", cls:"green" },
+  { id:"gastosCarga", title:"Cargar Gastos",     sub:"Pagado o Pendiente", icon:"➖", cls:"red" },
+  { id:"movGastos",   title:"Movimientos",       sub:"Día a día + editar", icon:"📋", cls:"" },
+  { id:"gastosHist",  title:"Historial Gastos",  sub:"Filtros completos", icon:"📚", cls:"red" }
 ];
-
 const crumbs = {
   home:"Home", dashboard:"Dashboard", pendientes:"Pendientes",
   ventasCarga:"Cargar Ventas", ventasHist:"Historial Ventas",
-  gastosCarga:"Cargar Gastos", movGastos:"Movimientos"
+  gastosCarga:"Cargar Gastos", movGastos:"Movimientos", gastosHist:"Historial Gastos"
 };
 
 function go(id){
@@ -785,13 +825,12 @@ function go(id){
   if(id==="pendientes") renderPendientes(true);
   if(id==="movGastos") renderMovGastos();
   if(id==="ventasHist") renderVentasHist();
+  if(id==="gastosHist") renderGastosHist();
   if(id==="gastosCarga") renderChipsRecientes();
 }
 function goHome(){ go("home"); }
 
-/* =========================
-   HOME ORDER
-========================= */
+/* HOME ORDER */
 function getHomeOrder(){
   const raw = localStorage.getItem(STORAGE_HOME);
   if(!raw) return HOME_TILES.map(t=>t.id);
@@ -813,11 +852,9 @@ function renderHome(){
   const order = getHomeOrder();
   const map = new Map(HOME_TILES.map(t=>[t.id,t]));
   grid.innerHTML = "";
-
   order.forEach((id)=>{
     const t = map.get(id);
     if(!t) return;
-
     const tile = document.createElement("div");
     tile.className = `card tile ${t.cls || ""} ${homeEditMode ? "reorder" : ""}`;
     tile.innerHTML = `
@@ -827,8 +864,7 @@ function renderHome(){
       <div class="tileTools">
         <button class="miniBtn" onclick="moveTileUp('${escapeQuotes(t.id)}'); event.stopPropagation();">↑</button>
         <button class="miniBtn" onclick="moveTileDown('${escapeQuotes(t.id)}'); event.stopPropagation();">↓</button>
-      </div>
-    `;
+      </div>`;
     tile.addEventListener("click", ()=>{ if(!homeEditMode) go(t.id); });
     grid.appendChild(tile);
   });
@@ -849,9 +885,7 @@ function moveTileDown(id){
   setHomeOrder(order); renderHome();
 }
 
-/* =========================
-   SELECTS / CHIPS
-========================= */
+/* SELECTS / CHIPS */
 function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
   sel.innerHTML = "";
   if(includeAll) sel.innerHTML += `<option value="ALL">${allLabel}</option>`;
@@ -862,14 +896,18 @@ function refreshAllSelects(){
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
   fillSelectOptions(document.getElementById("mgMetodo"), master.metodos, true, "Todos");
+  fillSelectOptions(document.getElementById("ghMetodo"), master.metodos, true, "Todos");
 
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
   fillSelectOptions(document.getElementById("mgCat"), cats, true, "Todas");
   fillSelectOptions(document.getElementById("pCat"), cats, true, "Todas");
 
+  fillSelectOptions(document.getElementById("ghCat"), cats, true, "Todas");
+
   cargarSubDeGasto();
   onMgCatChange(true);
+  onGhCatChange(true);
   renderChipsRecientes();
 }
 function cargarSubDeGasto(){
@@ -906,21 +944,30 @@ function pickSub(sub){
   if(opt){ sel.value=sub; toast("Seleccionado: " + sub); }
 }
 
-/* =========================
-   CONFIRM
-========================= */
-let pendingConfirmAction = null;
-
-function abrirConfirm(title, lines, confirmLabel="Confirmar"){
-  const body = `
-    <div class="panel" style="margin:0">
-      <div style="font-weight:1100;font-size:13px">${title}</div>
-      <div class="hr"></div>
-      ${lines.map(l=>`<div style="margin:6px 0"><span class="muted">${l.k}:</span> <span style="font-weight:1100">${l.v}</span></div>`).join("")}
-    </div>
-  `;
-  abrirModal("Confirmar", body, confirmLabel);
+/* Ventas disponibilidad auto */
+function autoDisponibilidadVenta(){
+  const met = (document.getElementById("vMetodo").value || "").toLowerCase();
+  const disp = document.getElementById("vDisp");
+  if(met.includes("tarjeta") || met.includes("credito") || met.includes("crédito") || met.includes("cheque")){
+    disp.value = "ACOBRAR";
+  }else if(disp.value!=="ACOBRAR"){
+    disp.value = "HOY";
+  }
 }
+
+/* Confirm */
+let pendingConfirmAction = null;
+function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = bodyHtml;
+  document.getElementById("modalFoot").innerHTML = `
+    <button class="btn" onclick="cerrarModal()">Cancelar</button>
+    <button class="btn primary" onclick="modalGuardar()">${confirmLabel}</button>`;
+  document.getElementById("modalBack").style.display="block";
+}
+function modalClickOutside(ev){ if(ev.target.id==="modalBack") cerrarModal(); }
+function cerrarModal(){ modalEditingId=null; pendingConfirmAction=null; document.getElementById("modalBack").style.display="none"; }
+
 function confirmarMontoRaro(monto){
   if(monto >= 2000000) return confirm(`Cargaste ${formatARS(monto)}. ¿Seguro?`);
   return true;
@@ -931,25 +978,36 @@ function lockBtn(id, ms=800){
   b.disabled = true;
   setTimeout(()=>{ b.disabled=false; }, ms);
 }
+function abrirConfirm(title, lines, confirmLabel="Confirmar"){
+  const body = `
+    <div class="panel" style="margin:0">
+      <div style="font-weight:1100;font-size:13px">${title}</div>
+      <div class="hr"></div>
+      ${lines.map(l=>`<div style="margin:6px 0"><span class="muted">${l.k}:</span> <span style="font-weight:1100">${l.v}</span></div>`).join("")}
+    </div>
+  `;
+  abrirModal("Confirmar", body, confirmLabel);
+}
 
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
+  const disp = document.getElementById("vDisp").value; // HOY/ACOBRAR
   const monto = parseARS(document.getElementById("vMonto").value);
   const nota = (document.getElementById("vNota").value || "").trim();
   if(!monto || monto<=0) return toast("Monto inválido");
   if(!metodo) return toast("Falta método");
   if(!confirmarMontoRaro(monto)) return;
 
-  pendingConfirmAction = () => guardarVentaDirecto({fecha, metodo, monto, nota});
+  pendingConfirmAction = () => guardarVentaDirecto({fecha, metodo, monto, nota, disp});
   abrirConfirm("Venta", [
     {k:"Fecha", v:fecha},
     {k:"Método", v:metodo},
+    {k:"Disp.", v: disp==="HOY" ? "Disponible hoy" : "A cobrar"},
     {k:"Monto", v: formatARS(monto)},
     {k:"Nota", v: nota || "-"}
   ], "Guardar");
 }
-
 function confirmarYGuardarGasto(){
   const fecha = (document.getElementById("gFecha").value || hoy());
   const categoria = document.getElementById("gCat").value;
@@ -975,12 +1033,10 @@ function confirmarYGuardarGasto(){
   ], "Guardar");
 }
 
-/* =========================
-   SAVE ACTIONS
-========================= */
-function guardarVentaDirecto({fecha, metodo, monto, nota}){
+/* Save actions */
+function guardarVentaDirecto({fecha, metodo, monto, nota, disp}){
   lockBtn("btnGuardarVenta", 650);
-  movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
+  movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota, disp });
   saveAll();
   document.getElementById("vMonto").value = "";
   document.getElementById("vNota").value = "";
@@ -1001,9 +1057,9 @@ function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, met
   renderChipsRecientes();
   renderDashboard();
   renderMovGastos();
+  renderGastosHist();
   renderPendientes(false);
 }
-
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -1013,24 +1069,119 @@ function deshacerUltimo(){
   toast("Deshecho ✅");
   renderAll();
 }
+
+/* Edit modal */
+let modalEditingId=null;
 function editarUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para editar");
   abrirEditar(last.id);
 }
+function abrirEditar(id){
+  const mv = movimientos.find(x=>x.id===id); if(!mv) return;
+  modalEditingId=id;
 
-/* =========================
-   CALCULOS
-========================= */
-function computeSaldosPorMetodoCalculado(){
-  const saldos = {};
-  master.metodos.forEach(m => saldos[m]=0);
-  activos().forEach(m=>{
-    if(m.tipo==="VENTA") saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
-    if(m.tipo==="GASTO" && m.estado==="PAGADO") saldos[m.metodo] = (saldos[m.metodo]||0) - m.monto;
-  });
-  return saldos;
+  if(mv.tipo==="VENTA"){
+    const body = `
+      <div class="panel" style="margin:0">
+        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
+        <label>Método</label><select id="eMetodo"></select>
+        <label>Disponibilidad</label>
+        <select id="eDisp">
+          <option value="HOY">Disponible hoy</option>
+          <option value="ACOBRAR">A cobrar</option>
+        </select>
+        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
+        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
+        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
+      </div>`;
+    abrirModal("Editar Venta", body, "Guardar cambios");
+    fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
+    document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
+    document.getElementById("eDisp").value = mv.disp || "HOY";
+    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
+    wireMoneyInput("eMonto");
+  }else{
+    const cats = Object.keys(master.categorias);
+    const body = `
+      <div class="panel" style="margin:0">
+        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
+        <div class="row2">
+          <div><label>Categoría</label><select id="eCat"></select></div>
+          <div><label>Subcategoría</label><select id="eSub"></select></div>
+        </div>
+        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
+        <div class="row2">
+          <div><label>Estado</label>
+            <select id="eEstado"><option value="PENDIENTE">Pendiente</option><option value="PAGADO">Pagado</option></select>
+          </div>
+          <div><label>Método (si Pagado)</label><select id="eMetodo"></select></div>
+        </div>
+        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
+        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
+      </div>`;
+    abrirModal("Editar Gasto", body, "Guardar cambios");
+
+    const catSel=document.getElementById("eCat");
+    fillSelectOptions(catSel, cats, false);
+    catSel.value = mv.categoria || cats[0] || "";
+    const subSel=document.getElementById("eSub");
+    fillEditSubs(catSel.value, subSel, mv.subcategoria);
+    document.getElementById("eEstado").value = mv.estado || "PENDIENTE";
+    fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
+    document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
+    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
+
+    catSel.addEventListener("change", ()=>fillEditSubs(catSel.value, subSel, ""));
+    document.getElementById("eEstado").addEventListener("change", toggleEditMetodo);
+    toggleEditMetodo();
+    wireMoneyInput("eMonto");
+  }
 }
+function fillEditSubs(cat, subSel, selected){
+  const subs = master.categorias[cat] || [];
+  fillSelectOptions(subSel, subs, false);
+  subSel.value = (selected && subs.includes(selected)) ? selected : (subs[0]||"");
+}
+function toggleEditMetodo(){
+  const estado = document.getElementById("eEstado")?.value;
+  const met = document.getElementById("eMetodo");
+  if(!met) return;
+  const dis = (estado!=="PAGADO");
+  met.disabled = dis; met.style.opacity = dis ? "0.55":"1";
+}
+function modalGuardar(){
+  if(typeof pendingConfirmAction === "function"){ const fn=pendingConfirmAction; pendingConfirmAction=null; fn(); return; }
+  if(!modalEditingId) return cerrarModal();
+  const mv = movimientos.find(x=>x.id===modalEditingId); if(!mv) return cerrarModal();
+
+  const fecha = document.getElementById("eFecha")?.value || mv.fecha;
+  const monto = parseARS(document.getElementById("eMonto")?.value) || 0;
+  const nota = (document.getElementById("eNota")?.value || "").trim();
+  const anulado = (document.getElementById("eAnulado")?.value === "1");
+  if(!fecha) return toast("Falta fecha");
+  if(!monto || monto<=0) return toast("Monto inválido");
+
+  if(mv.tipo==="VENTA"){
+    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
+    const disp = document.getElementById("eDisp")?.value || mv.disp || "HOY";
+    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.metodo=metodo; mv.disp=disp; mv.anulado=anulado;
+  }else{
+    const categoria = document.getElementById("eCat")?.value || mv.categoria;
+    const subcategoria = document.getElementById("eSub")?.value || mv.subcategoria;
+    const estado = document.getElementById("eEstado")?.value || mv.estado;
+    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
+    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.categoria=categoria; mv.subcategoria=subcategoria; mv.estado=estado; mv.metodo=metodo; mv.anulado=anulado;
+    pushReciente(categoria, subcategoria);
+  }
+  saveAll();
+  toast("Editado ✅");
+  cerrarModal();
+  renderAll();
+  renderPendientes(false);
+}
+
+/* CALCULOS */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -1050,9 +1201,8 @@ function computePendientesMap(){
   return map;
 }
 
-/* =========================
-   RENDER
-========================= */
+/* RENDER */
+function setText(id, v){ const el = document.getElementById(id); if(el) el.textContent = v; }
 function renderAll(){
   const active = document.querySelector(".screen.active")?.id || "home";
   if(active==="home") renderHome();
@@ -1060,28 +1210,56 @@ function renderAll(){
   if(active==="pendientes") renderPendientes(false);
   if(active==="movGastos") renderMovGastos();
   if(active==="ventasHist") renderVentasHist();
+  if(active==="gastosHist") renderGastosHist();
 }
-function setText(id, v){ const el = document.getElementById(id); if(el) el.textContent = v; }
 
-/* DASHBOARD MINIMAL */
+/* DASHBOARD */
 function renderDashboard(){
+  const mode = getDashMode();
   const mes = document.getElementById("dashMes")?.value || "";
-  let ventasMes=0, gastosPagMes=0;
+  const btnReal = document.getElementById("btnModoReal");
+  const btnTotal = document.getElementById("btnModoTotal");
+  btnReal.className = "iconBtn small" + (mode==="REAL" ? " primary" : "");
+  btnTotal.className = "iconBtn small" + (mode==="TOTAL" ? " primary" : "");
+  setText("kVentas", mode==="REAL" ? "Ventas mes (REAL)" : "Ventas mes (TOTAL)");
+
+  let ventasHoyMes=0, ventasTotalMes=0, aCobrarMes=0, gastosPagMes=0;
 
   activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
     if(!esMes) return;
-    if(m.tipo==="VENTA") ventasMes += m.monto;
+
+    if(m.tipo==="VENTA"){
+      ventasTotalMes += m.monto;
+      if((m.disp||"HOY")==="HOY") ventasHoyMes += m.monto;
+      else aCobrarMes += m.monto;
+    }
     if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto;
   });
 
-  setText("dVentas", formatARS(ventasMes));
+  const ventasMostrar = (mode==="REAL") ? ventasHoyMes : ventasTotalMes;
+  setText("dVentas", formatARS(ventasMostrar));
   setText("dGastos", formatARS(gastosPagMes));
+  setText("dACobrar", formatARS(aCobrarMes));
+  document.getElementById("metHint").textContent = (mode==="REAL")
+    ? "REAL: ventas HOY - gastos pagados"
+    : "TOTAL: ventas totales - gastos pagados";
 
-  const calc = computeSaldosPorMetodoCalculado();
-  let html = `<table class="table"><tr><th>Método</th><th>Saldo calculado</th></tr>`;
+  const saldos = {};
+  master.metodos.forEach(m => saldos[m]=0);
+  activos().forEach(m=>{
+    if(m.tipo==="VENTA"){
+      if(mode==="REAL" && (m.disp||"HOY")!=="HOY") return;
+      saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
+    }
+    if(m.tipo==="GASTO" && m.estado==="PAGADO"){
+      saldos[m.metodo] = (saldos[m.metodo]||0) - m.monto;
+    }
+  });
+
+  let html = `<table class="table"><tr><th>Método</th><th>Saldo</th></tr>`;
   master.metodos.forEach(m=>{
-    const c = round0(calc[m]||0);
+    const c = round0(saldos[m]||0);
     const cls = c===0 ? "muted" : (c>0 ? "goodTxt" : "badTxt");
     html += `<tr>
       <td style="font-weight:1100">${m}</td>
@@ -1130,7 +1308,7 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* MOV */
+/* MOV (gastos) */
 function setMovEsteMes(){ document.getElementById("mgMes").value = thisMonth(); renderMovGastos(); toast("Este mes ✅"); }
 function limpiarFiltrosMov(){
   document.getElementById("mgMes").value="";
@@ -1192,16 +1370,12 @@ function renderMovGastos(){
   rows.forEach(m=>{
     const det = `<span style="font-weight:1100">${m.categoria}</span> · ${m.subcategoria||""}${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
     const met = (m.estado==="PAGADO") ? (m.metodo||"-") : "-";
-    const montoCls = (m.estado==="PAGADO") ? "badTxt" : "muted";
-    let estadoBadge = `<span class="badge neu">PENDIENTE</span>`;
-    if(m.estado==="PAGADO") estadoBadge = `<span class="badge.bad">PAGADO</span>`;
-    if(m.anulado) estadoBadge = `<span class="badge neu">ANULADO</span>`;
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
       <td>${det}</td>
-      <td><span class="badge ${m.estado==="PAGADO"?'bad':'neu'}">${m.anulado?'ANULADO':m.estado}</span></td>
+      <td>${m.anulado?"ANULADO":m.estado}</td>
       <td>${met}</td>
-      <td class="${montoCls}">${formatARS(m.monto)}</td>
+      <td class="${m.estado==="PAGADO"?"badTxt":"muted"}">${formatARS(m.monto)}</td>
       <td style="white-space:nowrap"><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
     </tr>`;
   });
@@ -1209,58 +1383,132 @@ function renderMovGastos(){
   document.getElementById("tablaMovGastos").innerHTML = html;
 }
 
-/* VENTAS HIST */
+/* HISTORIAL GASTOS (nuevo) */
+function onGhCatChange(isInit=false){
+  const cat = document.getElementById("ghCat").value || "ALL";
+  const subSel = document.getElementById("ghSub");
+  if(cat==="ALL"){
+    subSel.innerHTML = `<option value="ALL">Todas</option>`;
+  }else{
+    const subs = master.categorias[cat] || [];
+    subSel.innerHTML = `<option value="ALL">Todas</option>` + subs.map(s=>`<option value="${s}">${s}</option>`).join("");
+  }
+  if(!isInit) renderGastosHist();
+}
+function renderGastosHist(){
+  const mes = document.getElementById("ghMes").value;
+  const estado = document.getElementById("ghEstado").value || "ALL";
+  const cat = document.getElementById("ghCat").value || "ALL";
+  const sub = document.getElementById("ghSub").value || "ALL";
+  const metodo = document.getElementById("ghMetodo").value || "ALL";
+  const buscar = (document.getElementById("ghBuscar").value || "").trim().toLowerCase();
+
+  let rows=[], totPag=0, totPen=0;
+
+  movimientos.forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
+    if(estado!=="ALL" && m.estado!==estado) return;
+    if(cat!=="ALL" && m.categoria!==cat) return;
+    if(sub!=="ALL" && m.subcategoria!==sub) return;
+    if(metodo!=="ALL"){
+      if(m.estado!=="PAGADO") return;
+      if(m.metodo!==metodo) return;
+    }
+    const hay = `${m.categoria||""} ${m.subcategoria||""} ${m.nota||""}`.toLowerCase();
+    if(buscar && !hay.includes(buscar)) return;
+
+    if(!m.anulado){
+      if(m.estado==="PAGADO") totPag += m.monto;
+      if(m.estado==="PENDIENTE") totPen += m.monto;
+    }
+    rows.push(m);
+  });
+
+  rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
+  setText("ghTotPag", formatARS(totPag));
+  setText("ghTotPen", formatARS(totPen));
+
+  let html = `<table class="table"><tr><th>Fecha</th><th>Categoría</th><th>Sub</th><th>Estado</th><th>Método</th><th>Monto</th><th>Editar</th></tr>`;
+  rows.forEach(m=>{
+    html += `<tr class="${m.anulado?'rowAnulada':''}">
+      <td>${m.fecha}</td>
+      <td style="font-weight:1100">${m.categoria}</td>
+      <td>${m.subcategoria||""}</td>
+      <td>${m.anulado?"ANULADO":m.estado}</td>
+      <td>${m.estado==="PAGADO" ? (m.metodo||"-") : "-"}</td>
+      <td class="${m.estado==="PAGADO"?"badTxt":"muted"}">${formatARS(m.monto)}</td>
+      <td><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById("tablaGastosHist").innerHTML = html;
+}
+
+/* HISTORIAL VENTAS */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
   const buscar = (document.getElementById("vhBuscar").value || "").trim().toLowerCase();
 
-  let rows=[], total=0;
+  let rows=[], totHoy=0, totAC=0;
   movimientos.forEach(m=>{
     if(m.tipo!=="VENTA") return;
     if(mes && !(m.fecha||"").startsWith(mes)) return;
     if(metodo!=="ALL" && m.metodo!==metodo) return;
     const hay = `${m.metodo||""} ${m.nota||""}`.toLowerCase();
     if(buscar && !hay.includes(buscar)) return;
-    if(!m.anulado) total += m.monto;
+    if(!m.anulado){
+      if((m.disp||"HOY")==="HOY") totHoy += m.monto;
+      else totAC += m.monto;
+    }
     rows.push(m);
   });
 
   rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
-  setText("vhTotal", formatARS(total));
+  setText("vhTotalHoy", formatARS(totHoy));
+  setText("vhTotalAC", formatARS(totAC));
 
-  let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th><th>Acción</th></tr>`;
+  let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Disp.</th><th>Nota</th><th>Monto</th><th>Editar</th></tr>`;
   rows.forEach(m=>{
+    const disp = (m.disp||"HOY")==="HOY" ? "HOY" : "A COBRAR";
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
       <td style="font-weight:1100">${m.metodo||""}</td>
+      <td>${disp}</td>
       <td class="muted">${m.nota||""}</td>
-      <td class="goodTxt">${formatARS(m.monto)}</td>
-      <td style="white-space:nowrap"><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
+      <td class="${disp==="HOY"?"goodTxt":"warnTxt"}">${formatARS(m.monto)}</td>
+      <td><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
     </tr>`;
   });
   html += `</table>`;
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
-/* =========================
-   WHATSAPP (simple)
-========================= */
+/* WhatsApp resumen */
 async function copiarResumenWhatsApp(){
   const mes = document.getElementById("dashMes")?.value || thisMonth();
-  let ventasMes=0, gastosPagMes=0;
+  const mode = getDashMode();
+  let ventasHoyMes=0, ventasTotalMes=0, aCobrarMes=0, gastosPagMes=0;
 
   activos().forEach(m=>{
     const esMes = (m.fecha||"").startsWith(mes);
     if(!esMes) return;
-    if(m.tipo==="VENTA") ventasMes += m.monto;
+    if(m.tipo==="VENTA"){
+      ventasTotalMes += m.monto;
+      if((m.disp||"HOY")==="HOY") ventasHoyMes += m.monto;
+      else aCobrarMes += m.monto;
+    }
     if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto;
   });
 
+  const ventasMostrar = (mode==="REAL") ? ventasHoyMes : ventasTotalMes;
+
   const txt =
-`📌 *Stella Maris · ${mes}*
-💰 Ventas: ${formatARS(ventasMes)}
-💸 Gastos pagados: ${formatARS(gastosPagMes)}`;
+`📌 *Stella Maris · ${mes}* (${mode})
+💰 Ventas: ${formatARS(ventasMostrar)}
+💸 Gastos pagados: ${formatARS(gastosPagMes)}
+🧾 A cobrar: ${formatARS(aCobrarMes)}`;
 
   try{ await navigator.clipboard.writeText(txt); toast("Copiado ✅"); }
   catch{
@@ -1269,120 +1517,7 @@ async function copiarResumenWhatsApp(){
   }
 }
 
-/* =========================
-   MODAL (editar)
-========================= */
-let modalEditingId=null;
-
-function modalClickOutside(ev){ if(ev.target.id==="modalBack") cerrarModal(); }
-function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
-  document.getElementById("modalTitle").textContent = title;
-  document.getElementById("modalBody").innerHTML = bodyHtml;
-  document.getElementById("modalFoot").innerHTML = `
-    <button class="btn" onclick="cerrarModal()">Cancelar</button>
-    <button class="btn primary" onclick="modalGuardar()">${confirmLabel}</button>`;
-  document.getElementById("modalBack").style.display="block";
-}
-function cerrarModal(){ modalEditingId=null; pendingConfirmAction=null; document.getElementById("modalBack").style.display="none"; }
-
-function abrirEditar(id){
-  const mv = movimientos.find(x=>x.id===id); if(!mv) return;
-  modalEditingId=id;
-
-  if(mv.tipo==="VENTA"){
-    const body = `
-      <div class="panel" style="margin:0">
-        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
-        <label>Método</label><select id="eMetodo"></select>
-        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
-        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
-        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
-      </div>`;
-    abrirModal("Editar Venta", body, "Guardar cambios");
-    fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
-    document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
-    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
-    wireMoneyInput("eMonto");
-  }else{
-    const cats = Object.keys(master.categorias);
-    const body = `
-      <div class="panel" style="margin:0">
-        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
-        <div class="row2">
-          <div><label>Categoría</label><select id="eCat"></select></div>
-          <div><label>Subcategoría</label><select id="eSub"></select></div>
-        </div>
-        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
-        <div class="row2">
-          <div><label>Estado</label><select id="eEstado"><option value="PENDIENTE">Pendiente</option><option value="PAGADO">Pagado</option></select></div>
-          <div><label>Método (si Pagado)</label><select id="eMetodo"></select></div>
-        </div>
-        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
-        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
-      </div>`;
-    abrirModal("Editar Gasto", body, "Guardar cambios");
-
-    const catSel=document.getElementById("eCat");
-    fillSelectOptions(catSel, cats, false);
-    catSel.value = mv.categoria || cats[0] || "";
-    const subSel=document.getElementById("eSub");
-    fillEditSubs(catSel.value, subSel, mv.subcategoria);
-    document.getElementById("eEstado").value = mv.estado || "PENDIENTE";
-    fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
-    document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
-    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
-
-    catSel.addEventListener("change", ()=>fillEditSubs(catSel.value, subSel, ""));
-    document.getElementById("eEstado").addEventListener("change", toggleEditMetodo);
-    toggleEditMetodo();
-    wireMoneyInput("eMonto");
-  }
-}
-function fillEditSubs(cat, subSel, selected){
-  const subs = master.categorias[cat] || [];
-  fillSelectOptions(subSel, subs, false);
-  subSel.value = (selected && subs.includes(selected)) ? selected : (subs[0]||"");
-}
-function toggleEditMetodo(){
-  const estado = document.getElementById("eEstado")?.value;
-  const met = document.getElementById("eMetodo");
-  if(!met) return;
-  const dis = (estado!=="PAGADO");
-  met.disabled = dis; met.style.opacity = dis ? "0.55":"1";
-}
-function modalGuardar(){
-  if(typeof pendingConfirmAction === "function"){ const fn=pendingConfirmAction; pendingConfirmAction=null; fn(); return; }
-  if(!modalEditingId) return cerrarModal();
-  const mv = movimientos.find(x=>x.id===modalEditingId); if(!mv) return cerrarModal();
-
-  const fecha = document.getElementById("eFecha")?.value || mv.fecha;
-  const monto = parseARS(document.getElementById("eMonto")?.value) || 0;
-  const nota = (document.getElementById("eNota")?.value || "").trim();
-  const anulado = (document.getElementById("eAnulado")?.value === "1");
-  if(!fecha) return toast("Falta fecha");
-  if(!monto || monto<=0) return toast("Monto inválido");
-
-  if(mv.tipo==="VENTA"){
-    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
-    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.metodo=metodo; mv.anulado=anulado;
-  }else{
-    const categoria = document.getElementById("eCat")?.value || mv.categoria;
-    const subcategoria = document.getElementById("eSub")?.value || mv.subcategoria;
-    const estado = document.getElementById("eEstado")?.value || mv.estado;
-    const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
-    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.categoria=categoria; mv.subcategoria=subcategoria; mv.estado=estado; mv.metodo=metodo; mv.anulado=anulado;
-    pushReciente(categoria, subcategoria);
-  }
-  saveAll();
-  toast("Editado ✅");
-  cerrarModal();
-  renderAll();
-  renderPendientes(false);
-}
-
-/* =========================
-   INIT
-========================= */
+/* INIT */
 function iniciar(){
   loadAll();
   document.getElementById("vFecha").value = hoy();
@@ -1394,7 +1529,11 @@ function iniciar(){
 
   refreshAllSelects();
   document.getElementById("dashMes").value = thisMonth();
+  if(document.getElementById("vhMes")) document.getElementById("vhMes").value = thisMonth();
+  if(document.getElementById("ghMes")) document.getElementById("ghMes").value = thisMonth();
+
   toggleMetodoGasto();
+  autoDisponibilidadVenta();
 
   wireMoneyInput("vMonto");
   wireMoneyInput("gMonto");
