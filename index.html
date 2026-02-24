@@ -8,10 +8,7 @@
 <style>
 :root{
   --bg:#0f1115;
-  --panel:#141823;
-  --panel2:#1a1f2d;
   --stroke:rgba(255,255,255,.08);
-  --stroke2:rgba(255,255,255,.12);
   --text:#e8ecf6;
   --muted:rgba(232,236,246,.62);
   --good:#44d07b;
@@ -19,7 +16,6 @@
   --warn:#ffb020;
   --brand:#7aa2ff;
   --shadow: 0 10px 30px rgba(0,0,0,.35);
-  --radius:16px;
   --radius2:22px;
 }
 *{box-sizing:border-box}
@@ -33,7 +29,23 @@ body{
               var(--bg);
   color:var(--text);
   overflow:hidden;
-  overscroll-behavior: none; /* reduce “rebote” */
+  overscroll-behavior: none;
+}
+
+/* Scroll estable iOS */
+*{
+  -webkit-tap-highlight-color: transparent;
+}
+.sectionBody, .homeGrid{
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+  scroll-padding-top: 12px;
+  touch-action: pan-y;
+}
+input,select,textarea{
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .app{height:100%;display:flex;flex-direction:column;}
@@ -65,35 +77,11 @@ body{
   user-select:none;
 }
 .iconBtn:active{transform:translateY(1px)}
-.iconBtn.primary{
-  border-color: rgba(122,162,255,.22);
-  background: rgba(122,162,255,.10);
-}
-.iconBtn.danger{
-  border-color: rgba(255,91,107,.22);
-  background: rgba(255,91,107,.10);
-}
-.iconBtn.good{
-  border-color: rgba(68,208,123,.22);
-  background: rgba(68,208,123,.10);
-}
-.iconBtn.small{
-  padding:8px 10px;
-  font-size:12px;
-  border-radius:12px;
-}
+.iconBtn.primary{border-color: rgba(122,162,255,.22);background: rgba(122,162,255,.10);}
+.iconBtn.small{padding:8px 10px;font-size:12px;border-radius:12px;}
 
-.content{
-  flex:1 1 auto;
-  min-height:0;
-  padding:0 14px 14px;
-  overflow:hidden;
-}
-.screen{
-  height:100%;
-  display:none;
-  overflow:hidden; /* evita que “crezca” */
-}
+.content{flex:1 1 auto;min-height:0;padding:0 14px 14px;overflow:hidden;}
+.screen{height:100%;display:none;overflow:hidden;}
 .screen.active{display:flex;flex-direction:column;}
 
 .card{
@@ -109,9 +97,7 @@ body{
   gap:12px;
   padding-top: 6px;
   overflow:auto;
-  -webkit-overflow-scrolling: touch;
   min-height:0;
-  overscroll-behavior: contain;
 }
 .tile{
   padding: 16px 14px;
@@ -119,7 +105,6 @@ body{
   user-select:none;
   position:relative;
   overflow:hidden;
-  touch-action: pan-y;
 }
 .tile:active{transform:translateY(1px)}
 .tile .tTitle{font-weight:1000;letter-spacing:.2px;font-size:13px;}
@@ -140,7 +125,6 @@ body{
 }
 .tile.green::after{ background: radial-gradient(circle at 30% 30%, rgba(68,208,123,.18), transparent 60%); }
 .tile.red::after{ background: radial-gradient(circle at 30% 30%, rgba(255,91,107,.18), transparent 60%); }
-.tile.gold::after{ background: radial-gradient(circle at 30% 30%, rgba(255,176,32,.18), transparent 60%); }
 .tile.purple::after{ background: radial-gradient(circle at 30% 30%, rgba(160,120,255,.18), transparent 60%); }
 
 .reorderBar{
@@ -168,7 +152,6 @@ body{
   font-weight:1000;
   cursor:pointer;
 }
-.tileTools .miniBtn:active{transform:translateY(1px)}
 .tile.reorder .tileTools{display:flex;}
 .tile.reorder{cursor:default;}
 
@@ -190,10 +173,7 @@ body{
   flex:1 1 auto;
   min-height:0;
   overflow:auto;
-  -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
 }
 
 .panel{
@@ -208,7 +188,7 @@ body{
 
 label{display:block;font-size:12px;color:var(--muted);margin:6px 0 6px}
 
-/* iOS FIX: 16px evita zoom y “agrandar pantalla” */
+/* iOS FIX: 16px evita zoom */
 input,select,textarea{
   width:100%;
   padding: 11px 12px;
@@ -236,7 +216,6 @@ textarea{min-height:140px; resize:vertical}
 .btn:active{transform:translateY(1px)}
 .btn.primary{border-color: rgba(122,162,255,.25);background: rgba(122,162,255,.12);}
 .btn.danger{border-color: rgba(255,91,107,.25);background: rgba(255,91,107,.10);}
-.btn.good{border-color: rgba(68,208,123,.25);background: rgba(68,208,123,.10);}
 
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px;}
 .pill{
@@ -249,7 +228,6 @@ textarea{min-height:140px; resize:vertical}
   font-weight:1000;
   cursor:pointer;
 }
-.pill:active{transform:translateY(1px)}
 .pill.on{border-color: rgba(122,162,255,.25);background: rgba(122,162,255,.12);}
 
 .statGrid{display:grid;grid-template-columns:repeat(auto-fit, minmax(170px,1fr));gap:10px;}
@@ -291,7 +269,6 @@ textarea{min-height:140px; resize:vertical}
   font-size:12px;
   font-weight:1100;
 }
-.badge.good{border-color: rgba(68,208,123,.25); background: rgba(68,208,123,.10); color: var(--good);}
 .badge.bad{border-color: rgba(255,91,107,.25); background: rgba(255,91,107,.10); color: var(--bad);}
 .badge.neu{border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: var(--muted);}
 .rowAnulada{opacity:.55}
@@ -366,12 +343,12 @@ textarea{min-height:140px; resize:vertical}
       <div class="homeGrid" id="homeGrid"></div>
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD (MINIMAL) -->
     <div id="dashboard" class="screen">
       <div class="sectionHeader">
         <div>
           <h2>Dashboard</h2>
-          <div class="hint">Resumen + control general.</div>
+          <div class="hint">Solo totales + saldos por método.</div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end">
           <div style="min-width:170px">
@@ -379,7 +356,6 @@ textarea{min-height:140px; resize:vertical}
             <input type="month" id="dashMes" onchange="renderDashboard()">
           </div>
           <button class="iconBtn small" onclick="copiarResumenWhatsApp()">WhatsApp</button>
-          <button class="iconBtn small" onclick="go('pendientes')">Pendientes</button>
         </div>
       </div>
 
@@ -387,20 +363,13 @@ textarea{min-height:140px; resize:vertical}
         <div class="panel">
           <div class="statGrid">
             <div class="stat"><div class="k">Ventas mes</div><div class="v goodTxt" id="dVentas">$ 0</div></div>
-            <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dPag">$ 0</div></div>
-            <div class="stat"><div class="k">Pendientes cargados mes</div><div class="v badTxt" id="dPenMes">$ 0</div></div>
-            <div class="stat"><div class="k">Resultado real mes</div><div class="v" id="dRealMes">$ 0</div></div>
-
-            <div class="stat"><div class="k">Deuda proveedores (hoy)</div><div class="v badTxt" id="dDeuda">$ 0</div></div>
-            <div class="stat"><div class="k">Disponible calculado (hoy)</div><div class="v" id="dDisp">$ 0</div></div>
-            <div class="stat"><div class="k">Caja real (hoy)</div><div class="v" id="dCaja">$ 0</div></div>
-            <div class="stat"><div class="k">Diferencia (Real - Calculado)</div><div class="v" id="dDif">$ 0</div></div>
+            <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dGastos">$ 0</div></div>
           </div>
         </div>
 
         <div class="panel">
           <div style="font-weight:1100; font-size:13px">Saldos por método</div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Calculado vs Real</div>
+          <div class="muted" style="font-size:12px;margin-top:6px">Ventas - gastos pagados (calculado)</div>
           <div style="margin-top:10px" id="tablaMetodos"></div>
         </div>
       </div>
@@ -411,11 +380,9 @@ textarea{min-height:140px; resize:vertical}
       <div class="sectionHeader">
         <div>
           <h2>Pendientes</h2>
-          <div class="hint">Saldo final por categoría/subcategoría. Puede quedar en negativo y NO desaparece en cero.</div>
+          <div class="hint">Saldo final por categoría/subcategoría. Puede quedar negativo y NO desaparece en cero.</div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="btn" onclick="goHome()">Volver</button>
-        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
       </div>
 
       <div class="sectionBody">
@@ -423,20 +390,12 @@ textarea{min-height:140px; resize:vertical}
           <div class="row2">
             <div>
               <label>Categoría</label>
-              <select id="pCat" onchange="onPendCatChange()"></select>
+              <select id="pCat" onchange="renderPendientes()"></select>
             </div>
             <div>
               <label>Buscar</label>
               <input type="text" id="pBuscar" placeholder="Juan / ARBA..." oninput="renderPendientes()">
             </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="statGrid">
-            <div class="stat"><div class="k">Total (positivos)</div><div class="v badTxt" id="pTotPos">$ 0</div></div>
-            <div class="stat"><div class="k">Total (negativos)</div><div class="v warnTxt" id="pTotNeg">$ 0</div></div>
-            <div class="stat"><div class="k">Total neto</div><div class="v" id="pTotNet">$ 0</div></div>
           </div>
         </div>
 
@@ -630,53 +589,6 @@ textarea{min-height:140px; resize:vertical}
       </div>
     </div>
 
-    <!-- MAESTRO (simple) -->
-    <div id="maestro" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Maestro</h2>
-          <div class="hint">Solo métodos y listas (simple).</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <div style="font-weight:1100; font-size:13px">Métodos</div>
-              <label>Nuevo método</label>
-              <div class="row2">
-                <input id="mNuevoMetodo" type="text" placeholder="Ej: Santander">
-                <button class="btn primary" onclick="addMetodo()">Agregar</button>
-              </div>
-              <div id="tablaMetodosMaestro" style="margin-top:10px"></div>
-            </div>
-
-            <div>
-              <div style="font-weight:1100; font-size:13px">Categorías y subcategorías</div>
-              <label>Nueva categoría</label>
-              <div class="row2">
-                <input id="mNuevaCat" type="text" placeholder="Ej: Servicios">
-                <button class="btn primary" onclick="addCategoria()">Agregar</button>
-              </div>
-
-              <label>Elegir categoría</label>
-              <select id="mCatSel" onchange="renderMaestro()"></select>
-
-              <label>Nueva subcategoría</label>
-              <div class="row2">
-                <input id="mNuevaSub" type="text" placeholder="Ej: Edenor / Juan / ARBA">
-                <button class="btn primary" onclick="addSubcategoria()">Agregar</button>
-              </div>
-
-              <div id="tablaSubsMaestro" style="margin-top:10px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div><!-- /content -->
 </div><!-- /app -->
 
@@ -701,9 +613,8 @@ textarea{min-height:140px; resize:vertical}
 /* =========================
    STORAGE
 ========================= */
-const STORAGE_ALL  = "SM_APP_ALL_DARK_V4";
+const STORAGE_ALL  = "SM_APP_ALL_MIN_DASH_V1";
 const STORAGE_HOME = "SM_APP_HOME_ORDER_V1";
-
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
 /* =========================
@@ -720,7 +631,6 @@ const DEFAULT_MASTER = {
   cajaReal: {},
   recientes: {}
 };
-
 let master = structuredClone(DEFAULT_MASTER);
 let movimientos = [];
 let homeEditMode = false;
@@ -734,14 +644,6 @@ function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.n
 function norm(s){ return String(s||"").trim(); }
 function round0(n){ return Math.round(Number(n)||0); }
 function activos(){ return movimientos.filter(m=>!m.anulado); }
-function escapeHtml(s){
-  return String(s||"")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"quot;");
-}
-function escapeQuotes(s){
-  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-}
 
 function toast(msg="OK"){
   const t = document.getElementById("toast");
@@ -749,6 +651,9 @@ function toast(msg="OK"){
   t.style.display = "block";
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(()=>{ t.style.display="none"; }, 1100);
+}
+function escapeQuotes(s){
+  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
 }
 
 /* =========================
@@ -770,20 +675,17 @@ function parseARS(str){
 function wireMoneyInput(id){
   const el = document.getElementById(id);
   if(!el) return;
-
   const apply = ()=>{
     const n = parseARS(el.value);
     el.dataset.raw = String(n);
     el.value = (n!==0) ? formatARS(n) : "";
   };
-
   el.addEventListener("input", ()=>{
     const n = parseARS(el.value);
     el.dataset.raw = String(n);
     if(n===0){ el.value = ""; return; }
     el.value = formatARS(n);
   });
-
   el.addEventListener("blur", apply);
   apply();
 }
@@ -858,24 +760,18 @@ function sanitizeMovimientos(arr){
    HOME TILES
 ========================= */
 const HOME_TILES = [
-  { id:"dashboard",   title:"Dashboard",        sub:"Resumen + control general", icon:"📊", cls:"" },
+  { id:"dashboard",   title:"Dashboard",        sub:"Totales + saldos", icon:"📊", cls:"" },
   { id:"pendientes",  title:"Pendientes",       sub:"Saldo final por item", icon:"🧾", cls:"purple" },
-  { id:"ventasCarga", title:"Cargar Ventas",    sub:"Efectivo, MP, bancos, etc.", icon:"➕", cls:"green" },
+  { id:"ventasCarga", title:"Cargar Ventas",    sub:"Efectivo, MP, bancos", icon:"➕", cls:"green" },
   { id:"gastosCarga", title:"Cargar Gastos",    sub:"Pagado o Pendiente", icon:"➖", cls:"red" },
-  { id:"movGastos",   title:"Movimientos",      sub:"Editar movimientos", icon:"📋", cls:"" },
-  { id:"ventasHist",  title:"Historial Ventas", sub:"Filtros por mes y método", icon:"🧠", cls:"green" },
-  { id:"maestro",     title:"Maestro",          sub:"Métodos / categorías", icon:"⚙️", cls:"" }
+  { id:"movGastos",   title:"Movimientos",      sub:"Filtros + editar", icon:"📋", cls:"" },
+  { id:"ventasHist",  title:"Historial Ventas", sub:"Filtros por mes/método", icon:"🧠", cls:"green" }
 ];
 
 const crumbs = {
-  home:"Home",
-  dashboard:"Dashboard",
-  pendientes:"Pendientes",
-  ventasCarga:"Cargar Ventas",
-  ventasHist:"Historial Ventas",
-  gastosCarga:"Cargar Gastos",
-  movGastos:"Movimientos",
-  maestro:"Maestro"
+  home:"Home", dashboard:"Dashboard", pendientes:"Pendientes",
+  ventasCarga:"Cargar Ventas", ventasHist:"Historial Ventas",
+  gastosCarga:"Cargar Gastos", movGastos:"Movimientos"
 };
 
 function go(id){
@@ -889,7 +785,6 @@ function go(id){
   if(id==="pendientes") renderPendientes(true);
   if(id==="movGastos") renderMovGastos();
   if(id==="ventasHist") renderVentasHist();
-  if(id==="maestro") renderMaestro();
   if(id==="gastosCarga") renderChipsRecientes();
 }
 function goHome(){ go("home"); }
@@ -912,9 +807,7 @@ function getHomeOrder(){
     return HOME_TILES.map(t=>t.id);
   }
 }
-function setHomeOrder(order){
-  localStorage.setItem(STORAGE_HOME, JSON.stringify(order));
-}
+function setHomeOrder(order){ localStorage.setItem(STORAGE_HOME, JSON.stringify(order)); }
 function renderHome(){
   const grid = document.getElementById("homeGrid");
   const order = getHomeOrder();
@@ -936,10 +829,7 @@ function renderHome(){
         <button class="miniBtn" onclick="moveTileDown('${escapeQuotes(t.id)}'); event.stopPropagation();">↓</button>
       </div>
     `;
-    tile.addEventListener("click", ()=>{
-      if(homeEditMode) return;
-      go(t.id);
-    });
+    tile.addEventListener("click", ()=>{ if(!homeEditMode) go(t.id); });
     grid.appendChild(tile);
   });
 
@@ -947,26 +837,16 @@ function renderHome(){
   btn.textContent = homeEditMode ? "Listo" : "Editar Home";
   btn.className = homeEditMode ? "iconBtn primary" : "iconBtn";
 }
-function toggleReorder(){
-  homeEditMode = !homeEditMode;
-  renderHome();
-  toast(homeEditMode ? "Editar Home ✅" : "Orden guardado ✅");
-}
+function toggleReorder(){ homeEditMode=!homeEditMode; renderHome(); toast(homeEditMode?"Editar Home ✅":"Orden guardado ✅"); }
 function moveTileUp(id){
-  const order = getHomeOrder();
-  const i = order.indexOf(id);
-  if(i<=0) return;
-  [order[i-1], order[i]] = [order[i], order[i-1]];
-  setHomeOrder(order);
-  renderHome();
+  const order = getHomeOrder(); const i = order.indexOf(id);
+  if(i<=0) return; [order[i-1], order[i]] = [order[i], order[i-1]];
+  setHomeOrder(order); renderHome();
 }
 function moveTileDown(id){
-  const order = getHomeOrder();
-  const i = order.indexOf(id);
-  if(i<0 || i>=order.length-1) return;
-  [order[i+1], order[i]] = [order[i], order[i+1]];
-  setHomeOrder(order);
-  renderHome();
+  const order = getHomeOrder(); const i = order.indexOf(id);
+  if(i<0 || i>=order.length-1) return; [order[i+1], order[i]] = [order[i], order[i+1]];
+  setHomeOrder(order); renderHome();
 }
 
 /* =========================
@@ -980,16 +860,12 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 function refreshAllSelects(){
   fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
-
   fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
   fillSelectOptions(document.getElementById("mgMetodo"), master.metodos, true, "Todos");
 
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
   fillSelectOptions(document.getElementById("mgCat"), cats, true, "Todas");
-  fillSelectOptions(document.getElementById("mCatSel"), cats, false);
-
-  // pendientes
   fillSelectOptions(document.getElementById("pCat"), cats, true, "Todas");
 
   cargarSubDeGasto();
@@ -1027,14 +903,11 @@ function renderChipsRecientes(){
 function pickSub(sub){
   const sel = document.getElementById("gSub");
   const opt = Array.from(sel.options).find(o=>o.value===sub);
-  if(opt){
-    sel.value = sub;
-    toast("Seleccionado: " + sub);
-  }
+  if(opt){ sel.value=sub; toast("Seleccionado: " + sub); }
 }
 
 /* =========================
-   CONFIRM BEFORE SAVE
+   CONFIRM
 ========================= */
 let pendingConfirmAction = null;
 
@@ -1049,16 +922,14 @@ function abrirConfirm(title, lines, confirmLabel="Confirmar"){
   abrirModal("Confirmar", body, confirmLabel);
 }
 function confirmarMontoRaro(monto){
-  if(monto >= 2000000){
-    return confirm(`Cargaste ${formatARS(monto)}. ¿Seguro? (puede haber un 0 de más)`);
-  }
+  if(monto >= 2000000) return confirm(`Cargaste ${formatARS(monto)}. ¿Seguro?`);
   return true;
 }
-function lockBtn(id, ms=900){
+function lockBtn(id, ms=800){
   const b = document.getElementById(id);
   if(!b) return;
   b.disabled = true;
-  setTimeout(()=>{ b.disabled = false; }, ms);
+  setTimeout(()=>{ b.disabled=false; }, ms);
 }
 
 function confirmarYGuardarVenta(){
@@ -1066,8 +937,7 @@ function confirmarYGuardarVenta(){
   const metodo = document.getElementById("vMetodo").value;
   const monto = parseARS(document.getElementById("vMonto").value);
   const nota = (document.getElementById("vNota").value || "").trim();
-
-  if(!monto || monto <= 0) return toast("Monto inválido");
+  if(!monto || monto<=0) return toast("Monto inválido");
   if(!metodo) return toast("Falta método");
   if(!confirmarMontoRaro(monto)) return;
 
@@ -1088,10 +958,9 @@ function confirmarYGuardarGasto(){
   const estado = document.getElementById("gEstado").value;
   const metodo = document.getElementById("gMetodo").value;
   const nota = (document.getElementById("gNota").value || "").trim();
-
-  if(!monto || monto <= 0) return toast("Monto inválido");
+  if(!monto || monto<=0) return toast("Monto inválido");
   if(!categoria || !subcategoria) return toast("Falta categoría/subcategoría");
-  if(estado === "PAGADO" && !metodo) return toast("Pagado sin método no");
+  if(estado==="PAGADO" && !metodo) return toast("Pagado sin método no");
   if(!confirmarMontoRaro(monto)) return;
 
   pendingConfirmAction = () => guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, metodo, nota});
@@ -1110,7 +979,7 @@ function confirmarYGuardarGasto(){
    SAVE ACTIONS
 ========================= */
 function guardarVentaDirecto({fecha, metodo, monto, nota}){
-  lockBtn("btnGuardarVenta", 700);
+  lockBtn("btnGuardarVenta", 650);
   movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota });
   saveAll();
   document.getElementById("vMonto").value = "";
@@ -1121,7 +990,7 @@ function guardarVentaDirecto({fecha, metodo, monto, nota}){
   renderVentasHist();
 }
 function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, metodo, nota}){
-  lockBtn("btnGuardarGasto", 700);
+  lockBtn("btnGuardarGasto", 650);
   movimientos.push({ id:uid(), anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo, nota });
   pushReciente(categoria, subcategoria);
   saveAll();
@@ -1157,45 +1026,27 @@ function computeSaldosPorMetodoCalculado(){
   const saldos = {};
   master.metodos.forEach(m => saldos[m]=0);
   activos().forEach(m=>{
-    if(m.tipo==="VENTA"){
-      saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
-    }
-    if(m.tipo==="GASTO" && m.estado==="PAGADO"){
-      saldos[m.metodo] = (saldos[m.metodo]||0) - m.monto;
-    }
+    if(m.tipo==="VENTA") saldos[m.metodo] = (saldos[m.metodo]||0) + m.monto;
+    if(m.tipo==="GASTO" && m.estado==="PAGADO") saldos[m.metodo] = (saldos[m.metodo]||0) - m.monto;
   });
   return saldos;
 }
-function sumCajaReal(){
-  let total = 0;
-  master.metodos.forEach(m=>{ total += round0(master.cajaReal?.[m]||0); });
-  return total;
-}
-
-/* Pendientes: saldo final por item = +PENDIENTE -PAGADO (siempre) */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
-  const map = {}; // cat -> sub -> saldo
+  const map = {};
   cats.forEach(cat=>{
     map[cat] = {};
-    (master.categorias[cat]||[]).forEach(sub=>{
-      map[cat][sub] = 0; // arranca en 0 y queda visible aunque sea 0
-    });
+    (master.categorias[cat]||[]).forEach(sub=>{ map[cat][sub]=0; });
   });
-
   activos().forEach(m=>{
     if(m.tipo!=="GASTO") return;
-    const cat = m.categoria;
-    const sub = m.subcategoria;
+    const cat = m.categoria, sub = m.subcategoria;
     if(!cat || !sub) return;
-
-    if(!map[cat]) map[cat] = {};
+    if(!map[cat]) map[cat]={};
     if(map[cat][sub]===undefined) map[cat][sub]=0;
-
     if(m.estado==="PENDIENTE") map[cat][sub] += m.monto;
     if(m.estado==="PAGADO") map[cat][sub] -= m.monto;
   });
-
   return map;
 }
 
@@ -1209,74 +1060,42 @@ function renderAll(){
   if(active==="pendientes") renderPendientes(false);
   if(active==="movGastos") renderMovGastos();
   if(active==="ventasHist") renderVentasHist();
-  if(active==="maestro") renderMaestro();
 }
 function setText(id, v){ const el = document.getElementById(id); if(el) el.textContent = v; }
 
+/* DASHBOARD MINIMAL */
 function renderDashboard(){
   const mes = document.getElementById("dashMes")?.value || "";
-  let ventasMes=0, gastosPagMes=0, pendMes=0;
+  let ventasMes=0, gastosPagMes=0;
 
   activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
     if(!esMes) return;
-
     if(m.tipo==="VENTA") ventasMes += m.monto;
-    if(m.tipo==="GASTO"){
-      if(m.estado==="PAGADO") gastosPagMes += m.monto;
-      else pendMes += m.monto;
-    }
+    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto;
   });
 
-  const realMes = ventasMes - (gastosPagMes + pendMes);
-
-  const pendMap = computePendientesMap();
-  let deudaProv = 0;
-  if(pendMap["Proveedores"]){
-    Object.values(pendMap["Proveedores"]).forEach(v=>{ if(v>0) deudaProv += v; });
-  }
+  setText("dVentas", formatARS(ventasMes));
+  setText("dGastos", formatARS(gastosPagMes));
 
   const calc = computeSaldosPorMetodoCalculado();
-  const disponible = Object.values(calc).reduce((a,b)=>a+b,0);
-  const cajaRealTotal = sumCajaReal();
-  const dif = cajaRealTotal - disponible;
-
-  setText("dVentas", formatARS(ventasMes));
-  setText("dPag", formatARS(gastosPagMes));
-  setText("dPenMes", formatARS(pendMes));
-  setText("dRealMes", formatARS(realMes));
-  document.getElementById("dRealMes").className = "v " + (realMes>=0 ? "goodTxt" : "badTxt");
-
-  setText("dDeuda", formatARS(deudaProv));
-  setText("dDisp", formatARS(disponible));
-  setText("dCaja", formatARS(cajaRealTotal));
-  setText("dDif", formatARS(dif));
-  document.getElementById("dDif").className = "v " + (dif===0 ? "goodTxt" : (dif<0 ? "badTxt" : "warnTxt"));
-
-  let html = `<table class="table"><tr><th>Método</th><th>Calculado</th><th>Real</th><th>Diferencia</th></tr>`;
+  let html = `<table class="table"><tr><th>Método</th><th>Saldo calculado</th></tr>`;
   master.metodos.forEach(m=>{
     const c = round0(calc[m]||0);
-    const r = round0(master.cajaReal?.[m]||0);
-    const d = r - c;
-    const clsC = c>=0 ? "goodTxt" : "badTxt";
-    const clsD = d===0 ? "goodTxt" : (d<0 ? "badTxt" : "warnTxt");
+    const cls = c===0 ? "muted" : (c>0 ? "goodTxt" : "badTxt");
     html += `<tr>
       <td style="font-weight:1100">${m}</td>
-      <td class="${clsC}">${formatARS(c)}</td>
-      <td>${formatARS(r)}</td>
-      <td class="${clsD}">${formatARS(d)}</td>
+      <td class="${cls}" style="font-weight:1100">${formatARS(c)}</td>
     </tr>`;
   });
   html += `</table>`;
   document.getElementById("tablaMetodos").innerHTML = html;
 }
 
-/* Pendientes */
-function onPendCatChange(){ renderPendientes(false); }
+/* PENDIENTES */
 function renderPendientes(resetScroll){
   const catSel = document.getElementById("pCat")?.value || "ALL";
   const buscar = (document.getElementById("pBuscar")?.value || "").trim().toLowerCase();
-
   const pendMap = computePendientesMap();
 
   let rows = [];
@@ -1291,22 +1110,7 @@ function renderPendientes(resetScroll){
     });
   });
 
-  rows.sort((a,b)=>{
-    if(a.cat!==b.cat) return a.cat.localeCompare(b.cat,"es");
-    return a.sub.localeCompare(b.sub,"es");
-  });
-
-  let totPos = 0, totNeg = 0, totNet = 0;
-  rows.forEach(r=>{
-    totNet += r.saldo;
-    if(r.saldo>0) totPos += r.saldo;
-    if(r.saldo<0) totNeg += r.saldo; // negativo
-  });
-
-  setText("pTotPos", formatARS(totPos));
-  setText("pTotNeg", formatARS(totNeg));
-  setText("pTotNet", formatARS(totNet));
-  document.getElementById("pTotNet").className = "v " + (totNet>=0 ? "goodTxt" : "badTxt");
+  rows.sort((a,b)=> a.cat!==b.cat ? a.cat.localeCompare(b.cat,"es") : a.sub.localeCompare(b.sub,"es"));
 
   let html = `<table class="table"><tr><th>Categoría</th><th>Item</th><th>Saldo</th></tr>`;
   rows.forEach(r=>{
@@ -1326,22 +1130,17 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* MOV FILTER QUICK */
-function setMovEsteMes(){
-  document.getElementById("mgMes").value = thisMonth();
-  renderMovGastos();
-  toast("Este mes ✅");
-}
+/* MOV */
+function setMovEsteMes(){ document.getElementById("mgMes").value = thisMonth(); renderMovGastos(); toast("Este mes ✅"); }
 function limpiarFiltrosMov(){
-  document.getElementById("mgMes").value = "";
-  document.getElementById("mgEstado").value = "ALL";
-  document.getElementById("mgCat").value = "ALL";
+  document.getElementById("mgMes").value="";
+  document.getElementById("mgEstado").value="ALL";
+  document.getElementById("mgCat").value="ALL";
   onMgCatChange(true);
-  document.getElementById("mgSub").value = "ALL";
-  document.getElementById("mgMetodo").value = "ALL";
-  document.getElementById("mgBuscar").value = "";
-  renderMovGastos();
-  toast("Filtros limpios ✅");
+  document.getElementById("mgSub").value="ALL";
+  document.getElementById("mgMetodo").value="ALL";
+  document.getElementById("mgBuscar").value="";
+  renderMovGastos(); toast("Filtros limpios ✅");
 }
 function onMgCatChange(isInit=false){
   const cat = document.getElementById("mgCat").value || "ALL";
@@ -1354,7 +1153,6 @@ function onMgCatChange(isInit=false){
   }
   if(!isInit) renderMovGastos();
 }
-
 function renderMovGastos(){
   const mes = document.getElementById("mgMes").value;
   const cat = document.getElementById("mgCat").value || "ALL";
@@ -1364,7 +1162,7 @@ function renderMovGastos(){
   const buscar = (document.getElementById("mgBuscar").value || "").trim().toLowerCase();
 
   let rows = [];
-  let totPag = 0, totPen = 0;
+  let totPag=0, totPen=0;
 
   movimientos.forEach(m=>{
     if(m.tipo!=="GASTO") return;
@@ -1372,14 +1170,12 @@ function renderMovGastos(){
     if(cat!=="ALL" && m.categoria!==cat) return;
     if(sub!=="ALL" && m.subcategoria!==sub) return;
     if(estado!=="ALL" && m.estado!==estado) return;
-
     if(metodo!=="ALL"){
       if(m.estado!=="PAGADO") return;
       if(m.metodo!==metodo) return;
     }
-
-    const hay = `${m.categoria||""} ${m.subcategoria||""} ${m.nota||""}`;
-    if(buscar && !hay.toLowerCase().includes(buscar)) return;
+    const hay = `${m.categoria||""} ${m.subcategoria||""} ${m.nota||""}`.toLowerCase();
+    if(buscar && !hay.includes(buscar)) return;
 
     if(!m.anulado){
       if(m.estado==="PAGADO") totPag += m.monto;
@@ -1388,12 +1184,7 @@ function renderMovGastos(){
     rows.push(m);
   });
 
-  rows.sort((a,b)=>{
-    if(a.fecha>b.fecha) return -1;
-    if(a.fecha<b.fecha) return 1;
-    return (a.id>b.id) ? -1 : 1;
-  });
-
+  rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
   setText("mgTotPag", formatARS(totPag));
   setText("mgTotPen", formatARS(totPen));
 
@@ -1403,60 +1194,49 @@ function renderMovGastos(){
     const met = (m.estado==="PAGADO") ? (m.metodo||"-") : "-";
     const montoCls = (m.estado==="PAGADO") ? "badTxt" : "muted";
     let estadoBadge = `<span class="badge neu">PENDIENTE</span>`;
-    if(m.estado==="PAGADO") estadoBadge = `<span class="badge bad">PAGADO</span>`;
+    if(m.estado==="PAGADO") estadoBadge = `<span class="badge.bad">PAGADO</span>`;
     if(m.anulado) estadoBadge = `<span class="badge neu">ANULADO</span>`;
-
-    const a1 = `<button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button>`;
-
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
       <td>${det}</td>
-      <td>${estadoBadge}</td>
+      <td><span class="badge ${m.estado==="PAGADO"?'bad':'neu'}">${m.anulado?'ANULADO':m.estado}</span></td>
       <td>${met}</td>
       <td class="${montoCls}">${formatARS(m.monto)}</td>
-      <td style="white-space:nowrap">${a1}</td>
+      <td style="white-space:nowrap"><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
     </tr>`;
   });
   html += `</table>`;
   document.getElementById("tablaMovGastos").innerHTML = html;
 }
 
+/* VENTAS HIST */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
   const buscar = (document.getElementById("vhBuscar").value || "").trim().toLowerCase();
 
-  let rows = [];
-  let total = 0;
-
+  let rows=[], total=0;
   movimientos.forEach(m=>{
     if(m.tipo!=="VENTA") return;
     if(mes && !(m.fecha||"").startsWith(mes)) return;
     if(metodo!=="ALL" && m.metodo!==metodo) return;
-    const hay = `${m.metodo||""} ${m.nota||""}`;
-    if(buscar && !hay.toLowerCase().includes(buscar)) return;
-
+    const hay = `${m.metodo||""} ${m.nota||""}`.toLowerCase();
+    if(buscar && !hay.includes(buscar)) return;
     if(!m.anulado) total += m.monto;
     rows.push(m);
   });
 
-  rows.sort((a,b)=>{
-    if(a.fecha>b.fecha) return -1;
-    if(a.fecha<b.fecha) return 1;
-    return (a.id>b.id) ? -1 : 1;
-  });
-
+  rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
   setText("vhTotal", formatARS(total));
 
   let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th><th>Acción</th></tr>`;
   rows.forEach(m=>{
-    const a1 = `<button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button>`;
     html += `<tr class="${m.anulado?'rowAnulada':''}">
       <td>${m.fecha}</td>
       <td style="font-weight:1100">${m.metodo||""}</td>
       <td class="muted">${m.nota||""}</td>
       <td class="goodTxt">${formatARS(m.monto)}</td>
-      <td style="white-space:nowrap">${a1}</td>
+      <td style="white-space:nowrap"><button class="iconBtn" onclick="abrirEditar('${m.id}')">Editar</button></td>
     </tr>`;
   });
   html += `</table>`;
@@ -1464,252 +1244,95 @@ function renderVentasHist(){
 }
 
 /* =========================
-   WHATSAPP SUMMARY (chico)
+   WHATSAPP (simple)
 ========================= */
 async function copiarResumenWhatsApp(){
   const mes = document.getElementById("dashMes")?.value || thisMonth();
-  let ventasMes=0, gastosPagMes=0, pendMes=0;
+  let ventasMes=0, gastosPagMes=0;
 
   activos().forEach(m=>{
     const esMes = (m.fecha||"").startsWith(mes);
     if(!esMes) return;
     if(m.tipo==="VENTA") ventasMes += m.monto;
-    if(m.tipo==="GASTO"){
-      if(m.estado==="PAGADO") gastosPagMes += m.monto;
-      else pendMes += m.monto;
-    }
+    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto;
   });
-
-  const realMes = ventasMes - (gastosPagMes + pendMes);
-
-  const pendMap = computePendientesMap();
-  let deudaProv = 0;
-  if(pendMap["Proveedores"]){
-    Object.values(pendMap["Proveedores"]).forEach(v=>{ if(v>0) deudaProv += v; });
-  }
-
-  const calc = computeSaldosPorMetodoCalculado();
-  const disponible = Object.values(calc).reduce((a,b)=>a+b,0);
-  const cajaRealTotal = sumCajaReal();
-  const dif = cajaRealTotal - disponible;
 
   const txt =
 `📌 *Stella Maris · ${mes}*
 💰 Ventas: ${formatARS(ventasMes)}
-💸 Gastos pagados: ${formatARS(gastosPagMes)}
-⏳ Pendientes: ${formatARS(pendMes)}
-📈 Real: ${formatARS(realMes)}
+💸 Gastos pagados: ${formatARS(gastosPagMes)}`;
 
-📦 Proveedores (hoy): ${formatARS(deudaProv)}
-🧮 Disponible: ${formatARS(disponible)}
-🏦 Caja real: ${formatARS(cajaRealTotal)}
-⚖️ Dif: ${formatARS(dif)}`;
-
-  try{
-    await navigator.clipboard.writeText(txt);
-    toast("Copiado ✅");
-  }catch{
+  try{ await navigator.clipboard.writeText(txt); toast("Copiado ✅"); }
+  catch{
     abrirModal("Resumen WhatsApp", `<div class="panel" style="margin:0"><textarea>${txt}</textarea></div>`, "Cerrar");
     document.getElementById("modalFoot").innerHTML = `<button class="btn primary" onclick="cerrarModal()">Cerrar</button>`;
   }
 }
 
 /* =========================
-   MAESTRO
-========================= */
-function renderMaestro(){
-  const methodsHtml = `
-    <table class="table">
-      <tr><th>Método</th><th>Acción</th></tr>
-      ${master.metodos.map(m => `
-        <tr>
-          <td style="font-weight:1100">${m}</td>
-          <td><button class="btn danger" onclick="removeMetodo('${escapeQuotes(m)}')">Eliminar</button></td>
-        </tr>
-      `).join("")}
-    </table>
-  `;
-  document.getElementById("tablaMetodosMaestro").innerHTML = methodsHtml;
-
-  const cats = Object.keys(master.categorias);
-  const sel = document.getElementById("mCatSel");
-  if(!cats.includes(sel.value)) sel.value = cats[0] || "";
-  const cat = sel.value;
-  const subs = master.categorias[cat] || [];
-
-  const subsHtml = `
-    <table class="table">
-      <tr><th>Subcategoría</th><th>Acción</th></tr>
-      ${subs.map(s => `
-        <tr>
-          <td style="font-weight:1100">${s}</td>
-          <td><button class="btn danger" onclick="removeSubcategoria('${escapeQuotes(cat)}','${escapeQuotes(s)}')">Eliminar</button></td>
-        </tr>
-      `).join("")}
-    </table>
-  `;
-  document.getElementById("tablaSubsMaestro").innerHTML = subsHtml;
-}
-function addMetodo(){
-  const v = norm(document.getElementById("mNuevoMetodo").value);
-  if(!v) return toast("Vacío");
-  if(master.metodos.includes(v)) return toast("Ya existe");
-  master.metodos.push(v);
-  master.metodos.sort((a,b)=>a.localeCompare(b,"es"));
-  if(master.cajaReal[v]===undefined) master.cajaReal[v]=0;
-  saveAll();
-  document.getElementById("mNuevoMetodo").value = "";
-  toast("Método agregado ✅");
-  refreshAllSelects();
-  renderDashboard();
-}
-function removeMetodo(m){
-  if(!confirm(`¿Eliminar método "${m}"?`)) return;
-  master.metodos = master.metodos.filter(x=>x!==m);
-  if(master.metodos.length===0) master.metodos = structuredClone(DEFAULT_MASTER.metodos);
-  delete master.cajaReal[m];
-  master.metodos.forEach(mm=>{ if(master.cajaReal[mm]===undefined) master.cajaReal[mm]=0; });
-  saveAll();
-  toast("Método eliminado ✅");
-  refreshAllSelects();
-  renderDashboard();
-}
-function addCategoria(){
-  const v = norm(document.getElementById("mNuevaCat").value);
-  if(!v) return toast("Vacío");
-  if(master.categorias[v]) return toast("Ya existe");
-  master.categorias[v] = [];
-  saveAll();
-  document.getElementById("mNuevaCat").value = "";
-  toast("Categoría agregada ✅");
-  refreshAllSelects();
-}
-function addSubcategoria(){
-  const cat = document.getElementById("mCatSel").value;
-  const v = norm(document.getElementById("mNuevaSub").value);
-  if(!cat) return toast("Sin categoría");
-  if(!v) return toast("Vacío");
-  const subs = master.categorias[cat] || [];
-  if(subs.includes(v)) return toast("Ya existe");
-  subs.push(v);
-  subs.sort((a,b)=>a.localeCompare(b,"es"));
-  master.categorias[cat] = subs;
-  saveAll();
-  document.getElementById("mNuevaSub").value = "";
-  toast("Subcategoría agregada ✅");
-  refreshAllSelects();
-  renderPendientes(false);
-}
-function removeSubcategoria(cat, sub){
-  if(!confirm(`¿Eliminar "${sub}" de "${cat}"?`)) return;
-  master.categorias[cat] = (master.categorias[cat]||[]).filter(x=>x!==sub);
-  if(master.recientes && master.recientes[cat]){
-    master.recientes[cat] = master.recientes[cat].filter(x=>x!==sub);
-  }
-  saveAll();
-  toast("Subcategoría eliminada ✅");
-  refreshAllSelects();
-  renderPendientes(false);
-}
-
-/* =========================
    MODAL (editar)
 ========================= */
-let modalEditingId = null;
+let modalEditingId=null;
 
 function modalClickOutside(ev){ if(ev.target.id==="modalBack") cerrarModal(); }
-
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
-
   document.getElementById("modalFoot").innerHTML = `
     <button class="btn" onclick="cerrarModal()">Cancelar</button>
-    <button class="btn primary" onclick="modalGuardar()">${confirmLabel}</button>
-  `;
-
-  document.getElementById("modalBack").style.display = "block";
+    <button class="btn primary" onclick="modalGuardar()">${confirmLabel}</button>`;
+  document.getElementById("modalBack").style.display="block";
 }
-function cerrarModal(){
-  modalEditingId = null;
-  pendingConfirmAction = null;
-  document.getElementById("modalBack").style.display="none";
-}
+function cerrarModal(){ modalEditingId=null; pendingConfirmAction=null; document.getElementById("modalBack").style.display="none"; }
 
 function abrirEditar(id){
-  const mv = movimientos.find(x=>x.id===id);
-  if(!mv) return;
-  modalEditingId = id;
+  const mv = movimientos.find(x=>x.id===id); if(!mv) return;
+  modalEditingId=id;
 
   if(mv.tipo==="VENTA"){
     const body = `
       <div class="panel" style="margin:0">
-        <label>Fecha</label>
-        <input type="date" id="eFecha" value="${mv.fecha}">
-        <label>Método</label>
-        <select id="eMetodo"></select>
-        <label>Monto</label>
-        <input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
-        <label>Nota</label>
-        <input type="text" id="eNota" value="${mv.nota||""}">
-        <label>Anulado</label>
-        <select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
-      </div>
-    `;
+        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
+        <label>Método</label><select id="eMetodo"></select>
+        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
+        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
+        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
+      </div>`;
     abrirModal("Editar Venta", body, "Guardar cambios");
     fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
     document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
-    document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
+    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
     wireMoneyInput("eMonto");
   }else{
     const cats = Object.keys(master.categorias);
     const body = `
       <div class="panel" style="margin:0">
-        <label>Fecha</label>
-        <input type="date" id="eFecha" value="${mv.fecha}">
+        <label>Fecha</label><input type="date" id="eFecha" value="${mv.fecha}">
         <div class="row2">
-          <div>
-            <label>Categoría</label>
-            <select id="eCat"></select>
-          </div>
-          <div>
-            <label>Subcategoría</label>
-            <select id="eSub"></select>
-          </div>
+          <div><label>Categoría</label><select id="eCat"></select></div>
+          <div><label>Subcategoría</label><select id="eSub"></select></div>
         </div>
-        <label>Monto</label>
-        <input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
+        <label>Monto</label><input class="money" type="text" id="eMonto" inputmode="numeric" pattern="[0-9]*" value="${formatARS(mv.monto)}">
         <div class="row2">
-          <div>
-            <label>Estado</label>
-            <select id="eEstado"><option value="PENDIENTE">Pendiente</option><option value="PAGADO">Pagado</option></select>
-          </div>
-          <div>
-            <label>Método (si Pagado)</label>
-            <select id="eMetodo"></select>
-          </div>
+          <div><label>Estado</label><select id="eEstado"><option value="PENDIENTE">Pendiente</option><option value="PAGADO">Pagado</option></select></div>
+          <div><label>Método (si Pagado)</label><select id="eMetodo"></select></div>
         </div>
-        <label>Nota</label>
-        <input type="text" id="eNota" value="${mv.nota||""}">
-        <label>Anulado</label>
-        <select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
-      </div>
-    `;
+        <label>Nota</label><input type="text" id="eNota" value="${mv.nota||""}">
+        <label>Anulado</label><select id="eAnulado"><option value="0">No</option><option value="1">Sí</option></select>
+      </div>`;
     abrirModal("Editar Gasto", body, "Guardar cambios");
 
-    const catSel = document.getElementById("eCat");
+    const catSel=document.getElementById("eCat");
     fillSelectOptions(catSel, cats, false);
     catSel.value = mv.categoria || cats[0] || "";
-
-    const subSel = document.getElementById("eSub");
+    const subSel=document.getElementById("eSub");
     fillEditSubs(catSel.value, subSel, mv.subcategoria);
-
     document.getElementById("eEstado").value = mv.estado || "PENDIENTE";
     fillSelectOptions(document.getElementById("eMetodo"), master.metodos, false);
     document.getElementById("eMetodo").value = mv.metodo || master.metodos[0] || "";
-    document.getElementById("eAnulado").value = mv.anulado ? "1" : "0";
+    document.getElementById("eAnulado").value = mv.anulado ? "1":"0";
 
-    catSel.addEventListener("change", ()=> fillEditSubs(catSel.value, subSel, ""));
+    catSel.addEventListener("change", ()=>fillEditSubs(catSel.value, subSel, ""));
     document.getElementById("eEstado").addEventListener("change", toggleEditMetodo);
     toggleEditMetodo();
     wireMoneyInput("eMonto");
@@ -1718,56 +1341,38 @@ function abrirEditar(id){
 function fillEditSubs(cat, subSel, selected){
   const subs = master.categorias[cat] || [];
   fillSelectOptions(subSel, subs, false);
-  if(selected && subs.includes(selected)) subSel.value = selected;
-  else subSel.value = subs[0] || "";
+  subSel.value = (selected && subs.includes(selected)) ? selected : (subs[0]||"");
 }
 function toggleEditMetodo(){
   const estado = document.getElementById("eEstado")?.value;
   const met = document.getElementById("eMetodo");
   if(!met) return;
-  const disabled = (estado !== "PAGADO");
-  met.disabled = disabled;
-  met.style.opacity = disabled ? "0.55" : "1";
+  const dis = (estado!=="PAGADO");
+  met.disabled = dis; met.style.opacity = dis ? "0.55":"1";
 }
-
 function modalGuardar(){
-  if(typeof pendingConfirmAction === "function"){
-    const fn = pendingConfirmAction;
-    pendingConfirmAction = null;
-    fn();
-    return;
-  }
-
+  if(typeof pendingConfirmAction === "function"){ const fn=pendingConfirmAction; pendingConfirmAction=null; fn(); return; }
   if(!modalEditingId) return cerrarModal();
-  const mv = movimientos.find(x=>x.id===modalEditingId);
-  if(!mv) return cerrarModal();
+  const mv = movimientos.find(x=>x.id===modalEditingId); if(!mv) return cerrarModal();
 
   const fecha = document.getElementById("eFecha")?.value || mv.fecha;
   const monto = parseARS(document.getElementById("eMonto")?.value) || 0;
   const nota = (document.getElementById("eNota")?.value || "").trim();
   const anulado = (document.getElementById("eAnulado")?.value === "1");
-
   if(!fecha) return toast("Falta fecha");
   if(!monto || monto<=0) return toast("Monto inválido");
 
   if(mv.tipo==="VENTA"){
     const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
-    if(!metodo) return toast("Falta método");
-    mv.fecha = fecha; mv.monto = monto; mv.nota = nota; mv.metodo = metodo; mv.anulado = anulado;
+    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.metodo=metodo; mv.anulado=anulado;
   }else{
     const categoria = document.getElementById("eCat")?.value || mv.categoria;
     const subcategoria = document.getElementById("eSub")?.value || mv.subcategoria;
     const estado = document.getElementById("eEstado")?.value || mv.estado;
     const metodo = document.getElementById("eMetodo")?.value || mv.metodo;
-    if(!categoria || !subcategoria) return toast("Falta cat/sub");
-    if(estado==="PAGADO" && !metodo) return toast("Pagado sin método no");
-
-    mv.fecha = fecha; mv.monto = monto; mv.nota = nota;
-    mv.categoria = categoria; mv.subcategoria = subcategoria;
-    mv.estado = estado; mv.metodo = metodo; mv.anulado = anulado;
+    mv.fecha=fecha; mv.monto=monto; mv.nota=nota; mv.categoria=categoria; mv.subcategoria=subcategoria; mv.estado=estado; mv.metodo=metodo; mv.anulado=anulado;
     pushReciente(categoria, subcategoria);
   }
-
   saveAll();
   toast("Editado ✅");
   cerrarModal();
@@ -1780,19 +1385,15 @@ function modalGuardar(){
 ========================= */
 function iniciar(){
   loadAll();
-
   document.getElementById("vFecha").value = hoy();
   document.getElementById("gFecha").value = hoy();
 
   document.getElementById("gCat").addEventListener("change", ()=>{
-    cargarSubDeGasto();
-    renderChipsRecientes();
+    cargarSubDeGasto(); renderChipsRecientes();
   });
 
   refreshAllSelects();
-
   document.getElementById("dashMes").value = thisMonth();
-
   toggleMetodoGasto();
 
   wireMoneyInput("vMonto");
@@ -1800,6 +1401,7 @@ function iniciar(){
 
   renderHome();
   renderDashboard();
+  renderPendientes(false);
 }
 iniciar();
 </script>
