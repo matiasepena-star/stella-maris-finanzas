@@ -31,14 +31,19 @@ body{
   overflow:hidden;
   overscroll-behavior: none;
 }
+
+/* scroll iOS */
 .sectionBody, .homeGrid{
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
 }
+
+/* evita zoom iOS */
 input,select,textarea{
   -webkit-appearance: none;
   appearance: none;
+  font-size:16px;
 }
 
 .app{height:100%;display:flex;flex-direction:column;}
@@ -84,9 +89,12 @@ input,select,textarea{
   box-shadow: var(--shadow);
 }
 
+/* HOME tipo iPhone: filas fijas para poder estirar */
 .homeGrid{
   display:grid;
   grid-template-columns:repeat(2, minmax(0,1fr));
+  grid-auto-rows: 112px;
+  grid-auto-flow: dense;
   gap:12px;
   padding-top: 6px;
   overflow:auto;
@@ -98,6 +106,10 @@ input,select,textarea{
   user-select:none;
   position:relative;
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  transition: transform .08s ease, box-shadow .2s ease;
 }
 .tile:active{transform:translateY(1px)}
 .tile .tTitle{font-weight:1000;letter-spacing:.2px;font-size:13px;}
@@ -120,6 +132,7 @@ input,select,textarea{
 .tile.red::after{ background: radial-gradient(circle at 30% 30%, rgba(255,91,107,.18), transparent 60%); }
 .tile.purple::after{ background: radial-gradient(circle at 30% 30%, rgba(160,120,255,.18), transparent 60%); }
 
+/* herramientas en modo editar */
 .reorderBar{
   display:flex;gap:10px;align-items:center;justify-content:space-between;
   padding: 10px 12px;margin-top:6px;
@@ -128,12 +141,12 @@ input,select,textarea{
   background: rgba(255,255,255,.03);
 }
 .reorderHint{font-size:12px;color:var(--muted);line-height:1.2}
-
 .tileTools{
   display:none;
   position:absolute;
   left:12px; bottom:12px;
   gap:8px;
+  flex-wrap:wrap;
 }
 .tileTools .miniBtn{
   border:1px solid var(--stroke);
@@ -147,6 +160,18 @@ input,select,textarea{
 }
 .tile.reorder .tileTools{display:flex;}
 .tile.reorder{cursor:default;}
+
+/* tamaños */
+.tile.size-s{ grid-column: span 1; grid-row: span 1; }
+.tile.size-w{ grid-column: span 2; grid-row: span 1; }   /* ancho */
+.tile.size-l{ grid-column: span 2; grid-row: span 2; }   /* grande */
+
+/* que el grande se sienta más grande */
+.tile.size-l .tTitle{font-size:16px;}
+.tile.size-l .tSub{font-size:13px; max-width: 90%;}
+.tile.size-l .tIcon{width:38px;height:38px;font-size:18px;border-radius:14px;}
+.tile.size-w .tTitle{font-size:14px;}
+.tile.size-w .tIcon{width:34px;height:34px;font-size:17px;border-radius:14px;}
 
 .sectionHeader{
   margin: 10px 0 10px;
@@ -177,11 +202,9 @@ input,select,textarea{
   margin-bottom: 12px;
 }
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media (max-width:720px){ .row2{grid-template-columns:1fr} .homeGrid{grid-template-columns:1fr 1fr;} }
+@media (max-width:720px){ .row2{grid-template-columns:1fr} }
 
 label{display:block;font-size:12px;color:var(--muted);margin:6px 0 6px}
-
-/* iOS: 16px evita zoom */
 input,select,textarea{
   width:100%;
   padding: 11px 12px;
@@ -190,7 +213,6 @@ input,select,textarea{
   background: rgba(0,0,0,.22);
   color: var(--text);
   outline:none;
-  font-size:16px;
 }
 .money{font-weight:1100; letter-spacing:.2px;}
 
@@ -225,9 +247,9 @@ input,select,textarea{
 .stat{border:1px solid var(--stroke);background: rgba(255,255,255,.04);border-radius: 16px;padding: 12px;}
 .stat .k{font-size:12px; color:var(--muted)}
 .stat .v{margin-top:6px; font-size:16px; font-weight:1100; letter-spacing:.2px}
-.goodTxt{color:var(--good); font-weight:1100}
-.badTxt{color:var(--bad); font-weight:1100}
-.warnTxt{color:var(--warn); font-weight:1100}
+.goodTxt{color:#44d07b; font-weight:1100}
+.badTxt{color:#ff5b6b; font-weight:1100}
+.warnTxt{color:#ffb020; font-weight:1100}
 .muted{color:var(--muted)}
 
 .table{
@@ -313,7 +335,7 @@ input,select,textarea{
       <div class="reorderBar">
         <div>
           <div style="font-weight:1100;font-size:13px">Home</div>
-          <div class="reorderHint">Solo carteles. Activá “Editar Home” para reordenar.</div>
+          <div class="reorderHint">En “Editar Home” podés reordenar y cambiar tamaños (chico/ancho/grande).</div>
         </div>
         <div style="display:flex;gap:10px">
           <button class="iconBtn" id="btnReorder" onclick="toggleReorder()">Editar Home</button>
@@ -668,8 +690,9 @@ input,select,textarea{
 <div id="toast" class="toast">OK</div>
 
 <script>
-const STORAGE_ALL  = "SM_APP_ALL_WITH_GHIST_V1";
+const STORAGE_ALL  = "SM_APP_ALL_V2";
 const STORAGE_HOME = "SM_APP_HOME_ORDER_V1";
+const STORAGE_HOME_SIZES = "SM_APP_HOME_SIZES_V1";
 const STORAGE_DASHMODE = "SM_APP_DASH_MODE_V1";
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
@@ -798,7 +821,7 @@ function sanitizeMovimientos(arr){
   }));
 }
 
-/* HOME TILES (+ Historial Gastos) */
+/* HOME TILES */
 const HOME_TILES = [
   { id:"dashboard",   title:"Dashboard",         sub:"REAL vs TOTAL", icon:"📊", cls:"" },
   { id:"pendientes",  title:"Pendientes",        sub:"Saldo final por item", icon:"🧾", cls:"purple" },
@@ -814,6 +837,42 @@ const crumbs = {
   gastosCarga:"Cargar Gastos", movGastos:"Movimientos", gastosHist:"Historial Gastos"
 };
 
+/* tamaños home (persistentes) */
+const DEFAULT_HOME_SIZES = {
+  dashboard: "l",
+  ventasCarga: "w",
+  gastosCarga: "w",
+  movGastos: "w",
+  pendientes: "s",
+  ventasHist: "s",
+  gastosHist: "s"
+};
+function getHomeSizes(){
+  const raw = localStorage.getItem(STORAGE_HOME_SIZES);
+  if(!raw){
+    localStorage.setItem(STORAGE_HOME_SIZES, JSON.stringify(DEFAULT_HOME_SIZES));
+    return structuredClone(DEFAULT_HOME_SIZES);
+  }
+  try{
+    const obj = JSON.parse(raw);
+    return { ...structuredClone(DEFAULT_HOME_SIZES), ...(obj||{}) };
+  }catch{
+    localStorage.setItem(STORAGE_HOME_SIZES, JSON.stringify(DEFAULT_HOME_SIZES));
+    return structuredClone(DEFAULT_HOME_SIZES);
+  }
+}
+function setHomeSizes(s){ localStorage.setItem(STORAGE_HOME_SIZES, JSON.stringify(s)); }
+function cycleSizeFor(id){
+  const sizes = getHomeSizes();
+  const cur = sizes[id] || "s";
+  const next = cur==="s" ? "w" : (cur==="w" ? "l" : "s");
+  sizes[id] = next;
+  setHomeSizes(sizes);
+  renderHome();
+  toast(next==="s" ? "Tamaño: chico" : next==="w" ? "Tamaño: ancho" : "Tamaño: grande");
+}
+
+/* navegación */
 function go(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   const el = document.getElementById(id);
@@ -830,7 +889,7 @@ function go(id){
 }
 function goHome(){ go("home"); }
 
-/* HOME ORDER */
+/* orden home */
 function getHomeOrder(){
   const raw = localStorage.getItem(STORAGE_HOME);
   if(!raw) return HOME_TILES.map(t=>t.id);
@@ -847,21 +906,29 @@ function getHomeOrder(){
   }
 }
 function setHomeOrder(order){ localStorage.setItem(STORAGE_HOME, JSON.stringify(order)); }
+
 function renderHome(){
   const grid = document.getElementById("homeGrid");
   const order = getHomeOrder();
   const map = new Map(HOME_TILES.map(t=>[t.id,t]));
+  const sizes = getHomeSizes();
+
   grid.innerHTML = "";
   order.forEach((id)=>{
     const t = map.get(id);
     if(!t) return;
+
+    const size = sizes[id] || "s";
+    const sizeClass = size==="s" ? "size-s" : (size==="w" ? "size-w" : "size-l");
+
     const tile = document.createElement("div");
-    tile.className = `card tile ${t.cls || ""} ${homeEditMode ? "reorder" : ""}`;
+    tile.className = `card tile ${t.cls || ""} ${sizeClass} ${homeEditMode ? "reorder" : ""}`;
     tile.innerHTML = `
       <div class="tIcon">${t.icon}</div>
       <div class="tTitle">${t.title}</div>
       <div class="tSub">${t.sub}</div>
       <div class="tileTools">
+        <button class="miniBtn" onclick="cycleSizeFor('${escapeQuotes(t.id)}'); event.stopPropagation();">Tamaño</button>
         <button class="miniBtn" onclick="moveTileUp('${escapeQuotes(t.id)}'); event.stopPropagation();">↑</button>
         <button class="miniBtn" onclick="moveTileDown('${escapeQuotes(t.id)}'); event.stopPropagation();">↓</button>
       </div>`;
@@ -873,7 +940,7 @@ function renderHome(){
   btn.textContent = homeEditMode ? "Listo" : "Editar Home";
   btn.className = homeEditMode ? "iconBtn primary" : "iconBtn";
 }
-function toggleReorder(){ homeEditMode=!homeEditMode; renderHome(); toast(homeEditMode?"Editar Home ✅":"Orden guardado ✅"); }
+function toggleReorder(){ homeEditMode=!homeEditMode; renderHome(); toast(homeEditMode?"Editar Home ✅":"Guardado ✅"); }
 function moveTileUp(id){
   const order = getHomeOrder(); const i = order.indexOf(id);
   if(i<=0) return; [order[i-1], order[i]] = [order[i], order[i-1]];
@@ -885,7 +952,7 @@ function moveTileDown(id){
   setHomeOrder(order); renderHome();
 }
 
-/* SELECTS / CHIPS */
+/* selects */
 function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
   sel.innerHTML = "";
   if(includeAll) sel.innerHTML += `<option value="ALL">${allLabel}</option>`;
@@ -902,7 +969,6 @@ function refreshAllSelects(){
   fillSelectOptions(document.getElementById("gCat"), cats, false);
   fillSelectOptions(document.getElementById("mgCat"), cats, true, "Todas");
   fillSelectOptions(document.getElementById("pCat"), cats, true, "Todas");
-
   fillSelectOptions(document.getElementById("ghCat"), cats, true, "Todas");
 
   cargarSubDeGasto();
@@ -944,7 +1010,7 @@ function pickSub(sub){
   if(opt){ sel.value=sub; toast("Seleccionado: " + sub); }
 }
 
-/* Ventas disponibilidad auto */
+/* ventas: disponibilidad auto */
 function autoDisponibilidadVenta(){
   const met = (document.getElementById("vMetodo").value || "").toLowerCase();
   const disp = document.getElementById("vDisp");
@@ -955,8 +1021,10 @@ function autoDisponibilidadVenta(){
   }
 }
 
-/* Confirm */
+/* modal */
 let pendingConfirmAction = null;
+let modalEditingId=null;
+
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
@@ -992,7 +1060,7 @@ function abrirConfirm(title, lines, confirmLabel="Confirmar"){
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
-  const disp = document.getElementById("vDisp").value; // HOY/ACOBRAR
+  const disp = document.getElementById("vDisp").value;
   const monto = parseARS(document.getElementById("vMonto").value);
   const nota = (document.getElementById("vNota").value || "").trim();
   if(!monto || monto<=0) return toast("Monto inválido");
@@ -1008,6 +1076,7 @@ function confirmarYGuardarVenta(){
     {k:"Nota", v: nota || "-"}
   ], "Guardar");
 }
+
 function confirmarYGuardarGasto(){
   const fecha = (document.getElementById("gFecha").value || hoy());
   const categoria = document.getElementById("gCat").value;
@@ -1033,7 +1102,6 @@ function confirmarYGuardarGasto(){
   ], "Guardar");
 }
 
-/* Save actions */
 function guardarVentaDirecto({fecha, metodo, monto, nota, disp}){
   lockBtn("btnGuardarVenta", 650);
   movimientos.push({ id:uid(), anulado:false, tipo:"VENTA", fecha, metodo, monto, nota, disp });
@@ -1045,6 +1113,7 @@ function guardarVentaDirecto({fecha, metodo, monto, nota, disp}){
   renderDashboard();
   renderVentasHist();
 }
+
 function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, metodo, nota}){
   lockBtn("btnGuardarGasto", 650);
   movimientos.push({ id:uid(), anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo, nota });
@@ -1060,6 +1129,7 @@ function guardarGastoDirecto({fecha, categoria, subcategoria, monto, estado, met
   renderGastosHist();
   renderPendientes(false);
 }
+
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -1070,13 +1140,14 @@ function deshacerUltimo(){
   renderAll();
 }
 
-/* Edit modal */
-let modalEditingId=null;
+/* editar último (simple) */
 function editarUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para editar");
   abrirEditar(last.id);
 }
+
+/* editor */
 function abrirEditar(id){
   const mv = movimientos.find(x=>x.id===id); if(!mv) return;
   modalEditingId=id;
@@ -1151,7 +1222,9 @@ function toggleEditMetodo(){
   met.disabled = dis; met.style.opacity = dis ? "0.55":"1";
 }
 function modalGuardar(){
-  if(typeof pendingConfirmAction === "function"){ const fn=pendingConfirmAction; pendingConfirmAction=null; fn(); return; }
+  if(typeof pendingConfirmAction === "function"){
+    const fn=pendingConfirmAction; pendingConfirmAction=null; fn(); return;
+  }
   if(!modalEditingId) return cerrarModal();
   const mv = movimientos.find(x=>x.id===modalEditingId); if(!mv) return cerrarModal();
 
@@ -1181,7 +1254,7 @@ function modalGuardar(){
   renderPendientes(false);
 }
 
-/* CALCULOS */
+/* pendientes: suma/resta */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -1201,7 +1274,6 @@ function computePendientesMap(){
   return map;
 }
 
-/* RENDER */
 function setText(id, v){ const el = document.getElementById(id); if(el) el.textContent = v; }
 function renderAll(){
   const active = document.querySelector(".screen.active")?.id || "home";
@@ -1213,7 +1285,7 @@ function renderAll(){
   if(active==="gastosHist") renderGastosHist();
 }
 
-/* DASHBOARD */
+/* dashboard */
 function renderDashboard(){
   const mode = getDashMode();
   const mes = document.getElementById("dashMes")?.value || "";
@@ -1270,7 +1342,7 @@ function renderDashboard(){
   document.getElementById("tablaMetodos").innerHTML = html;
 }
 
-/* PENDIENTES */
+/* pendientes render */
 function renderPendientes(resetScroll){
   const catSel = document.getElementById("pCat")?.value || "ALL";
   const buscar = (document.getElementById("pBuscar")?.value || "").trim().toLowerCase();
@@ -1308,7 +1380,7 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* MOV (gastos) */
+/* movimientos filtros */
 function setMovEsteMes(){ document.getElementById("mgMes").value = thisMonth(); renderMovGastos(); toast("Este mes ✅"); }
 function limpiarFiltrosMov(){
   document.getElementById("mgMes").value="";
@@ -1383,7 +1455,7 @@ function renderMovGastos(){
   document.getElementById("tablaMovGastos").innerHTML = html;
 }
 
-/* HISTORIAL GASTOS (nuevo) */
+/* historial gastos */
 function onGhCatChange(isInit=false){
   const cat = document.getElementById("ghCat").value || "ALL";
   const subSel = document.getElementById("ghSub");
@@ -1445,7 +1517,7 @@ function renderGastosHist(){
   document.getElementById("tablaGastosHist").innerHTML = html;
 }
 
-/* HISTORIAL VENTAS */
+/* historial ventas */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
@@ -1466,8 +1538,8 @@ function renderVentasHist(){
   });
 
   rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
-  setText("vhTotalHoy", formatARS(totHoy));
-  setText("vhTotalAC", formatARS(totAC));
+  document.getElementById("vhTotalHoy").textContent = formatARS(totHoy);
+  document.getElementById("vhTotalAC").textContent = formatARS(totAC);
 
   let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Disp.</th><th>Nota</th><th>Monto</th><th>Editar</th></tr>`;
   rows.forEach(m=>{
@@ -1485,7 +1557,7 @@ function renderVentasHist(){
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
-/* WhatsApp resumen */
+/* WhatsApp */
 async function copiarResumenWhatsApp(){
   const mes = document.getElementById("dashMes")?.value || thisMonth();
   const mode = getDashMode();
@@ -1503,7 +1575,6 @@ async function copiarResumenWhatsApp(){
   });
 
   const ventasMostrar = (mode==="REAL") ? ventasHoyMes : ventasTotalMes;
-
   const txt =
 `📌 *Stella Maris · ${mes}* (${mode})
 💰 Ventas: ${formatARS(ventasMostrar)}
@@ -1517,7 +1588,7 @@ async function copiarResumenWhatsApp(){
   }
 }
 
-/* INIT */
+/* init */
 function iniciar(){
   loadAll();
   document.getElementById("vFecha").value = hoy();
@@ -1529,8 +1600,8 @@ function iniciar(){
 
   refreshAllSelects();
   document.getElementById("dashMes").value = thisMonth();
-  if(document.getElementById("vhMes")) document.getElementById("vhMes").value = thisMonth();
-  if(document.getElementById("ghMes")) document.getElementById("ghMes").value = thisMonth();
+  document.getElementById("vhMes").value = thisMonth();
+  document.getElementById("ghMes").value = thisMonth();
 
   toggleMetodoGasto();
   autoDisponibilidadVenta();
