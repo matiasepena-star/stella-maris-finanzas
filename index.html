@@ -52,7 +52,7 @@ input,select,textarea{font-size:16px;-webkit-appearance:none;appearance:none}
 .titleWrap{line-height:1.1}
 .title{font-weight:900;letter-spacing:.3px;font-size:14px;}
 .subtitle{font-size:12px;color:var(--muted);margin-top:3px;}
-.topActions{display:flex;align-items:center;gap:10px;}
+.topActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 
 .iconBtn{
   border:1px solid var(--stroke);
@@ -265,9 +265,13 @@ input,select,textarea{
         <div class="subtitle" id="crumb">Home</div>
       </div>
     </div>
+
+    <!-- BOTONES (solo agregué Exportar/Importar) -->
     <div class="topActions">
       <button class="iconBtn" onclick="goHome()">Home</button>
       <button class="iconBtn primary" onclick="deshacerUltimo()">Deshacer</button>
+      <button class="iconBtn" onclick="exportarDatos()">Exportar</button>
+      <button class="iconBtn" onclick="importarDatos()">Importar</button>
     </div>
   </div>
 
@@ -1047,7 +1051,6 @@ function renderMovHist(){
     if(mes && !(m.fecha||"").startsWith(mes)) return false;
     if(tipo!=="ALL" && m.tipo!==tipo) return false;
 
-    // filtro método:
     if(metodo!=="ALL"){
       if(m.tipo==="VENTA" && m.metodo!==metodo) return false;
       if(m.tipo==="GASTO"){
@@ -1095,7 +1098,6 @@ function renderMovHist(){
 }
 /* =========================
    DASHBOARD (incluye traspasos)
-   - Calculado = ventas - gastos pagados + traspasos (resta desde, suma hacia)
 ========================= */
 function calcBalances(){
   const calc = {};
@@ -1148,13 +1150,9 @@ function renderDashboard(){
   resEl.textContent = formatARS(res);
   resEl.className = "v " + (res>=0 ? "goodTxt" : "badTxt");
 
-  // Saldos calculados (histórico total)
   const calc = calcBalances();
-
-  // Saldos reales (B) fijo por método
   const real = getRealSaldos();
 
-  // Tabla
   let html = `
   <table class="table">
     <tr>
@@ -1213,7 +1211,6 @@ function renderDashboard(){
 
   document.getElementById("tablaMetodos").innerHTML = html;
 
-  // money + guardado real (al salir)
   const inputs = document.querySelectorAll(".realSaldoInput");
   inputs.forEach(inp=>{
     wireMoneyInput(inp);
@@ -1265,13 +1262,87 @@ async function copiarResumenWhatsApp(){
 }
 
 /* =========================
-   (Placeholder) editarUltimo
-   - Lo dejamos simple por ahora: abre movimientos y te deja ver.
-   - En fase 1, si querés, lo hacemos “Editar” real.
+   Editar último (placeholder)
 ========================= */
 function editarUltimo(){
   toast("Abrí Movimientos para revisar 👇");
   go("movHist");
+}
+
+/* =========================
+   EXPORTAR / IMPORTAR (REEMPLAZA TODO)
+========================= */
+function exportarDatos(){
+  const data = {
+    master,
+    movimientos,
+    realSaldos: getRealSaldos()
+  };
+  const texto = JSON.stringify(data, null, 2);
+
+  navigator.clipboard.writeText(texto).then(()=>{
+    toast("Exportado ✅ (copiado)");
+  }).catch(()=>{
+    abrirModal("Exportar", `
+      <div class="panel" style="margin:0">
+        <div class="muted" style="margin-bottom:10px">Copiá este texto y pegalo en el otro dispositivo.</div>
+        <textarea style="min-height:260px">${texto}</textarea>
+      </div>
+    `, "Cerrar");
+    document.getElementById("modalFoot").innerHTML = `<button class="btn primary" onclick="cerrarModal()">Cerrar</button>`;
+  });
+}
+
+function importarDatos(){
+  abrirModal("Importar (Reemplaza todo)", `
+    <div class="panel" style="margin:0">
+      <div class="muted" style="margin-bottom:10px">
+        Pegá el JSON exportado. Esto reemplaza TODOS los datos actuales.
+      </div>
+      <textarea id="importJson" style="min-height:260px" placeholder="{ ... }"></textarea>
+    </div>
+  `, "Importar");
+
+  document.getElementById("modalFoot").innerHTML = `
+    <button class="btn" onclick="cerrarModal()">Cancelar</button>
+    <button class="btn danger" onclick="confirmarImportacion()">Importar</button>
+  `;
+}
+
+function confirmarImportacion(){
+  const texto = (document.getElementById("importJson")?.value || "").trim();
+  if(!texto) return toast("No hay datos");
+
+  let data;
+  try{ data = JSON.parse(texto); }
+  catch{ return toast("JSON inválido"); }
+
+  if(!data || typeof data!=="object") return toast("Formato inválido");
+  if(!data.master || !Array.isArray(data.movimientos)) return toast("Faltan campos");
+
+  if(!confirm("Esto reemplaza TODO. ¿Continuar?")) return;
+
+  master = data.master;
+  movimientos = data.movimientos;
+  saveAll();
+
+  if(data.realSaldos && typeof data.realSaldos==="object"){
+    setRealSaldos(data.realSaldos);
+  }else{
+    const real = getRealSaldos();
+    master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
+    setRealSaldos(real);
+  }
+
+  cerrarModal();
+  toast("Importado ✅");
+
+  refreshSelects();
+  renderHome();
+  renderDashboard();
+  renderPendientes(false);
+  renderVentasHist();
+  renderMovHist();
 }
 
 /* =========================
@@ -1280,33 +1351,26 @@ function editarUltimo(){
 function iniciar(){
   loadAll();
 
-  // defaults fechas
   document.getElementById("vFecha").value = hoy();
   document.getElementById("gFecha").value = hoy();
   document.getElementById("tFecha").value = hoy();
 
-  // selects
   refreshSelects();
 
-  // eventos
   document.getElementById("gCat").addEventListener("change", ()=>{ cargarSubDeGasto(); });
 
-  // meses filtros
   document.getElementById("dashMes").value = thisMonth();
   document.getElementById("vhMes").value = thisMonth();
   document.getElementById("mhMes").value = thisMonth();
 
-  // money masks
   wireMoneyInput(document.getElementById("vMonto"));
   wireMoneyInput(document.getElementById("gMonto"));
   wireMoneyInput(document.getElementById("tMonto"));
 
-  // asegurar real keys
   const real = getRealSaldos();
   master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
   setRealSaldos(real);
 
-  // render
   renderHome();
   renderDashboard();
   renderPendientes(false);
