@@ -30,15 +30,11 @@ body{
   overflow:hidden;
   overscroll-behavior: none;
 }
-
-/* Scroll suave y estable */
 .sectionBody, .homeGrid{
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
 }
-
-/* Evita zoom iOS */
 input,select,textarea{font-size:16px;-webkit-appearance:none;appearance:none}
 
 .app{height:100%;display:flex;flex-direction:column;}
@@ -84,7 +80,7 @@ input,select,textarea{font-size:16px;-webkit-appearance:none;appearance:none}
   box-shadow: var(--shadow);
 }
 
-/* HOME tipo widgets */
+/* HOME tiles */
 .homeGrid{
   display:grid;
   grid-template-columns:repeat(2, minmax(0,1fr));
@@ -219,7 +215,7 @@ input,select,textarea{
 .table tr:last-child td{border-bottom:none}
 .rowAnulada{opacity:.55}
 
-/* Modal confirm bien visible */
+/* Modal confirm */
 .modalBack{
   position:fixed;inset:0;
   background: rgba(0,0,0,.74);
@@ -312,7 +308,7 @@ input,select,textarea{
             <div>
               <div style="font-weight:1100; font-size:13px">Saldos por método</div>
               <div class="muted" style="font-size:12px;margin-top:6px">
-                Calculado = ventas - gastos pagados (histórico). Real = lo que tenés (editable, fijo por método).
+                Calculado = ventas - gastos pagados + traspasos. Real = lo que tenés (editable, fijo por método).
               </div>
             </div>
             <button class="iconBtn small" onclick="setRealToCalc()">Real = Calculado</button>
@@ -351,6 +347,42 @@ input,select,textarea{
             <button class="btn" onclick="goHome()">Volver</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL VENTAS -->
+    <div id="ventasHist" class="screen">
+      <div class="sectionHeader">
+        <div>
+          <h2>Historial de Ventas</h2>
+          <div class="hint">Filtros por mes y método.</div>
+        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
+      </div>
+
+      <div class="sectionBody">
+        <div class="panel">
+          <div class="row2">
+            <div>
+              <label>Mes</label>
+              <input type="month" id="vhMes" onchange="renderVentasHist()">
+            </div>
+            <div>
+              <label>Método</label>
+              <select id="vhMetodo" onchange="renderVentasHist()"></select>
+            </div>
+          </div>
+
+          <label>Buscar (nota)</label>
+          <input type="text" id="vhBuscar" placeholder="Ej: cierre..." oninput="renderVentasHist()">
+
+          <div class="hr"></div>
+          <div class="statGrid">
+            <div class="stat"><div class="k">Total filtrado</div><div class="v goodTxt" id="vhTotal">$ 0</div></div>
+          </div>
+        </div>
+
+        <div class="panel" id="tablaVentasHist"></div>
       </div>
     </div>
 
@@ -400,6 +432,90 @@ input,select,textarea{
             <button class="btn" onclick="goHome()">Volver</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- TRASPASO ENTRE CUENTAS -->
+    <div id="traspaso" class="screen">
+      <div class="sectionHeader">
+        <div>
+          <h2>Traspaso entre cuentas</h2>
+          <div class="hint">Mueve plata de un método a otro (no es venta ni gasto).</div>
+        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
+      </div>
+
+      <div class="sectionBody">
+        <div class="panel">
+          <label>Fecha</label>
+          <input type="date" id="tFecha">
+
+          <div class="row2">
+            <div>
+              <label>Desde</label>
+              <select id="tDesde"></select>
+            </div>
+            <div>
+              <label>Hacia</label>
+              <select id="tHacia"></select>
+            </div>
+          </div>
+
+          <label>Monto</label>
+          <input class="money" type="text" id="tMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
+
+          <label>Nota (opcional)</label>
+          <input type="text" id="tNota" placeholder="Ej: retiro / transferencia...">
+
+          <div class="row2" style="margin-top:8px">
+            <button class="btn primary" onclick="confirmarYGuardarTraspaso()">Guardar traspaso</button>
+            <button class="btn" onclick="goHome()">Volver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOVIMIENTOS (lista única) -->
+    <div id="movHist" class="screen">
+      <div class="sectionHeader">
+        <div>
+          <h2>Historial de Movimientos</h2>
+          <div class="hint">Ventas + Gastos + Traspasos en una lista con filtros.</div>
+        </div>
+        <button class="btn" onclick="goHome()">Volver</button>
+      </div>
+
+      <div class="sectionBody">
+        <div class="panel">
+          <div class="row2">
+            <div>
+              <label>Mes</label>
+              <input type="month" id="mhMes" onchange="renderMovHist()">
+            </div>
+            <div>
+              <label>Tipo</label>
+              <select id="mhTipo" onchange="renderMovHist()">
+                <option value="ALL">Todos</option>
+                <option value="VENTA">Ventas</option>
+                <option value="GASTO">Gastos</option>
+                <option value="TRASPASO">Traspasos</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row2">
+            <div>
+              <label>Método</label>
+              <select id="mhMetodo" onchange="renderMovHist()"></select>
+            </div>
+            <div>
+              <label>Buscar</label>
+              <input type="text" id="mhBuscar" placeholder="nota, proveedor, impuesto..." oninput="renderMovHist()">
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="tablaMovHist"></div>
       </div>
     </div>
 
@@ -453,8 +569,8 @@ input,select,textarea{
 /* =========================
    STORAGE
 ========================= */
-const STORAGE_ALL  = "SM_APP_ALL_V5";
-const STORAGE_REAL = "SM_APP_REAL_SALDOS_V2";
+const STORAGE_ALL  = "SM_APP_ALL_V6";
+const STORAGE_REAL = "SM_APP_REAL_SALDOS_V3";
 
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
@@ -469,21 +585,29 @@ const DEFAULT_MASTER = {
 };
 
 let master = structuredClone(DEFAULT_MASTER);
-let movimientos = []; // {id,tipo,fecha,metodo,monto,nota,categoria,subcategoria,estado,anulado}
-let modalEditingId = null;
+let movimientos = []; // {id,tipo,fecha,monto,nota,metodo,categoria,subcategoria,estado,desde,hacia,anulado}
+
 let pendingConfirmAction = null;
 
 /* =========================
    HOME tiles
 ========================= */
 const HOME_TILES = [
-  { id:"dashboard",   title:"Dashboard",     sub:"Totales + saldos", icon:"📊", cls:"" , size:"l"},
-  { id:"ventasCarga", title:"Cargar Ventas", sub:"Venta directa",    icon:"➕", cls:"green", size:"w"},
-  { id:"gastosCarga", title:"Cargar Gastos", sub:"Pagado/Pendiente", icon:"➖", cls:"red",   size:"w"},
-  { id:"pendientes",  title:"Pendientes",    sub:"Saldo final",      icon:"🧾", cls:"purple",size:"s"},
+  { id:"dashboard",   title:"Dashboard",          sub:"Totales + saldos", icon:"📊", cls:"",       size:"l"},
+  { id:"ventasCarga", title:"Cargar Ventas",      sub:"Venta directa",    icon:"➕", cls:"green",  size:"w"},
+  { id:"ventasHist",  title:"Historial Ventas",   sub:"Mes / método",     icon:"🧠", cls:"green",  size:"s"},
+  { id:"gastosCarga", title:"Cargar Gastos",      sub:"Pagado/Pendiente", icon:"➖", cls:"red",    size:"w"},
+  { id:"traspaso",    title:"Traspaso",           sub:"Entre cuentas",    icon:"🔁", cls:"",       size:"s"},
+  { id:"movHist",     title:"Movimientos",        sub:"Lista completa",   icon:"📋", cls:"",       size:"w"},
+  { id:"pendientes",  title:"Pendientes",         sub:"Saldo final",      icon:"🧾", cls:"purple", size:"s"},
 ];
 
-const crumbs = { home:"Home", dashboard:"Dashboard", ventasCarga:"Cargar Ventas", gastosCarga:"Cargar Gastos", pendientes:"Pendientes" };
+const crumbs = {
+  home:"Home", dashboard:"Dashboard",
+  ventasCarga:"Cargar Ventas", ventasHist:"Historial Ventas",
+  gastosCarga:"Cargar Gastos", traspaso:"Traspaso",
+  movHist:"Movimientos", pendientes:"Pendientes"
+};
 
 /* =========================
    HELPERS
@@ -492,6 +616,7 @@ function hoy(){ return new Date().toISOString().split("T")[0]; }
 function thisMonth(){ return new Date().toISOString().slice(0,7); }
 function uid(){ return "m_" + Math.random().toString(16).slice(2) + "_" + Date.now(); }
 function round0(n){ return Math.round(Number(n)||0); }
+function activos(){ return movimientos.filter(m=>!m.anulado); }
 
 function toast(msg="OK"){
   const t = document.getElementById("toast");
@@ -530,8 +655,6 @@ function wireMoneyInput(el){
   el.addEventListener("blur", apply);
   apply();
 }
-
-function activos(){ return movimientos.filter(m=>!m.anulado); }
 
 /* =========================
    SAVE / LOAD
@@ -581,11 +704,13 @@ function go(id){
   if(id==="home") renderHome();
   if(id==="dashboard") renderDashboard();
   if(id==="pendientes") renderPendientes(true);
+  if(id==="ventasHist") renderVentasHist();
+  if(id==="movHist") renderMovHist();
 }
 function goHome(){ go("home"); }
 
 /* =========================
-   HOME RENDER
+   HOME
 ========================= */
 function renderHome(){
   const grid = document.getElementById("homeGrid");
@@ -613,19 +738,30 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 }
 
 function refreshSelects(){
+  // ventas
   fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
-  fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
 
+  // historial ventas
+  fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
+
+  // gastos
+  fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
   fillSelectOptions(document.getElementById("pCat"), cats, true, "Todas");
-
   cargarSubDeGasto();
   toggleMetodoGasto();
+
+  // traspaso
+  fillSelectOptions(document.getElementById("tDesde"), master.metodos, false);
+  fillSelectOptions(document.getElementById("tHacia"), master.metodos, false);
+
+  // movimientos (lista)
+  fillSelectOptions(document.getElementById("mhMetodo"), master.metodos, true, "Todos");
 }
 
 /* =========================
-   GASTOS: categoría -> sub
+   GASTOS cat->sub
 ========================= */
 function cargarSubDeGasto(){
   const cat = document.getElementById("gCat").value;
@@ -652,7 +788,7 @@ function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalBack").style.display="block";
 }
 function modalClickOutside(ev){ if(ev.target.id==="modalBack") cerrarModal(); }
-function cerrarModal(){ modalEditingId=null; pendingConfirmAction=null; document.getElementById("modalBack").style.display="none"; }
+function cerrarModal(){ pendingConfirmAction=null; document.getElementById("modalBack").style.display="none"; }
 
 function abrirConfirm(title, lines, confirmLabel="Confirmar"){
   const body = `
@@ -664,7 +800,6 @@ function abrirConfirm(title, lines, confirmLabel="Confirmar"){
   `;
   abrirModal("Confirmar", body, confirmLabel);
 }
-
 function modalGuardar(){
   if(typeof pendingConfirmAction === "function"){
     const fn = pendingConfirmAction; pendingConfirmAction=null; fn(); return;
@@ -691,6 +826,8 @@ function confirmarYGuardarVenta(){
     toast("Venta guardada ✅");
     cerrarModal();
     renderDashboard();
+    renderVentasHist();
+    renderMovHist();
   };
 
   abrirConfirm("Venta", [
@@ -718,7 +855,11 @@ function confirmarYGuardarGasto(){
   if(estado==="PAGADO" && !metodo) return toast("Pagado sin método no");
 
   pendingConfirmAction = () => {
-    movimientos.push({ id:uid(), anulado:false, tipo:"GASTO", fecha, categoria, subcategoria, monto, estado, metodo:(estado==="PAGADO"?metodo:""), nota });
+    movimientos.push({
+      id:uid(), anulado:false, tipo:"GASTO", fecha,
+      categoria, subcategoria, monto, estado,
+      metodo:(estado==="PAGADO"?metodo:""), nota
+    });
     saveAll();
     document.getElementById("gMonto").value = "";
     document.getElementById("gNota").value = "";
@@ -726,6 +867,7 @@ function confirmarYGuardarGasto(){
     cerrarModal();
     renderDashboard();
     renderPendientes(false);
+    renderMovHist();
   };
 
   abrirConfirm("Gasto", [
@@ -734,6 +876,43 @@ function confirmarYGuardarGasto(){
     {k:"Subcategoría", v:subcategoria},
     {k:"Estado", v:estado},
     {k:"Método", v: estado==="PAGADO" ? metodo : "-"},
+    {k:"Monto", v: formatARS(monto)},
+    {k:"Nota", v: nota || "-"}
+  ], "Guardar");
+}
+
+/* =========================
+   GUARDAR TRASPASO (entre cuentas)
+========================= */
+function confirmarYGuardarTraspaso(){
+  const fecha = (document.getElementById("tFecha").value || hoy());
+  const desde = document.getElementById("tDesde").value;
+  const hacia = document.getElementById("tHacia").value;
+  const monto = parseARS(document.getElementById("tMonto").value);
+  const nota = (document.getElementById("tNota").value || "").trim();
+
+  if(!monto || monto<=0) return toast("Monto inválido");
+  if(!desde || !hacia) return toast("Falta desde/hacia");
+  if(desde===hacia) return toast("Desde y Hacia no pueden ser iguales");
+
+  pendingConfirmAction = () => {
+    movimientos.push({
+      id:uid(), anulado:false, tipo:"TRASPASO", fecha,
+      desde, hacia, monto, nota
+    });
+    saveAll();
+    document.getElementById("tMonto").value = "";
+    document.getElementById("tNota").value = "";
+    toast("Traspaso guardado ✅");
+    cerrarModal();
+    renderDashboard();
+    renderMovHist();
+  };
+
+  abrirConfirm("Traspaso", [
+    {k:"Fecha", v:fecha},
+    {k:"Desde", v:desde},
+    {k:"Hacia", v:hacia},
     {k:"Monto", v: formatARS(monto)},
     {k:"Nota", v: nota || "-"}
   ], "Guardar");
@@ -751,6 +930,8 @@ function deshacerUltimo(){
   toast("Deshecho ✅");
   renderDashboard();
   renderPendientes(false);
+  renderVentasHist();
+  renderMovHist();
 }
 
 /* =========================
@@ -772,7 +953,7 @@ function computePendientesMap(){
     if(map[cat][sub]===undefined) map[cat][sub]=0;
 
     if(m.estado==="PENDIENTE") map[cat][sub] += m.monto;
-    if(m.estado==="PAGADO") map[cat][sub] -= m.monto; // paga y resta (puede quedar negativo)
+    if(m.estado==="PAGADO") map[cat][sub] -= m.monto; // resta al pagar (puede quedar negativo)
   });
 
   return map;
@@ -814,8 +995,107 @@ function renderPendientes(resetScroll){
     if(sb) sb.scrollTop = 0;
   }
 }
+
 /* =========================
-   DASHBOARD (totales mes + saldos calc/real)
+   HISTORIAL VENTAS
+========================= */
+function renderVentasHist(){
+  const mes = document.getElementById("vhMes").value;
+  const metodo = document.getElementById("vhMetodo").value || "ALL";
+  const buscar = (document.getElementById("vhBuscar").value || "").trim().toLowerCase();
+
+  let rows=[], total=0;
+  movimientos.forEach(m=>{
+    if(m.tipo!=="VENTA") return;
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
+    if(metodo!=="ALL" && m.metodo!==metodo) return;
+    const hay = `${m.metodo||""} ${m.nota||""}`.toLowerCase();
+    if(buscar && !hay.includes(buscar)) return;
+
+    if(!m.anulado) total += m.monto;
+    rows.push(m);
+  });
+
+  rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
+  document.getElementById("vhTotal").textContent = formatARS(total);
+
+  let html = `<table class="table"><tr><th>Fecha</th><th>Método</th><th>Nota</th><th>Monto</th></tr>`;
+  rows.forEach(m=>{
+    html += `<tr class="${m.anulado?'rowAnulada':''}">
+      <td>${m.fecha}</td>
+      <td style="font-weight:1100">${m.metodo||""}</td>
+      <td class="muted">${m.nota||""}</td>
+      <td class="goodTxt">${formatARS(m.monto)}</td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById("tablaVentasHist").innerHTML = html;
+}
+
+/* =========================
+   MOVIMIENTOS (lista única)
+========================= */
+function renderMovHist(){
+  const mes = document.getElementById("mhMes").value;
+  const tipo = document.getElementById("mhTipo").value || "ALL";
+  const metodo = document.getElementById("mhMetodo").value || "ALL";
+  const buscar = (document.getElementById("mhBuscar").value || "").trim().toLowerCase();
+
+  let rows = movimientos.slice();
+
+  rows = rows.filter(m=>{
+    if(mes && !(m.fecha||"").startsWith(mes)) return false;
+    if(tipo!=="ALL" && m.tipo!==tipo) return false;
+
+    // filtro método:
+    if(metodo!=="ALL"){
+      if(m.tipo==="VENTA" && m.metodo!==metodo) return false;
+      if(m.tipo==="GASTO"){
+        if(m.estado!=="PAGADO") return false;
+        if((m.metodo||"")!==metodo) return false;
+      }
+      if(m.tipo==="TRASPASO"){
+        if(m.desde!==metodo && m.hacia!==metodo) return false;
+      }
+    }
+
+    const hay = `${m.tipo} ${m.metodo||""} ${m.categoria||""} ${m.subcategoria||""} ${m.estado||""} ${m.desde||""} ${m.hacia||""} ${m.nota||""}`.toLowerCase();
+    if(buscar && !hay.includes(buscar)) return false;
+
+    return true;
+  });
+
+  rows.sort((a,b)=> a.fecha>b.fecha ? -1 : a.fecha<b.fecha ? 1 : (a.id>b.id ? -1 : 1));
+
+  let html = `<table class="table"><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr>`;
+  rows.forEach(m=>{
+    let det = "";
+    let montoCls = "muted";
+
+    if(m.tipo==="VENTA"){
+      det = `<span style="font-weight:1100">${m.metodo}</span>${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
+      montoCls = "goodTxt";
+    }else if(m.tipo==="GASTO"){
+      det = `<span style="font-weight:1100">${m.categoria}</span> · ${m.subcategoria} · ${m.estado}${m.estado==="PAGADO" ? ` · <span style="font-weight:1100">${m.metodo}</span>`:""}${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
+      montoCls = "badTxt";
+    }else if(m.tipo==="TRASPASO"){
+      det = `<span style="font-weight:1100">${m.desde}</span> → <span style="font-weight:1100">${m.hacia}</span>${m.nota?` · <span class="muted">${m.nota}</span>`:""}`;
+      montoCls = "muted";
+    }
+
+    html += `<tr class="${m.anulado?'rowAnulada':''}">
+      <td>${m.fecha}</td>
+      <td style="font-weight:1100">${m.tipo}</td>
+      <td>${det}</td>
+      <td class="${montoCls}" style="font-weight:1100">${formatARS(m.monto)}</td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById("tablaMovHist").innerHTML = html;
+}
+/* =========================
+   DASHBOARD (incluye traspasos)
+   - Calculado = ventas - gastos pagados + traspasos (resta desde, suma hacia)
 ========================= */
 function calcBalances(){
   const calc = {};
@@ -830,7 +1110,12 @@ function calcBalances(){
       if(!met) return;
       calc[met] = (calc[met]||0) - m.monto;
     }
+    if(m.tipo==="TRASPASO"){
+      if(m.desde) calc[m.desde] = (calc[m.desde]||0) - m.monto;
+      if(m.hacia) calc[m.hacia] = (calc[m.hacia]||0) + m.monto;
+    }
   });
+
   return calc;
 }
 
@@ -846,7 +1131,7 @@ function setRealToCalc(){
 function renderDashboard(){
   const mes = document.getElementById("dashMes")?.value || "";
 
-  // Totales del mes (solo mes)
+  // Totales del mes (ventas y gastos pagados)
   let ventasMes=0, gastosPagMes=0;
   activos().forEach(m=>{
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
@@ -928,7 +1213,7 @@ function renderDashboard(){
 
   document.getElementById("tablaMetodos").innerHTML = html;
 
-  // Formateo y guardado de Real (al salir del input)
+  // money + guardado real (al salir)
   const inputs = document.querySelectorAll(".realSaldoInput");
   inputs.forEach(inp=>{
     wireMoneyInput(inp);
@@ -939,7 +1224,7 @@ function renderDashboard(){
       realNow[method] = round0(val);
       setRealSaldos(realNow);
       toast("Saldo real guardado ✅");
-      renderDashboard(); // refresca total/dif
+      renderDashboard();
     });
   });
 }
@@ -980,27 +1265,41 @@ async function copiarResumenWhatsApp(){
 }
 
 /* =========================
+   (Placeholder) editarUltimo
+   - Lo dejamos simple por ahora: abre movimientos y te deja ver.
+   - En fase 1, si querés, lo hacemos “Editar” real.
+========================= */
+function editarUltimo(){
+  toast("Abrí Movimientos para revisar 👇");
+  go("movHist");
+}
+
+/* =========================
    INIT
 ========================= */
 function iniciar(){
   loadAll();
 
-  // defaults
+  // defaults fechas
   document.getElementById("vFecha").value = hoy();
   document.getElementById("gFecha").value = hoy();
+  document.getElementById("tFecha").value = hoy();
 
   // selects
   refreshSelects();
 
-  // categoría -> sub
+  // eventos
   document.getElementById("gCat").addEventListener("change", ()=>{ cargarSubDeGasto(); });
 
-  // mes dashboard
+  // meses filtros
   document.getElementById("dashMes").value = thisMonth();
+  document.getElementById("vhMes").value = thisMonth();
+  document.getElementById("mhMes").value = thisMonth();
 
   // money masks
   wireMoneyInput(document.getElementById("vMonto"));
   wireMoneyInput(document.getElementById("gMonto"));
+  wireMoneyInput(document.getElementById("tMonto"));
 
   // asegurar real keys
   const real = getRealSaldos();
@@ -1011,6 +1310,8 @@ function iniciar(){
   renderHome();
   renderDashboard();
   renderPendientes(false);
+  renderVentasHist();
+  renderMovHist();
 }
 iniciar();
 </script>
