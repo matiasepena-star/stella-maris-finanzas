@@ -449,8 +449,7 @@ input,select,textarea{
         <div class="panel" id="tablaVentasHist"></div>
       </div>
     </div>
-
-    <div id="gastosCarga" class="screen">
+        <div id="gastosCarga" class="screen">
       <div class="sectionHeader">
         <div>
           <h2>Cargar Gastos</h2>
@@ -692,6 +691,9 @@ input,select,textarea{
 const STORAGE_ALL  = "SM_APP_ALL_V7";
 const STORAGE_REAL = "SM_APP_REAL_SALDOS_V3";
 
+/* ✅ CAMBIO B: métodos que NO deben aparecer en Dashboard/Saldos */
+const NO_SALDO_METHODS = new Set(["Cheque"]);
+
 const fmtMoney = new Intl.NumberFormat("es-AR",{maximumFractionDigits:0});
 
 const DEFAULT_MASTER = {
@@ -898,7 +900,6 @@ function modalGuardar(){
   }
   cerrarModal();
 }
-
 /* Guardar */
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
@@ -1323,22 +1324,26 @@ function escapeHtml(s){
     "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
   }[m]));
 }
+
+/* ✅ CAMBIO B: Cheque no entra en balances del Dashboard */
 function calcBalances(){
   const calc = {};
-  master.metodos.forEach(m => calc[m]=0);
+  master.metodos.filter(m=>!NO_SALDO_METHODS.has(m)).forEach(m => calc[m]=0);
 
   activos().forEach(m=>{
     if(m.tipo==="VENTA"){
+      if(NO_SALDO_METHODS.has(m.metodo)) return;
       calc[m.metodo] = (calc[m.metodo]||0) + m.monto;
     }
     if(m.tipo==="GASTO" && m.estado==="PAGADO"){
       const met = m.metodo || "";
       if(!met) return;
+      if(NO_SALDO_METHODS.has(met)) return;
       calc[met] = (calc[met]||0) - m.monto;
     }
     if(m.tipo==="TRASPASO"){
-      if(m.desde) calc[m.desde] = (calc[m.desde]||0) - m.monto;
-      if(m.hacia) calc[m.hacia] = (calc[m.hacia]||0) + m.monto;
+      if(m.desde && !NO_SALDO_METHODS.has(m.desde)) calc[m.desde] = (calc[m.desde]||0) - m.monto;
+      if(m.hacia && !NO_SALDO_METHODS.has(m.hacia)) calc[m.hacia] = (calc[m.hacia]||0) + m.monto;
     }
   });
 
@@ -1347,8 +1352,11 @@ function calcBalances(){
 
 function setRealToCalc(){
   const calc = calcBalances();
-  const real = {};
-  master.metodos.forEach(m=> real[m] = round0(calc[m]||0));
+  const real = getRealSaldos();
+  master.metodos.forEach(m=>{
+    if(NO_SALDO_METHODS.has(m)) return; // no lo tocamos acá
+    real[m] = round0(calc[m]||0);
+  });
   setRealSaldos(real);
   toast("Real = Calculado ✅");
   renderDashboard();
@@ -1387,7 +1395,8 @@ function renderDashboard(){
 
   let sumCalc=0, sumReal=0;
 
-  master.metodos.forEach(m=>{
+  /* ✅ CAMBIO B: Cheque NO se muestra en Dashboard */
+  master.metodos.filter(m=>!NO_SALDO_METHODS.has(m)).forEach(m=>{
     const c = round0(calc[m]||0);
     const r = round0(real[m]||0);
     const dif = r - c;
