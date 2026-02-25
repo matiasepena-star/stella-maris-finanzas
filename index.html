@@ -100,7 +100,7 @@ input,select,textarea{font-size:16px;-webkit-appearance:none;appearance:none}
   display:flex;
   flex-direction:column;
   justify-content:flex-end;
-  transition: transform .08s ease;
+  transition: transform .10s ease;
 }
 .tile:active{transform:translateY(1px)}
 .tile .tTitle{font-weight:1000;letter-spacing:.2px;font-size:13px;}
@@ -276,6 +276,45 @@ input,select,textarea{
   .tableWrap .table{ min-width: 760px; }
   .table td:nth-child(3), .table th:nth-child(3){ width:220px; min-width:220px; }
   .realSaldoInput{ width:220px; min-width:220px; max-width:220px; font-size:14px; }
+}
+
+/* =========================================
+   ✅ ELEGANTE SOLO CELU (no afecta PC)
+   - Más contraste sutil
+   - Cards más “presentes”
+   - Tipos más claros
+   ========================================= */
+@media (max-width:520px){
+  .homeGrid{ gap:14px; }
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
+    border-color: rgba(255,255,255,.14);
+    box-shadow: 0 18px 55px rgba(0,0,0,.70);
+  }
+  .tile{
+    padding: 18px 16px;
+  }
+  .tile .tTitle{
+    font-size: 14px;
+    letter-spacing: .25px;
+  }
+  .tile .tSub{
+    font-size: 12px;
+    color: rgba(232,236,246,.68);
+  }
+  .tile .tIcon{
+    background: rgba(255,255,255,.09);
+    border-color: rgba(255,255,255,.16);
+  }
+  .tile::after{ opacity:.75; }
+  .sectionHeader{
+    background: rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.12);
+  }
+  .panel{
+    background: rgba(255,255,255,.035);
+    border-color: rgba(255,255,255,.12);
+  }
 }
 </style>
 </head>
@@ -567,7 +606,6 @@ input,select,textarea{
       </div>
     </div>
 
-    <!-- ✅ MAESTROS -->
     <div id="maestros" class="screen">
       <div class="sectionHeader">
         <div>
@@ -801,11 +839,9 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 }
 
 function refreshSelects(){
-  // Ventas
   fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
   fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
 
-  // Gastos
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
@@ -813,14 +849,11 @@ function refreshSelects(){
   cargarSubDeGasto();
   toggleMetodoGasto();
 
-  // Traspasos
   fillSelectOptions(document.getElementById("tDesde"), master.metodos, false);
   fillSelectOptions(document.getElementById("tHacia"), master.metodos, false);
 
-  // Mov hist
   fillSelectOptions(document.getElementById("mhMetodo"), master.metodos, true, "Todos");
 
-  // Maestros
   fillSelectOptions(document.getElementById("mCatSelect"), Object.keys(master.categorias), false);
 }
 
@@ -837,9 +870,7 @@ function toggleMetodoGasto(){
   selMetodo.style.opacity = disabled ? "0.55" : "1";
 }
 
-/* =======================
-   MODAL
-======================= */
+/* Modal */
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
@@ -868,9 +899,7 @@ function modalGuardar(){
   cerrarModal();
 }
 
-/* =======================
-   GUARDAR MOVS
-======================= */
+/* Guardar */
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
@@ -973,9 +1002,7 @@ function confirmarYGuardarTraspaso(){
   ], "Guardar");
 }
 
-/* =======================
-   DESHACER
-======================= */
+/* Deshacer */
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -989,9 +1016,7 @@ function deshacerUltimo(){
   renderMovHist();
 }
 
-/* =======================
-   PENDIENTES (MAP)
-======================= */
+/* Pendientes */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -1051,9 +1076,7 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* =======================
-   HISTORIAL VENTAS
-======================= */
+/* Historial ventas */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
@@ -1087,9 +1110,7 @@ function renderVentasHist(){
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
-/* =======================
-   HISTORIAL MOVIMIENTOS
-======================= */
+/* Historial movimientos */
 function renderMovHist(){
   const mes = document.getElementById("mhMes").value;
   const tipo = document.getElementById("mhTipo").value || "ALL";
@@ -1148,11 +1169,8 @@ function renderMovHist(){
   document.getElementById("tablaMovHist").innerHTML = html;
 }
 
-/* =======================
-   MAESTROS UI
-======================= */
+/* Maestros */
 function renderMaestros(resetScroll){
-  // select de categoría
   const cats = Object.keys(master.categorias);
   if(cats.length===0){
     master.categorias = {"Otros":["Varios"]};
@@ -1190,7 +1208,6 @@ function agregarMetodo(){
   inp.value="";
   saveAll();
   refreshSelects();
-  // asegurar real saldos incluye el nuevo
   const real = getRealSaldos();
   if(real[val]===undefined) real[val]=0;
   setRealSaldos(real);
@@ -1203,7 +1220,6 @@ function agregarMetodo(){
 function eliminarMetodo(idx){
   const m = master.metodos[idx];
   if(!m) return;
-  // no eliminar si está usado
   const usado = movimientos.some(x=>
     (x.tipo==="VENTA" && x.metodo===m) ||
     (x.tipo==="GASTO" && x.estado==="PAGADO" && x.metodo===m) ||
@@ -1276,7 +1292,6 @@ function eliminarSub(cat, idx){
   if(!master.categorias[cat]) return;
   const sub = master.categorias[cat][idx];
   if(!sub) return;
-  // no eliminar si está usada
   const usado = movimientos.some(x=> x.tipo==="GASTO" && x.categoria===cat && x.subcategoria===sub);
   if(usado) return toast("No se puede: usada en gastos");
   if(!confirm(`¿Eliminar "${sub}" de ${cat}?`)) return;
@@ -1293,7 +1308,6 @@ function resetMaestrosDemo(){
   master = structuredClone(DEFAULT_MASTER);
   saveAll();
   refreshSelects();
-  // reset real saldos
   const real = {};
   master.metodos.forEach(m=> real[m]=0);
   setRealSaldos(real);
@@ -1472,9 +1486,7 @@ function editarUltimo(){
   go("movHist");
 }
 
-/* =======================
-   EXPORT / IMPORT
-======================= */
+/* EXPORT / IMPORT */
 function exportarDatos(){
   const data = { master, movimientos, realSaldos: getRealSaldos() };
   const texto = JSON.stringify(data, null, 2);
@@ -1544,9 +1556,7 @@ function confirmarImportacion(){
   renderMovHist();
 }
 
-/* =======================
-   INIT
-======================= */
+/* INIT */
 function iniciar(){
   loadAll();
 
@@ -1567,7 +1577,6 @@ function iniciar(){
   wireMoneyInput(document.getElementById("gMonto"));
   wireMoneyInput(document.getElementById("tMonto"));
 
-  // real saldos: asegurar keys
   const real = getRealSaldos();
   master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
   setRealSaldos(real);
