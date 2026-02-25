@@ -1,693 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Stella Maris · Gestión</title>
-
-<style>
-:root{
-  --bg:#0f1115;
-  --stroke:rgba(255,255,255,.10);
-  --text:#e8ecf6;
-  --muted:rgba(232,236,246,.62);
-  --good:#44d07b;
-  --bad:#ff5b6b;
-  --brand:#7aa2ff;
-  --shadow: 0 14px 40px rgba(0,0,0,.55);
-  --radius2:22px;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background: radial-gradient(1000px 600px at 20% -10%, rgba(122,162,255,.20), transparent 60%),
-              radial-gradient(900px 550px at 100% 0%, rgba(68,208,123,.09), transparent 55%),
-              radial-gradient(900px 600px at 30% 110%, rgba(255,91,107,.09), transparent 55%),
-              var(--bg);
-  color:var(--text);
-  overflow:hidden;
-  overscroll-behavior: none;
-}
-.sectionBody, .homeGrid{
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-}
-input,select,textarea{font-size:16px;-webkit-appearance:none;appearance:none}
-
-.app{height:100%;display:flex;flex-direction:column;}
-.topbar{
-  padding: 14px 14px 10px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  flex:0 0 auto;
-}
-.brand{display:flex;align-items:center;gap:10px;}
-.logoDot{
-  width:12px;height:12px;border-radius:50%;
-  background: linear-gradient(180deg, var(--brand), rgba(122,162,255,.35));
-  box-shadow: 0 0 0 4px rgba(122,162,255,.12);
-}
-.titleWrap{line-height:1.1}
-.title{font-weight:900;letter-spacing:.3px;font-size:14px;}
-.subtitle{font-size:12px;color:var(--muted);margin-top:3px;}
-.topActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-
-.iconBtn{
-  border:1px solid var(--stroke);
-  background: rgba(255,255,255,.04);
-  color:var(--text);
-  border-radius:14px;
-  padding:10px 12px;
-  font-weight:900;
-  font-size:12px;
-  cursor:pointer;
-  user-select:none;
-}
-.iconBtn:active{transform:translateY(1px)}
-.iconBtn.primary{border-color: rgba(122,162,255,.25);background: rgba(122,162,255,.10);}
-.iconBtn.small{padding:8px 10px;font-size:12px;border-radius:12px;}
-
-.content{flex:1 1 auto;min-height:0;padding:0 14px 14px;overflow:hidden;}
-.screen{height:100%;display:none;overflow:hidden;}
-.screen.active{display:flex;flex-direction:column;}
-
-.card{
-  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-  border:1px solid var(--stroke);
-  border-radius: var(--radius2);
-  box-shadow: var(--shadow);
-}
-
-/* HOME tiles */
-.homeGrid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));
-  grid-auto-rows: 112px;
-  grid-auto-flow: dense;
-  gap:12px;
-  padding-top: 6px;
-  overflow:auto;
-  min-height:0;
-}
-.tile{
-  padding: 16px 14px;
-  cursor:pointer;
-  user-select:none;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  transition: transform .10s ease;
-}
-.tile:active{transform:translateY(1px)}
-.tile .tTitle{font-weight:1000;letter-spacing:.2px;font-size:13px;}
-.tile .tSub{margin-top:8px;color:var(--muted);font-size:12px;line-height:1.25;}
-.tile .tIcon{
-  position:absolute;top:14px;right:14px;
-  width:30px;height:30px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  background: rgba(255,255,255,.06);
-  border: 1px solid var(--stroke);
-  font-size:16px;
-}
-.tile::after{
-  content:"";position:absolute;inset:auto -40px -60px auto;
-  width:180px;height:180px;border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, rgba(122,162,255,.25), transparent 60%);
-  opacity:.9;
-}
-.tile.green::after{ background: radial-gradient(circle at 30% 30%, rgba(68,208,123,.18), transparent 60%); }
-.tile.red::after{ background: radial-gradient(circle at 30% 30%, rgba(255,91,107,.18), transparent 60%); }
-.tile.purple::after{ background: radial-gradient(circle at 30% 30%, rgba(160,120,255,.18), transparent 60%); }
-
-.tile.size-s{ grid-column: span 1; grid-row: span 1; }
-.tile.size-w{ grid-column: span 2; grid-row: span 1; }
-.tile.size-l{ grid-column: span 2; grid-row: span 2; }
-.tile.size-l .tTitle{font-size:16px;}
-.tile.size-l .tSub{font-size:13px; max-width: 90%;}
-.tile.size-l .tIcon{width:38px;height:38px;font-size:18px;border-radius:14px;}
-.tile.size-w .tTitle{font-size:14px;}
-.tile.size-w .tIcon{width:34px;height:34px;font-size:17px;border-radius:14px;}
-
-.sectionHeader{
-  margin: 10px 0 10px;
-  padding: 12px 14px;
-  border:1px solid var(--stroke);
-  border-radius: var(--radius2);
-  background: rgba(255,255,255,.03);
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-}
-.sectionHeader h2{margin:0;font-size:12px;letter-spacing:.2px;font-weight:1000;}
-.sectionHeader .hint{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.25;}
-
-.sectionBody{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:8px;}
-
-.panel{
-  padding: 14px;
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius2);
-  background: rgba(255,255,255,.03);
-  margin-bottom: 12px;
-}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media (max-width:720px){ .row2{grid-template-columns:1fr} }
-
-label{display:block;font-size:12px;color:var(--muted);margin:6px 0 6px}
-input,select,textarea{
-  width:100%;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: rgba(0,0,0,.24);
-  color: var(--text);
-  outline:none;
-}
-.money{font-weight:1100; letter-spacing:.2px;}
-
-.btn{
-  border:1px solid var(--stroke);
-  background: rgba(255,255,255,.05);
-  color: var(--text);
-  border-radius: 14px;
-  padding: 11px 12px;
-  font-weight:1000;
-  font-size:13px;
-  cursor:pointer;
-}
-.btn:active{transform:translateY(1px)}
-.btn.primary{border-color: rgba(122,162,255,.25);background: rgba(122,162,255,.12);}
-.btn.danger{border-color: rgba(255,91,107,.25);background: rgba(255,91,107,.10);}
-
-.statGrid{display:grid;grid-template-columns:repeat(auto-fit, minmax(170px,1fr));gap:10px;}
-.stat{border:1px solid var(--stroke);background: rgba(255,255,255,.04);border-radius: 16px;padding: 12px;}
-.stat .k{font-size:12px; color:var(--muted)}
-.stat .v{margin-top:6px; font-size:16px; font-weight:1100; letter-spacing:.2px}
-.goodTxt{color:#44d07b; font-weight:1100}
-.badTxt{color:#ff5b6b; font-weight:1100}
-.muted{color:var(--muted)}
-.hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
-
-.table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  overflow:hidden;
-  border-radius: 16px;
-  border: 1px solid var(--stroke);
-}
-.table th{
-  position:sticky; top:0; z-index:1;
-  text-align:left;
-  padding:10px 10px;
-  background: rgba(255,255,255,.06);
-  border-bottom: 1px solid var(--stroke);
-  font-size:12px;
-  color: var(--muted);
-  letter-spacing:.2px;
-}
-.table td{padding:10px 10px;border-bottom: 1px solid rgba(255,255,255,.07);}
-.table tr:last-child td{border-bottom:none}
-.rowAnulada{opacity:.55}
-
-/* Modal */
-.modalBack{
-  position:fixed;inset:0;
-  background: rgba(0,0,0,.74);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display:none;z-index:300;padding:18px;
-}
-.modal{
-  background: linear-gradient(180deg, rgba(18,20,26,.96), rgba(14,16,20,.96));
-  border:1px solid rgba(255,255,255,.16);
-  border-radius: 20px;
-  max-width: 820px;margin: 0 auto;overflow:hidden;
-  box-shadow: 0 18px 55px rgba(0,0,0,.80);
-}
-.modalHead{
-  padding: 12px 14px;
-  display:flex;justify-content:space-between;align-items:center;
-  border-bottom:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-}
-.modalHead b{font-size:13px; letter-spacing:.2px}
-.modalBody{padding:14px}
-.modalFoot{
-  padding: 12px 14px;display:flex;justify-content:flex-end;gap:10px;
-  border-top:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.05);
-}
-
-/* Toast */
-.toast{
-  position:fixed;left:50%;transform:translateX(-50%);
-  bottom:18px;background: rgba(10,12,16,.96);
-  color:#fff;padding: 10px 12px;border-radius: 14px;
-  font-size:13px;border: 1px solid var(--stroke);
-  display:none;z-index:200;max-width: 92vw;
-}
-
-/* Real editable: A + B */
-.tableWrap{
-  width:100%;
-  overflow-x:auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 16px;
-}
-.tableWrap .table{ min-width: 720px; }
-
-.table td:nth-child(3), .table th:nth-child(3){
-  width: 210px; min-width:210px; white-space: nowrap;
-}
-.realSaldoInput{
-  width: 210px; min-width:210px; max-width:210px;
-  text-align:right; font-size:15px; font-weight:1100; letter-spacing:.2px;
-  font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  padding: 10px 10px;
-}
-@media (max-width:420px){
-  .tableWrap .table{ min-width: 760px; }
-  .table td:nth-child(3), .table th:nth-child(3){ width:220px; min-width:220px; }
-  .realSaldoInput{ width:220px; min-width:220px; max-width:220px; font-size:14px; }
-}
-
-/* =========================================
-   ✅ ELEGANTE SOLO CELU (no afecta PC)
-   - Más contraste sutil
-   - Cards más “presentes”
-   - Tipos más claros
-   ========================================= */
-@media (max-width:520px){
-  .homeGrid{ gap:14px; }
-  .card{
-    background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
-    border-color: rgba(255,255,255,.14);
-    box-shadow: 0 18px 55px rgba(0,0,0,.70);
-  }
-  .tile{
-    padding: 18px 16px;
-  }
-  .tile .tTitle{
-    font-size: 14px;
-    letter-spacing: .25px;
-  }
-  .tile .tSub{
-    font-size: 12px;
-    color: rgba(232,236,246,.68);
-  }
-  .tile .tIcon{
-    background: rgba(255,255,255,.09);
-    border-color: rgba(255,255,255,.16);
-  }
-  .tile::after{ opacity:.75; }
-  .sectionHeader{
-    background: rgba(255,255,255,.04);
-    border-color: rgba(255,255,255,.12);
-  }
-  .panel{
-    background: rgba(255,255,255,.035);
-    border-color: rgba(255,255,255,.12);
-  }
-}
-</style>
-</head>
-
-<body>
-<div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logoDot"></div>
-      <div class="titleWrap">
-        <div class="title">Stella Maris · Gestión</div>
-        <div class="subtitle" id="crumb">Home</div>
-      </div>
-    </div>
-
-    <div class="topActions">
-      <button class="iconBtn" onclick="goHome()">Home</button>
-      <button class="iconBtn primary" onclick="deshacerUltimo()">Deshacer</button>
-      <button class="iconBtn" onclick="exportarDatos()">Exportar</button>
-      <button class="iconBtn" onclick="importarDatos()">Importar</button>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <div id="home" class="screen active">
-      <div class="homeGrid" id="homeGrid"></div>
-    </div>
-
-    <div id="dashboard" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Dashboard</h2>
-          <div class="hint">Totales del mes + saldos por método (Calculado vs Real editable).</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end">
-          <div style="min-width:170px">
-            <label>Mes</label>
-            <input type="month" id="dashMes" onchange="renderDashboard()">
-          </div>
-          <button class="iconBtn small" onclick="copiarResumenWhatsApp()">WhatsApp</button>
-        </div>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="statGrid">
-            <div class="stat"><div class="k">Ventas mes</div><div class="v goodTxt" id="dVentas">$ 0</div></div>
-            <div class="stat"><div class="k">Gastos pagados mes</div><div class="v badTxt" id="dGastos">$ 0</div></div>
-            <div class="stat"><div class="k">Resultado mes</div><div class="v" id="dResultado">$ 0</div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
-            <div>
-              <div style="font-weight:1100; font-size:13px">Saldos por método</div>
-              <div class="muted" style="font-size:12px;margin-top:6px">
-                Calculado = ventas - gastos pagados + traspasos. Real = lo que tenés (editable, fijo por método).
-              </div>
-            </div>
-            <button class="iconBtn small" onclick="setRealToCalc()">Real = Calculado</button>
-          </div>
-
-          <div class="tableWrap" style="margin-top:10px" id="tablaMetodos"></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="ventasCarga" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Cargar Ventas</h2>
-          <div class="hint">Venta directa (tarjeta entra normal).</div>
-        </div>
-        <button class="btn" onclick="editarUltimo()">Editar lo último</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <label>Fecha</label>
-          <input type="date" id="vFecha">
-
-          <label>Método</label>
-          <select id="vMetodo"></select>
-
-          <label>Monto</label>
-          <input class="money" type="text" id="vMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
-
-          <label>Nota (opcional)</label>
-          <input type="text" id="vNota" placeholder="Ej: cierre, mostrador...">
-
-          <div class="row2" style="margin-top:8px">
-            <button class="btn primary" id="btnGuardarVenta" onclick="confirmarYGuardarVenta()">Guardar Venta</button>
-            <button class="btn" onclick="goHome()">Volver</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="ventasHist" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Historial de Ventas</h2>
-          <div class="hint">Filtros por mes y método.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <label>Mes</label>
-              <input type="month" id="vhMes" onchange="renderVentasHist()">
-            </div>
-            <div>
-              <label>Método</label>
-              <select id="vhMetodo" onchange="renderVentasHist()"></select>
-            </div>
-          </div>
-
-          <label>Buscar (nota)</label>
-          <input type="text" id="vhBuscar" placeholder="Ej: cierre..." oninput="renderVentasHist()">
-
-          <div class="hr"></div>
-          <div class="statGrid">
-            <div class="stat"><div class="k">Total filtrado</div><div class="v goodTxt" id="vhTotal">$ 0</div></div>
-          </div>
-        </div>
-
-        <div class="panel" id="tablaVentasHist"></div>
-      </div>
-    </div>
-
-    <div id="gastosCarga" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Cargar Gastos</h2>
-          <div class="hint">Confirmás antes de guardar.</div>
-        </div>
-        <button class="btn" onclick="editarUltimo()">Editar lo último</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <label>Fecha</label>
-          <input type="date" id="gFecha">
-
-          <label>Categoría</label>
-          <select id="gCat"></select>
-
-          <label>Subcategoría</label>
-          <select id="gSub"></select>
-
-          <label>Monto</label>
-          <input class="money" type="text" id="gMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
-
-          <div class="row2">
-            <div>
-              <label>Estado</label>
-              <select id="gEstado" onchange="toggleMetodoGasto()">
-                <option value="PENDIENTE">Pendiente</option>
-                <option value="PAGADO">Pagado</option>
-              </select>
-            </div>
-            <div>
-              <label>Método (si Pagado)</label>
-              <select id="gMetodo"></select>
-            </div>
-          </div>
-
-          <label>Nota (opcional)</label>
-          <input type="text" id="gNota" placeholder="Ej: flete, hielo...">
-
-          <div class="row2" style="margin-top:8px">
-            <button class="btn danger" id="btnGuardarGasto" onclick="confirmarYGuardarGasto()">Guardar Gasto</button>
-            <button class="btn" onclick="goHome()">Volver</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="traspaso" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Traspaso entre cuentas</h2>
-          <div class="hint">Mueve plata de un método a otro (no es venta ni gasto).</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <label>Fecha</label>
-          <input type="date" id="tFecha">
-
-          <div class="row2">
-            <div>
-              <label>Desde</label>
-              <select id="tDesde"></select>
-            </div>
-            <div>
-              <label>Hacia</label>
-              <select id="tHacia"></select>
-            </div>
-          </div>
-
-          <label>Monto</label>
-          <input class="money" type="text" id="tMonto" inputmode="numeric" pattern="[0-9]*" placeholder="$ 0">
-
-          <label>Nota (opcional)</label>
-          <input type="text" id="tNota" placeholder="Ej: retiro / transferencia...">
-
-          <div class="row2" style="margin-top:8px">
-            <button class="btn primary" onclick="confirmarYGuardarTraspaso()">Guardar traspaso</button>
-            <button class="btn" onclick="goHome()">Volver</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="movHist" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Historial de Movimientos</h2>
-          <div class="hint">Ventas + Gastos + Traspasos en una lista con filtros.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <label>Mes</label>
-              <input type="month" id="mhMes" onchange="renderMovHist()">
-            </div>
-            <div>
-              <label>Tipo</label>
-              <select id="mhTipo" onchange="renderMovHist()">
-                <option value="ALL">Todos</option>
-                <option value="VENTA">Ventas</option>
-                <option value="GASTO">Gastos</option>
-                <option value="TRASPASO">Traspasos</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row2">
-            <div>
-              <label>Método</label>
-              <select id="mhMetodo" onchange="renderMovHist()"></select>
-            </div>
-            <div>
-              <label>Buscar</label>
-              <input type="text" id="mhBuscar" placeholder="nota, proveedor, impuesto..." oninput="renderMovHist()">
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" id="tablaMovHist"></div>
-      </div>
-    </div>
-
-    <div id="pendientes" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Pendientes</h2>
-          <div class="hint">Saldo final por categoría/subcategoría. Puede ser negativo y NO desaparece en cero.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div class="row2">
-            <div>
-              <label>Categoría</label>
-              <select id="pCat" onchange="renderPendientes()"></select>
-            </div>
-            <div>
-              <label>Buscar</label>
-              <input type="text" id="pBuscar" placeholder="Juan / ARBA..." oninput="renderPendientes()">
-            </div>
-          </div>
-        </div>
-        <div class="panel" id="tablaPendientes"></div>
-      </div>
-    </div>
-
-    <div id="maestros" class="screen">
-      <div class="sectionHeader">
-        <div>
-          <h2>Maestros</h2>
-          <div class="hint">Cargás una vez. Después se usa en Gastos/Ventas/Traspaso.</div>
-        </div>
-        <button class="btn" onclick="goHome()">Volver</button>
-      </div>
-
-      <div class="sectionBody">
-        <div class="panel">
-          <div style="font-weight:1100;font-size:13px">Métodos</div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Ej: Efectivo, Mercado Pago, Credicoop...</div>
-
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Nuevo método</label>
-              <input id="mNuevoMetodo" placeholder="Ej: Ualá">
-            </div>
-            <div style="display:flex;align-items:flex-end;gap:10px">
-              <button class="btn primary" style="width:100%" onclick="agregarMetodo()">Agregar</button>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-          <div id="listaMetodos"></div>
-        </div>
-
-        <div class="panel">
-          <div style="font-weight:1100;font-size:13px">Categorías y subcategorías</div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Ej: Proveedores → Juan, Pedro</div>
-
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Nueva categoría</label>
-              <input id="mNuevaCat" placeholder="Ej: Servicios">
-            </div>
-            <div style="display:flex;align-items:flex-end;gap:10px">
-              <button class="btn primary" style="width:100%" onclick="agregarCategoria()">Agregar</button>
-            </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Categoría</label>
-              <select id="mCatSelect" onchange="renderSubsCat()"></select>
-            </div>
-            <div>
-              <label>Nueva subcategoría</label>
-              <input id="mNuevaSub" placeholder="Ej: Edenor / Juan">
-            </div>
-          </div>
-
-          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn primary" onclick="agregarSub()">Agregar subcategoría</button>
-            <button class="btn" onclick="resetMaestrosDemo()">Reset demo</button>
-          </div>
-
-          <div class="hr"></div>
-          <div id="listaSubs"></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div id="modalBack" class="modalBack" onclick="modalClickOutside(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modalHead">
-      <b id="modalTitle">Confirmar</b>
-      <button class="iconBtn" onclick="cerrarModal()">Cerrar</button>
-    </div>
-    <div class="modalBody" id="modalBody"></div>
-    <div class="modalFoot" id="modalFoot">
-      <button class="btn" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn primary" onclick="modalGuardar()">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast">OK</div>
 <script>
 const STORAGE_ALL  = "SM_APP_ALL_V7";
 const STORAGE_REAL = "SM_APP_REAL_SALDOS_V3";
@@ -726,6 +36,8 @@ const crumbs = {
   movHist:"Movimientos", pendientes:"Pendientes",
   maestros:"Maestros"
 };
+
+const CHEQUE_METHOD = "Cheque"; // ✅ Cheque = pago emitido (NO saldo disponible)
 
 function hoy(){ return new Date().toISOString().split("T")[0]; }
 function thisMonth(){ return new Date().toISOString().slice(0,7); }
@@ -789,12 +101,25 @@ function loadAll(){
   saveAll();
 }
 
+// ✅ Métodos que SÍ cuentan como saldo disponible en Dashboard
+function metodosBalance(){
+  return (master.metodos||[]).filter(m => m !== CHEQUE_METHOD);
+}
+// ✅ Métodos válidos para cobrar ventas (Cheque no)
+function metodosVentas(){
+  return (master.metodos||[]).filter(m => m !== CHEQUE_METHOD);
+}
+// ✅ Métodos válidos para traspasos (Cheque no)
+function metodosTraspaso(){
+  return (master.metodos||[]).filter(m => m !== CHEQUE_METHOD);
+}
+
 function getRealSaldos(){
   const raw = localStorage.getItem(STORAGE_REAL);
   let obj = {};
   if(raw){ try{ obj = JSON.parse(raw)||{}; }catch{ obj={}; } }
   const out = {};
-  master.metodos.forEach(m=> out[m] = round0(obj[m] ?? 0));
+  metodosBalance().forEach(m=> out[m] = round0(obj[m] ?? 0));
   return out;
 }
 function setRealSaldos(obj){
@@ -839,9 +164,11 @@ function fillSelectOptions(sel, items, includeAll=false, allLabel="Todos"){
 }
 
 function refreshSelects(){
-  fillSelectOptions(document.getElementById("vMetodo"), master.metodos, false);
-  fillSelectOptions(document.getElementById("vhMetodo"), master.metodos, true, "Todos");
+  // ✅ Ventas (sin Cheque)
+  fillSelectOptions(document.getElementById("vMetodo"), metodosVentas(), false);
+  fillSelectOptions(document.getElementById("vhMetodo"), metodosVentas(), true, "Todos");
 
+  // ✅ Gastos (Cheque permitido porque es pago emitido)
   fillSelectOptions(document.getElementById("gMetodo"), master.metodos, false);
   const cats = Object.keys(master.categorias);
   fillSelectOptions(document.getElementById("gCat"), cats, false);
@@ -849,11 +176,14 @@ function refreshSelects(){
   cargarSubDeGasto();
   toggleMetodoGasto();
 
-  fillSelectOptions(document.getElementById("tDesde"), master.metodos, false);
-  fillSelectOptions(document.getElementById("tHacia"), master.metodos, false);
+  // ✅ Traspaso (sin Cheque)
+  fillSelectOptions(document.getElementById("tDesde"), metodosTraspaso(), false);
+  fillSelectOptions(document.getElementById("tHacia"), metodosTraspaso(), false);
 
+  // ✅ Movimientos (filtro método: incluye Cheque para poder filtrar pagos con cheque)
   fillSelectOptions(document.getElementById("mhMetodo"), master.metodos, true, "Todos");
 
+  // Maestros
   fillSelectOptions(document.getElementById("mCatSelect"), Object.keys(master.categorias), false);
 }
 
@@ -870,7 +200,9 @@ function toggleMetodoGasto(){
   selMetodo.style.opacity = disabled ? "0.55" : "1";
 }
 
-/* Modal */
+/* =======================
+   MODAL
+======================= */
 function abrirModal(title, bodyHtml, confirmLabel="Guardar"){
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = bodyHtml;
@@ -898,8 +230,9 @@ function modalGuardar(){
   }
   cerrarModal();
 }
-
-/* Guardar */
+/* =======================
+   GUARDAR MOVS
+======================= */
 function confirmarYGuardarVenta(){
   const fecha = (document.getElementById("vFecha").value || hoy());
   const metodo = document.getElementById("vMetodo").value;
@@ -1002,7 +335,6 @@ function confirmarYGuardarTraspaso(){
   ], "Guardar");
 }
 
-/* Deshacer */
 function deshacerUltimo(){
   const last = movimientos[movimientos.length-1];
   if(!last) return toast("No hay nada para deshacer");
@@ -1016,7 +348,9 @@ function deshacerUltimo(){
   renderMovHist();
 }
 
-/* Pendientes */
+/* =======================
+   PENDIENTES
+======================= */
 function computePendientesMap(){
   const cats = Object.keys(master.categorias);
   const map = {};
@@ -1076,7 +410,9 @@ function renderPendientes(resetScroll){
   }
 }
 
-/* Historial ventas */
+/* =======================
+   HISTORIAL VENTAS
+======================= */
 function renderVentasHist(){
   const mes = document.getElementById("vhMes").value;
   const metodo = document.getElementById("vhMetodo").value || "ALL";
@@ -1110,7 +446,9 @@ function renderVentasHist(){
   document.getElementById("tablaVentasHist").innerHTML = html;
 }
 
-/* Historial movimientos */
+/* =======================
+   HISTORIAL MOVIMIENTOS
+======================= */
 function renderMovHist(){
   const mes = document.getElementById("mhMes").value;
   const tipo = document.getElementById("mhTipo").value || "ALL";
@@ -1169,7 +507,9 @@ function renderMovHist(){
   document.getElementById("tablaMovHist").innerHTML = html;
 }
 
-/* Maestros */
+/* =======================
+   MAESTROS
+======================= */
 function renderMaestros(resetScroll){
   const cats = Object.keys(master.categorias);
   if(cats.length===0){
@@ -1208,9 +548,13 @@ function agregarMetodo(){
   inp.value="";
   saveAll();
   refreshSelects();
-  const real = getRealSaldos();
-  if(real[val]===undefined) real[val]=0;
-  setRealSaldos(real);
+
+  // ✅ solo si es método balanceable lo agrego a real saldos
+  if(val !== CHEQUE_METHOD){
+    const real = getRealSaldos();
+    if(real[val]===undefined) real[val]=0;
+    setRealSaldos(real);
+  }
 
   toast("Método agregado ✅");
   renderMaestros(false);
@@ -1309,7 +653,7 @@ function resetMaestrosDemo(){
   saveAll();
   refreshSelects();
   const real = {};
-  master.metodos.forEach(m=> real[m]=0);
+  metodosBalance().forEach(m=> real[m]=0);
   setRealSaldos(real);
   toast("Reseteado ✅");
   renderMaestros(true);
@@ -1323,35 +667,87 @@ function escapeHtml(s){
     "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
   }[m]));
 }
+/* =======================
+   DASHBOARD (Cheque separado)
+======================= */
+
+// ✅ Saldos calculados SOLO de métodos balanceables (sin Cheque)
 function calcBalances(){
   const calc = {};
-  master.metodos.forEach(m => calc[m]=0);
+  metodosBalance().forEach(m => calc[m]=0);
 
   activos().forEach(m=>{
     if(m.tipo==="VENTA"){
+      // ventas: cheque ya no debería existir acá, pero igual lo ignoro por seguridad
+      if(m.metodo === CHEQUE_METHOD) return;
+      if(calc[m.metodo]===undefined) return;
       calc[m.metodo] = (calc[m.metodo]||0) + m.monto;
     }
     if(m.tipo==="GASTO" && m.estado==="PAGADO"){
       const met = m.metodo || "";
-      if(!met) return;
+      // ✅ pagos con cheque NO afectan saldos disponibles
+      if(met === CHEQUE_METHOD) return;
+      if(calc[met]===undefined) return;
       calc[met] = (calc[met]||0) - m.monto;
     }
     if(m.tipo==="TRASPASO"){
-      if(m.desde) calc[m.desde] = (calc[m.desde]||0) - m.monto;
-      if(m.hacia) calc[m.hacia] = (calc[m.hacia]||0) + m.monto;
+      // cheque no debería estar en traspaso, igual lo ignoro
+      if(m.desde && m.desde!==CHEQUE_METHOD && calc[m.desde]!==undefined) calc[m.desde] = (calc[m.desde]||0) - m.monto;
+      if(m.hacia && m.hacia!==CHEQUE_METHOD && calc[m.hacia]!==undefined) calc[m.hacia] = (calc[m.hacia]||0) + m.monto;
     }
   });
 
   return calc;
 }
 
+// ✅ Cheques entregados: cantidad + total (según mes del dashboard)
+function calcChequesEntregados(mes){
+  let count = 0;
+  let total = 0;
+
+  activos().forEach(m=>{
+    if(m.tipo!=="GASTO") return;
+    if(m.estado!=="PAGADO") return;
+    if((m.metodo||"") !== CHEQUE_METHOD) return;
+    if(mes && !(m.fecha||"").startsWith(mes)) return;
+
+    count += 1;
+    total += m.monto;
+  });
+
+  return { count, total: round0(total) };
+}
+
 function setRealToCalc(){
   const calc = calcBalances();
   const real = {};
-  master.metodos.forEach(m=> real[m] = round0(calc[m]||0));
+  metodosBalance().forEach(m=> real[m] = round0(calc[m]||0));
   setRealSaldos(real);
   toast("Real = Calculado ✅");
   renderDashboard();
+}
+
+function ensureChequeStatsUI(){
+  const panel = document.querySelector("#dashboard .sectionBody .panel");
+  if(!panel) return;
+
+  // ya existe?
+  if(document.getElementById("dChequesCount")) return;
+
+  // inserto stats cheques debajo del grid principal (dentro del primer panel)
+  const statGrid = panel.querySelector(".statGrid");
+  if(!statGrid) return;
+
+  const c1 = document.createElement("div");
+  c1.className = "stat";
+  c1.innerHTML = `<div class="k">Cheques entregados</div><div class="v badTxt" id="dChequesCount">0</div>`;
+
+  const c2 = document.createElement("div");
+  c2.className = "stat";
+  c2.innerHTML = `<div class="k">Total cheques</div><div class="v badTxt" id="dChequesTotal">$ 0</div>`;
+
+  statGrid.appendChild(c1);
+  statGrid.appendChild(c2);
 }
 
 function renderDashboard(){
@@ -1362,7 +758,7 @@ function renderDashboard(){
     const esMes = (!mes || (m.fecha||"").startsWith(mes));
     if(!esMes) return;
     if(m.tipo==="VENTA") ventasMes += m.monto;
-    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto;
+    if(m.tipo==="GASTO" && m.estado==="PAGADO") gastosPagMes += m.monto; // acá incluye cheques, ok (igual es gasto pagado)
   });
 
   document.getElementById("dVentas").textContent = formatARS(ventasMes);
@@ -1372,6 +768,12 @@ function renderDashboard(){
   const resEl = document.getElementById("dResultado");
   resEl.textContent = formatARS(res);
   resEl.className = "v " + (res>=0 ? "goodTxt" : "badTxt");
+
+  // ✅ Cheques entregados (mes dashboard)
+  ensureChequeStatsUI();
+  const che = calcChequesEntregados(mes);
+  document.getElementById("dChequesCount").textContent = String(che.count);
+  document.getElementById("dChequesTotal").textContent = formatARS(che.total);
 
   const calc = calcBalances();
   const real = getRealSaldos();
@@ -1387,7 +789,7 @@ function renderDashboard(){
 
   let sumCalc=0, sumReal=0;
 
-  master.metodos.forEach(m=>{
+  metodosBalance().forEach(m=>{
     const c = round0(calc[m]||0);
     const r = round0(real[m]||0);
     const dif = r - c;
@@ -1461,11 +863,13 @@ async function copiarResumenWhatsApp(){
   });
 
   const res = ventasMes - gastosPagMes;
+  const che = calcChequesEntregados(mes);
 
   const txt =
 `📌 *Stella Maris · ${mes}*
 💰 Ventas: ${formatARS(ventasMes)}
 💸 Gastos pagados: ${formatARS(gastosPagMes)}
+🧾 Cheques entregados: ${che.count} (${formatARS(che.total)})
 ✅ Resultado: ${formatARS(res)}`;
 
   try{
@@ -1474,7 +878,7 @@ async function copiarResumenWhatsApp(){
   }catch{
     abrirModal("Resumen WhatsApp", `
       <div class="panel" style="margin:0">
-        <textarea style="min-height:140px">${txt}</textarea>
+        <textarea style="min-height:160px">${txt}</textarea>
       </div>
     `, "Cerrar");
     document.getElementById("modalFoot").innerHTML = `<button class="btn primary" onclick="cerrarModal()">Cerrar</button>`;
@@ -1486,7 +890,9 @@ function editarUltimo(){
   go("movHist");
 }
 
-/* EXPORT / IMPORT */
+/* =======================
+   EXPORT / IMPORT
+======================= */
 function exportarDatos(){
   const data = { master, movimientos, realSaldos: getRealSaldos() };
   const texto = JSON.stringify(data, null, 2);
@@ -1541,7 +947,7 @@ function confirmarImportacion(){
     setRealSaldos(data.realSaldos);
   }else{
     const real = getRealSaldos();
-    master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
+    metodosBalance().forEach(m=>{ if(real[m]===undefined) real[m]=0; });
     setRealSaldos(real);
   }
 
@@ -1556,7 +962,9 @@ function confirmarImportacion(){
   renderMovHist();
 }
 
-/* INIT */
+/* =======================
+   INIT
+======================= */
 function iniciar(){
   loadAll();
 
@@ -1577,8 +985,9 @@ function iniciar(){
   wireMoneyInput(document.getElementById("gMonto"));
   wireMoneyInput(document.getElementById("tMonto"));
 
+  // ✅ Asegurar real saldos SOLO para balanceables (sin Cheque)
   const real = getRealSaldos();
-  master.metodos.forEach(m=>{ if(real[m]===undefined) real[m]=0; });
+  metodosBalance().forEach(m=>{ if(real[m]===undefined) real[m]=0; });
   setRealSaldos(real);
 
   renderHome();
@@ -1589,6 +998,3 @@ function iniciar(){
 }
 iniciar();
 </script>
-
-</body>
-</html>
